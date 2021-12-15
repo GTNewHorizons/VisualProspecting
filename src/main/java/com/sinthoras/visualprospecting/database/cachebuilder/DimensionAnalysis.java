@@ -31,7 +31,7 @@ public class DimensionAnalysis {
 
         regionFiles.parallelStream().forEach(regionFile -> {
             try {
-                final String[] parts = regionFile.getName().split("\\.");
+                final String[] parts = regionFile.getName().split("\\.| ");
                 final int regionChunkX = Integer.parseInt(parts[1]) << 5;
                 final int regionChunkZ = Integer.parseInt(parts[2]) << 5;
                 final MinecraftRegion region = new MinecraftRegion(regionFile);
