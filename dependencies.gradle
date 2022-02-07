@@ -1,22 +1,16 @@
 dependencies {
-    shadowImplementation("com.github.SinTh0r4s:Enklume:master-SNAPSHOT")
+    shadowImplementation('com.github.GTNewHorizons:Enklume:master-SNAPSHOT')
 
+    compile('com.github.GTNewHorizons:GT5-Unofficial:5.09.40.32:dev')
+    compile('com.github.GTNewHorizons:TCNodeTracker:1.1.4:dev')
 
-    compile("com.github.GTNewHorizons:GT5-Unofficial:master-SNAPSHOT:dev")
-    compile("com.github.GTNewHorizons:TCNodeTracker:master-SNAPSHOT:dev")
+    compile('net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev')
+    compile('curse.maven:journeymap-32274:2367915')
+    compileOnly(deobf('https://media.forgecdn.net/files/3630/490/Xaeros_Minimap_21.10.20_Forge_1.7.10.jar'))
+    compileOnly(deobf('https://media.forgecdn.net/files/3599/504/XaerosWorldMap_1.14.1.13_Forge_1.7.10.jar'))
+    compileOnly files('dependencies/voxelmap_1.7.0b-deobf.jar')
 
-    compile("curse.maven:journeymap-32274:2367915")
-    compile files("dependencies/Xaeros_Minimap_21.10.14_Forge_1.7.10-deobf.jar")
-    compile files("dependencies/XaerosWorldMap_1.14.1.11_Forge_1.7.10-deobf.jar")
-    compileOnly files("dependencies/voxelmap_1.7.0b-deobf.jar")
-
-    compileOnly("com.github.GTNewHorizons:IFU:master-SNAPSHOT:dev") {
-        transitive = false
-    }
-    compileOnly("com.github.GTNewHorizons:GalacticGregGT5:master-SNAPSHOT:dev") {
-        transitive = false
-    }
-    compileOnly("com.github.GTNewHorizons:bartworks:master-SNAPSHOT:dev") {
-        transitive = false
-    }
+    compileOnly('com.github.GTNewHorizons:IFU:master-SNAPSHOT:dev') {transitive = false}
+    compileOnly('com.github.GTNewHorizons:GalacticGregGT5:1.0.7:dev') {transitive = false}
+    compileOnly('com.github.GTNewHorizons:bartworks:0.5.36:dev') {transitive = false}
 }
