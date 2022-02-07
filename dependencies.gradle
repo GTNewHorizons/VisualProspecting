@@ -8,7 +8,7 @@ dependencies {
     compile('curse.maven:journeymap-32274:2367915')
     compileOnly(deobf('https://media.forgecdn.net/files/3630/490/Xaeros_Minimap_21.10.20_Forge_1.7.10.jar'))
     compileOnly(deobf('https://media.forgecdn.net/files/3599/504/XaerosWorldMap_1.14.1.13_Forge_1.7.10.jar'))
-    compileOnly files('dependencies/voxelmap_1.7.0b-deobf.jar')
+    compileOnly(deobf('https://media.forgecdn.net/files/2462/146/mod_voxelMap_1.7.0b_for_1.7.10.litemod', 'mod_voxelMap_1.7.0b_for_1.7.10.jar'))
 
     compileOnly('com.github.GTNewHorizons:IFU:master-SNAPSHOT:dev') {transitive = false}
     compileOnly('com.github.GTNewHorizons:GalacticGregGT5:1.0.7:dev') {transitive = false}
