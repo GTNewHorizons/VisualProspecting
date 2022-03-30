@@ -8,6 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.gen.ChunkProviderServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,6 @@ public class DirtyChunkLayerManager extends LayerManager {
         final int maxZ = Utils.coordBlockToChunk(maxBlockZ);
         final EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
         final int playerDimensionId = player.dimension;
-        final int renderDistance = Minecraft.getMinecraft().gameSettings.renderDistanceChunks;
 
         ArrayList<DirtyChunkLocation> dirtyChunks = new ArrayList<>();
 
@@ -42,12 +43,11 @@ public class DirtyChunkLayerManager extends LayerManager {
         }
 
         World w = MinecraftServer.getServer().worldServerForDimension(playerDimensionId);
+        IChunkProvider chunkProvider = w.getChunkProvider();
 
         for (int chunkX = minX; chunkX <= maxX; chunkX++) {
             for (int chunkZ = minZ; chunkZ <= maxZ; chunkZ++) {
-                int dx = player.chunkCoordX - chunkX;
-                int dz = player.chunkCoordZ - chunkZ;
-                if (dx * dx + dz * dz > renderDistance * renderDistance) {
+                if (!chunkProvider.chunkExists(chunkX, chunkZ)) {
                     continue;
                 }
                 final boolean dirty = w.getChunkFromChunkCoords(chunkX, chunkZ).isModified;
