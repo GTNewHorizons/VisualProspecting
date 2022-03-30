@@ -1,5 +1,6 @@
 package com.sinthoras.visualprospecting.integration.model;
 
+import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.integration.model.buttons.*;
 import com.sinthoras.visualprospecting.integration.model.layers.*;
 import com.sinthoras.visualprospecting.integration.tcnodetracker.NTNodeTrackerWaypointManager;
@@ -28,5 +29,10 @@ public class MapState {
 
         buttons.add(OreVeinButtonManager.instance);
         layers.add(OreVeinLayerManager.instance);
+
+        if(Config.enableDeveloperOverlays) {
+            buttons.add(DirtyChunkButtonManager.instance);
+            layers.add(DirtyChunkLayerManager.instance);
+        }
     }
 }

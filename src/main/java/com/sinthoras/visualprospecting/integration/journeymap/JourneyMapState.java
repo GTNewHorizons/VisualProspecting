@@ -1,9 +1,7 @@
 package com.sinthoras.visualprospecting.integration.journeymap;
 
-import com.sinthoras.visualprospecting.integration.journeymap.buttons.LayerButton;
-import com.sinthoras.visualprospecting.integration.journeymap.buttons.OreVeinButton;
-import com.sinthoras.visualprospecting.integration.journeymap.buttons.ThaumcraftNodeButton;
-import com.sinthoras.visualprospecting.integration.journeymap.buttons.UndergroundFluidButton;
+import com.sinthoras.visualprospecting.Config;
+import com.sinthoras.visualprospecting.integration.journeymap.buttons.*;
 import com.sinthoras.visualprospecting.integration.journeymap.render.*;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.OreVeinWaypointManager;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.ThaumcraftNodeWaypointManager;
@@ -38,6 +36,11 @@ public class JourneyMapState {
         buttons.add(OreVeinButton.instance);
         renderers.add(OreVeinRenderer.instance);
         waypointManagers.add(OreVeinWaypointManager.instance);
+
+        if(Config.enableDeveloperOverlays) {
+            buttons.add(DirtyChunkButton.instance);
+            renderers.add(DirtyChunkRenderer.instance);
+        }
     }
 
     public void openJourneyMapAt(int blockX, int blockZ) {

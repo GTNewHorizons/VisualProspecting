@@ -19,6 +19,7 @@ public class Config {
         public static final int maxTransferCacheSizeMB = 50;
         public static final boolean enableVoxelMapWaypointsByDefault = false;
         public static final int maxDimensionSizeMBForFastScanning = 10000;
+        public static boolean enableDeveloperOverlays = false;
     }
 
     private static class Categories {
@@ -39,6 +40,7 @@ public class Config {
     public static int maxTransferCacheSizeMB = Defaults.maxTransferCacheSizeMB;
     public static boolean enableVoxelMapWaypointsByDefault = Defaults.enableVoxelMapWaypointsByDefault;
     public static int maxDimensionSizeMBForFastScanning = Defaults.maxDimensionSizeMBForFastScanning;
+    public static boolean enableDeveloperOverlays = Defaults.enableDeveloperOverlays;
 
 
     public static void syncronizeConfiguration(File configFile) {
@@ -95,6 +97,10 @@ public class Config {
                         "dimension in MB that can be processed in a single pass. Reduce this number if you run into " +
                         "memory issues during the initial world scan (OutOfMemoryException).");
         maxDimensionSizeMBForFastScanning = maxDimensionSizeMBForFastScanningProperty.getInt();
+
+        Property enableDeveloperOverlaysProperty = configuration.get(Categories.general, "enableDeveloperOverlays",
+                Defaults.enableDeveloperOverlays, "[CLIENT] Enable mod developer overlays, not useful for gameplay");
+        enableDeveloperOverlays = enableDeveloperOverlaysProperty.getBoolean();
 
         if(configuration.hasChanged()) {
             configuration.save();

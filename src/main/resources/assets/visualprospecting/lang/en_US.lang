@@ -4,6 +4,7 @@ visualprospecting.veins.prospected=You found %s new ore veins!
 visualprospecting.undergroundfluid.prospected.onlynew=You found %s new oil fields!
 visualprospecting.undergroundfluid.prospected.onlyupdated=You updated %s oil fields!
 visualprospecting.undergroundfluid.prospected.newandupdated=You found %s new and updated %s oil fields!
+visualprospecting.button.dirtychunk=Show Dirty Chunks (Developer, Singleplayer only)
 visualprospecting.button.orevein=Show GT Ore Veins
 visualprospecting.button.undergroundfluid=Show GT Underground Fluids
 visualprospecting.button.nodes=Show TC Nodes

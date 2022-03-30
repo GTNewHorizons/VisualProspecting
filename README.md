@@ -54,6 +54,20 @@ Does VisualProspecting run with other maps? - I runs just fine, but it has no vi
  - [TheLastKumquat](https://github.com/kumquat-ir) integrated XaeroWorldMap and XaeroMiniMap
  - [glowredman](https://github.com/glowredman) integrated VoxelMap
 
+### Developer overlays
+
+VisualProspecting comes with developer overlays for debugging chunk saving issues, to activate it change the following config setting in `config/visualprospecting.cfg` to true:
+
+```
+B:enableDeveloperOverlays=true
+```
+
+The dirty chunk overlay works only in singleplayer mode in JourneyMap, and displays which chunks are marked as "dirty" in the game engine.
+This can be used to debug mods that don't set this flag properly and therefore lose data or duplicate items on world load/unload.
+
+![Dirty chunks in JourneyMap developer overlay](https://i.ibb.co/XX1hqS5/2022-03-30-18-06-56.png) \
+_Dirty chunks in JourneyMap developer overlay_
+
 ### Dependencies
 
 #### Required Mods:
