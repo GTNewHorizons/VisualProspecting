@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.hooks;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
+import com.sinthoras.visualprospecting.database.RedoServerCacheCommand;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.database.cachebuilder.WorldAnalysis;
@@ -96,6 +97,7 @@ public class HooksShared {
 				e.printStackTrace();
 			}
 		}
+        event.registerServerCommand(new RedoServerCacheCommand());
 	}
 	
 	public void fmlLifeCycleEvent(FMLServerStartedEvent event) {
