@@ -12,9 +12,11 @@ import gregtech.api.GregTech_API;
 import gregtech.api.enums.Materials;
 import gregtech.common.GT_Worldgen_GT_Ore_Layer;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.util.EnumChatFormatting;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.sinthoras.visualprospecting.Utils.*;
@@ -155,14 +157,19 @@ public class VeinTypeCaching implements Runnable {
         if(isNEIInstalled()) {
             final boolean isSearchActive = SearchField.searchInventories();
             final String searchString = NEIClientConfig.getSearchExpression().toLowerCase();
+            final Pattern filterPattern = SearchField.getPattern(searchString);
 
             for (VeinType veinType : veinTypes) {
                 if (veinType != VeinType.NO_VEIN) {
                     if (isSearchActive) {
                         List<String> searchableStrings = veinType.getOreMaterialNames();
                         searchableStrings.add(I18n.format(veinType.name));
-                        searchableStrings = searchableStrings.stream().map(String::toLowerCase).filter(searchableString -> searchableString.contains(searchString)).collect(Collectors.toList());
-                        veinType.setNEISearchHeighlight(searchableStrings.isEmpty() == false);
+                        final boolean match = searchableStrings.stream()
+                            .map(EnumChatFormatting::getTextWithoutFormattingCodes)
+                            .map(String::toLowerCase)
+                            .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
+
+                        veinType.setNEISearchHeighlight(match);
                     } else {
                         veinType.setNEISearchHeighlight(true);
                     }
