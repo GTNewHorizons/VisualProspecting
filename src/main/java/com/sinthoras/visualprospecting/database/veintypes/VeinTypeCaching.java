@@ -161,7 +161,7 @@ public class VeinTypeCaching implements Runnable {
 
             for (VeinType veinType : veinTypes) {
                 if (veinType != VeinType.NO_VEIN) {
-                    if (isSearchActive) {
+                    if (isSearchActive && !searchString.equals("")) {
                         List<String> searchableStrings = veinType.getOreMaterialNames();
                         searchableStrings.add(I18n.format(veinType.name));
                         final boolean match = searchableStrings.stream()
