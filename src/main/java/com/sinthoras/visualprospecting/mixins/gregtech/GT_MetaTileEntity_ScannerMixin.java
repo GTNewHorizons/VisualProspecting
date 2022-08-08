@@ -44,7 +44,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
             final int blockZ = compound.getInteger(Tags.PROSPECTION_BLOCK_Z);
             final int blockRadius = compound.getInteger(Tags.PROSPECTION_ORE_RADIUS);
             final int numberOfUndergroundFluids = compound.getInteger(Tags.PROSPECTION_NUMBER_OF_UNDERGROUND_FLUID);
-            final String position = "X: " + blockX + " Y: " + blockY + " Z: " + blockZ;
+            final String position = "Dim: " + dimensionId + " X: " + blockX + " Y: " + blockY + " Z: " + blockZ;
 
             final NBTTagList bookPages = new NBTTagList();
 
