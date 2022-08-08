@@ -6,7 +6,6 @@ import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.network.ProspectionSharing;
-
 import java.util.List;
 
 public class SnapshotUploadTask implements ITask {
@@ -24,7 +23,7 @@ public class SnapshotUploadTask implements ITask {
     @Override
     public boolean process() {
         final long timestamp = System.currentTimeMillis();
-        if(timestamp - lastUpload > 1000 / Config.uploadPacketsPerSecond && listsEmpty() == false) {
+        if (timestamp - lastUpload > 1000 / Config.uploadPacketsPerSecond && listsEmpty() == false) {
             lastUpload = timestamp;
             final ProspectionSharing packet = new ProspectionSharing();
 

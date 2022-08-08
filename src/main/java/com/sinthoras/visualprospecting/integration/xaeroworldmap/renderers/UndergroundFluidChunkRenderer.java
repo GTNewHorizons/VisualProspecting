@@ -4,7 +4,6 @@ import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluid
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidChunkLocation;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.UndergroundFluidChunkRenderStep;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +15,8 @@ public class UndergroundFluidChunkRenderer extends LayerRenderer {
     }
 
     @Override
-    protected List<UndergroundFluidChunkRenderStep> generateRenderSteps(List<? extends ILocationProvider> visibleElements) {
+    protected List<UndergroundFluidChunkRenderStep> generateRenderSteps(
+            List<? extends ILocationProvider> visibleElements) {
         final List<UndergroundFluidChunkRenderStep> renderSteps = new ArrayList<>();
         visibleElements.stream()
                 .map(element -> (UndergroundFluidChunkLocation) element)

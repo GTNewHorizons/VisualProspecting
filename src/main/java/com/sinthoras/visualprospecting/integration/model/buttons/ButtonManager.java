@@ -2,7 +2,6 @@ package com.sinthoras.visualprospecting.integration.model.buttons;
 
 import com.sinthoras.visualprospecting.integration.model.MapState;
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
-
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -60,10 +59,9 @@ public class ButtonManager {
     }
 
     public void toggle() {
-        if(isActive) {
+        if (isActive) {
             deactivate();
-        }
-        else {
+        } else {
             activate();
         }
     }

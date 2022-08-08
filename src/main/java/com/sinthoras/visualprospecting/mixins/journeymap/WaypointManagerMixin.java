@@ -13,11 +13,16 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(WaypointManager.class)
 public class WaypointManagerMixin {
 
-    @Inject(method = "toggleItems", at = @At("HEAD"), remap = false, require = 1, locals = LocalCapture.CAPTURE_FAILEXCEPTION)
+    @Inject(
+            method = "toggleItems",
+            at = @At("HEAD"),
+            remap = false,
+            require = 1,
+            locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void onToggleAllWaypoints(boolean enable, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        if(enable == false) {
-            for(LayerManager layer : MapState.instance.layers) {
-                if(layer instanceof WaypointProviderManager) {
+        if (enable == false) {
+            for (LayerManager layer : MapState.instance.layers) {
+                if (layer instanceof WaypointProviderManager) {
                     ((WaypointProviderManager) layer).clearActiveWaypoint();
                 }
             }

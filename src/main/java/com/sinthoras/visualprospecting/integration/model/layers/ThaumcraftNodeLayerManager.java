@@ -5,10 +5,9 @@ import com.dyonovan.tcnodetracker.lib.NodeList;
 import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
-import net.minecraft.client.Minecraft;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 
 public class ThaumcraftNodeLayerManager extends WaypointProviderManager {
 
@@ -25,7 +24,10 @@ public class ThaumcraftNodeLayerManager extends WaypointProviderManager {
 
     @Override
     protected boolean needsRegenerateVisibleElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
-        if(minBlockX != oldMinBlockX || minBlockZ != oldMinBlockZ || maxBlockX != oldMaxBlockX || maxBlockZ != oldMaxBlockZ) {
+        if (minBlockX != oldMinBlockX
+                || minBlockZ != oldMinBlockZ
+                || maxBlockX != oldMaxBlockX
+                || maxBlockZ != oldMaxBlockZ) {
             oldMinBlockX = minBlockX;
             oldMinBlockZ = minBlockZ;
             oldMaxBlockX = maxBlockX;
@@ -36,15 +38,18 @@ public class ThaumcraftNodeLayerManager extends WaypointProviderManager {
     }
 
     @Override
-    protected List<? extends IWaypointAndLocationProvider> generateVisibleElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
+    protected List<? extends IWaypointAndLocationProvider> generateVisibleElements(
+            int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
         final int playerDimensionId = Minecraft.getMinecraft().thePlayer.dimension;
 
         ArrayList<ThaumcraftNodeLocation> thaumcraftNodeLocations = new ArrayList<>();
 
         for (NodeList node : TCNodeTracker.nodelist) {
-            if(node.dim == playerDimensionId
-                    && node.x >= minBlockX && node.x <= maxBlockX
-                    && node.z >= minBlockZ && node.z <= maxBlockZ) {
+            if (node.dim == playerDimensionId
+                    && node.x >= minBlockX
+                    && node.x <= maxBlockX
+                    && node.z >= minBlockZ
+                    && node.z <= maxBlockZ) {
                 thaumcraftNodeLocations.add(new ThaumcraftNodeLocation(node));
             }
         }
@@ -54,7 +59,7 @@ public class ThaumcraftNodeLayerManager extends WaypointProviderManager {
 
     public void deleteNode(ThaumcraftNodeLocation thaumcraftNodeLocation) {
         TCNodeTracker.nodelist.removeIf(thaumcraftNodeLocation::belongsToNode);
-        if(thaumcraftNodeLocation.isActiveAsWaypoint()) {
+        if (thaumcraftNodeLocation.isActiveAsWaypoint()) {
             clearActiveWaypoint();
         }
         forceRefresh();

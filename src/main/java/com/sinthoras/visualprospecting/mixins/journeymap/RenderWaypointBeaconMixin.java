@@ -22,16 +22,20 @@ public class RenderWaypointBeaconMixin {
         throw new IllegalStateException("Mixin failed to shadow doRender()");
     }
 
-    @Inject(method = "renderAll",
-            at = @At(value = "INVOKE",
-                    target = "Ljourneymap/client/waypoint/WaypointStore;instance()Ljourneymap/client/waypoint/WaypointStore;"),
+    @Inject(
+            method = "renderAll",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Ljourneymap/client/waypoint/WaypointStore;instance()Ljourneymap/client/waypoint/WaypointStore;"),
             remap = false,
             require = 1)
     private static void onRenderAll(CallbackInfo callbackInfo) {
-        for(WaypointManager waypointManager : JourneyMapState.instance.waypointManagers) {
-            if(waypointManager.hasWaypoint()) {
+        for (WaypointManager waypointManager : JourneyMapState.instance.waypointManagers) {
+            if (waypointManager.hasWaypoint()) {
                 final Waypoint waypoint = waypointManager.getJmWaypoint();
-                if(waypoint.getDimensions().contains(mc.thePlayer.dimension)) {
+                if (waypoint.getDimensions().contains(mc.thePlayer.dimension)) {
                     doRender(waypoint);
                 }
             }

@@ -3,11 +3,10 @@ package com.sinthoras.visualprospecting.integration.journeymap.render;
 import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.ClickableDrawStep;
 import com.sinthoras.visualprospecting.integration.model.layers.WaypointProviderManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
-import net.minecraft.client.gui.FontRenderer;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import net.minecraft.client.gui.FontRenderer;
 
 public abstract class WaypointProviderLayerRenderer extends LayerRenderer {
 
@@ -40,7 +39,8 @@ public abstract class WaypointProviderLayerRenderer extends LayerRenderer {
         Collections.reverse(drawStepsReversed);
     }
 
-    protected abstract List<? extends ClickableDrawStep> mapLocationProviderToDrawStep(List<? extends ILocationProvider> visibleElements);
+    protected abstract List<? extends ClickableDrawStep> mapLocationProviderToDrawStep(
+            List<? extends ILocationProvider> visibleElements);
 
     public void onMouseMove(int mouseX, int mouseY) {
         hoveredDrawStep = null;
@@ -53,13 +53,13 @@ public abstract class WaypointProviderLayerRenderer extends LayerRenderer {
     }
 
     public boolean onMouseAction(boolean isDoubleClick) {
-        if(hoveredDrawStep != null) {
-            if(isDoubleClick) {
-                if(hoveredDrawStep.getLocationProvider().isActiveAsWaypoint()) {
+        if (hoveredDrawStep != null) {
+            if (isDoubleClick) {
+                if (hoveredDrawStep.getLocationProvider().isActiveAsWaypoint()) {
                     manager.clearActiveWaypoint();
-                }
-                else {
-                    manager.setActiveWaypoint(hoveredDrawStep.getLocationProvider().toWaypoint());
+                } else {
+                    manager.setActiveWaypoint(
+                            hoveredDrawStep.getLocationProvider().toWaypoint());
                 }
             }
             return true;
@@ -68,20 +68,21 @@ public abstract class WaypointProviderLayerRenderer extends LayerRenderer {
     }
 
     public List<String> getTextTooltip() {
-        if(hoveredDrawStep != null) {
+        if (hoveredDrawStep != null) {
             return hoveredDrawStep.getTooltip();
         }
         return null;
     }
 
-    public void drawCustomTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth, int displayHeight) {
-        if(hoveredDrawStep != null) {
+    public void drawCustomTooltip(
+            FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth, int displayHeight) {
+        if (hoveredDrawStep != null) {
             hoveredDrawStep.drawTooltip(fontRenderer, mouseX, mouseY, displayWidth, displayHeight);
         }
     }
 
     public void onActionKeyPressed() {
-        if(manager.isLayerActive() && hoveredDrawStep != null) {
+        if (manager.isLayerActive() && hoveredDrawStep != null) {
             hoveredDrawStep.onActionKeyPressed();
             manager.forceRefresh();
         }

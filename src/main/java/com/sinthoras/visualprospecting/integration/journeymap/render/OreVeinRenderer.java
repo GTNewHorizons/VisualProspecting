@@ -5,7 +5,6 @@ import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.OreVeinD
 import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,8 @@ public class OreVeinRenderer extends WaypointProviderLayerRenderer {
     }
 
     @Override
-    public List<? extends ClickableDrawStep> mapLocationProviderToDrawStep(List<? extends ILocationProvider> visibleElements) {
+    public List<? extends ClickableDrawStep> mapLocationProviderToDrawStep(
+            List<? extends ILocationProvider> visibleElements) {
         final List<OreVeinDrawStep> drawSteps = new ArrayList<>();
         visibleElements.stream()
                 .map(element -> (OreVeinLocation) element)

@@ -9,11 +9,11 @@ import net.minecraftforge.fluids.Fluid;
 public class ServerTranslations {
 
     public static String getEnglishLocalization(Fluid fluid) {
-        if(MinecraftServer.getServer().isSinglePlayer()) {
+        if (MinecraftServer.getServer().isSinglePlayer()) {
             return fluid.getLocalizedName();
         }
 
-        switch(fluid.getUnlocalizedName()) {
+        switch (fluid.getUnlocalizedName()) {
             case "fluid.gas_natural_gas":
                 return "Natural Gas";
             case "fluid.liquid_light_oil":
@@ -94,7 +94,7 @@ public class ServerTranslations {
             print("    return \"" + value + "\";")
      */
     public static String getEnglishLocalization(VeinType veinType) {
-        if(MinecraftServer.getServer().isSinglePlayer()) {
+        if (MinecraftServer.getServer().isSinglePlayer()) {
             return I18n.format(veinType.name);
         }
 

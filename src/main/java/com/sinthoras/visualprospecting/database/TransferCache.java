@@ -1,7 +1,6 @@
 package com.sinthoras.visualprospecting.database;
 
 import com.sinthoras.visualprospecting.Config;
-
 import java.util.*;
 
 public class TransferCache {
@@ -12,15 +11,18 @@ public class TransferCache {
     private final Map<String, List<UndergroundFluidPosition>> sharedUndergroundFluids = new HashMap<>();
     private final Queue<String> timestamp = new LinkedList<>();
 
-    public void addClientProspectionData(String uuid, List<OreVeinPosition> oreVeins, List<UndergroundFluidPosition> undergroundFluids) {
+    public void addClientProspectionData(
+            String uuid, List<OreVeinPosition> oreVeins, List<UndergroundFluidPosition> undergroundFluids) {
         sharedOreVeins.remove(uuid);
         sharedUndergroundFluids.remove(uuid);
         timestamp.remove(uuid);
 
-        final int oreVeinPositionSizeInRam = OreVeinPosition.getMaxBytes() + 3 * Byte.BYTES;  // JVM represents everything aligned at 4 bytes
-        final int newEntryBytes = oreVeins.size() * oreVeinPositionSizeInRam + undergroundFluids.size() * UndergroundFluidPosition.BYTES;
+        final int oreVeinPositionSizeInRam =
+                OreVeinPosition.getMaxBytes() + 3 * Byte.BYTES; // JVM represents everything aligned at 4 bytes
+        final int newEntryBytes =
+                oreVeins.size() * oreVeinPositionSizeInRam + undergroundFluids.size() * UndergroundFluidPosition.BYTES;
 
-        while(getUsedMemory() > (Config.maxTransferCacheSizeMB << 20) - newEntryBytes
+        while (getUsedMemory() > (Config.maxTransferCacheSizeMB << 20) - newEntryBytes
                 && timestamp.isEmpty() == false) {
             String oldestUUID = timestamp.remove();
             sharedOreVeins.remove(oldestUUID);
@@ -45,8 +47,13 @@ public class TransferCache {
     }
 
     private int getUsedMemory() {
-        final int oreVeinPositionSizeInRam = OreVeinPosition.getMaxBytes() + 3 * Byte.BYTES;  // JVM represents everything aligned at 4 bytes
-        return sharedOreVeins.values().stream().mapToInt(oreVeins -> oreVeins.size() * oreVeinPositionSizeInRam).sum()
-                + sharedUndergroundFluids.values().stream().mapToInt(undergroundFluids -> undergroundFluids.size() * UndergroundFluidPosition.BYTES).sum();
+        final int oreVeinPositionSizeInRam =
+                OreVeinPosition.getMaxBytes() + 3 * Byte.BYTES; // JVM represents everything aligned at 4 bytes
+        return sharedOreVeins.values().stream()
+                        .mapToInt(oreVeins -> oreVeins.size() * oreVeinPositionSizeInRam)
+                        .sum()
+                + sharedUndergroundFluids.values().stream()
+                        .mapToInt(undergroundFluids -> undergroundFluids.size() * UndergroundFluidPosition.BYTES)
+                        .sum();
     }
 }

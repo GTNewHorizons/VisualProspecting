@@ -28,5 +28,7 @@ public class DirtyChunkLocation implements ILocationProvider {
         return dimensionId;
     }
 
-    public boolean isDirty() {return dirty;}
+    public boolean isDirty() {
+        return dirty;
+    }
 }

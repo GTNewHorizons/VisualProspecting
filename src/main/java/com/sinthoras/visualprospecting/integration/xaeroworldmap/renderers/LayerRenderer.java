@@ -4,7 +4,6 @@ import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.RenderStep;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,5 +39,6 @@ public abstract class LayerRenderer extends com.sinthoras.visualprospecting.inte
         Collections.reverse(renderStepsReversed);
     }
 
-    protected abstract List<? extends RenderStep> generateRenderSteps(List<? extends ILocationProvider> visibleElements);
+    protected abstract List<? extends RenderStep> generateRenderSteps(
+            List<? extends ILocationProvider> visibleElements);
 }

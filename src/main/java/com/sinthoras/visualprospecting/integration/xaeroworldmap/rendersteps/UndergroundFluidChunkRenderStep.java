@@ -5,10 +5,9 @@ import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.integration.DrawUtils;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidChunkLocation;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.opengl.GL11;
-
-import javax.annotation.Nullable;
 
 public class UndergroundFluidChunkRenderStep implements RenderStep {
     private final UndergroundFluidChunkLocation undergroundFluidChunkLocation;
@@ -26,12 +25,19 @@ public class UndergroundFluidChunkRenderStep implements RenderStep {
 
     @Override
     public void draw(@Nullable GuiScreen gui, double cameraX, double cameraZ, double scale) {
-        if (undergroundFluidChunkLocation.getFluidAmount() > 0 && scale >= Utils.journeyMapScaleToLinear(Config.minZoomLevelForUndergroundFluidDetails)) {
+        if (undergroundFluidChunkLocation.getFluidAmount() > 0
+                && scale >= Utils.journeyMapScaleToLinear(Config.minZoomLevelForUndergroundFluidDetails)) {
             GL11.glPushMatrix();
-            GL11.glTranslated(undergroundFluidChunkLocation.getBlockX() - 0.5 - cameraX, undergroundFluidChunkLocation.getBlockZ() - 0.5 - cameraZ, 0);
+            GL11.glTranslated(
+                    undergroundFluidChunkLocation.getBlockX() - 0.5 - cameraX,
+                    undergroundFluidChunkLocation.getBlockZ() - 0.5 - cameraZ,
+                    0);
 
-            float alpha = ((float) (undergroundFluidChunkLocation.getFluidAmount() - undergroundFluidChunkLocation.getMinAmountInField())) /
-                    (undergroundFluidChunkLocation.getMaxAmountInField() - undergroundFluidChunkLocation.getMinAmountInField() + 1);
+            float alpha = ((float) (undergroundFluidChunkLocation.getFluidAmount()
+                            - undergroundFluidChunkLocation.getMinAmountInField()))
+                    / (undergroundFluidChunkLocation.getMaxAmountInField()
+                            - undergroundFluidChunkLocation.getMinAmountInField()
+                            + 1);
             alpha *= alpha * 204;
             int fluidColor = undergroundFluidChunkLocation.getFluid().getColor() | (((int) alpha) << 24);
             DrawUtils.drawGradientRect(0, 0, VP.chunkWidth, VP.chunkDepth, 0, fluidColor, fluidColor);

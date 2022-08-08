@@ -4,9 +4,8 @@ import com.sinthoras.visualprospecting.integration.model.layers.WaypointProvider
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.InteractableRenderStep;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.RenderStep;
-import net.minecraft.client.gui.GuiScreen;
-
 import java.util.List;
+import net.minecraft.client.gui.GuiScreen;
 
 public abstract class InteractableLayerRenderer extends LayerRenderer {
     private double mouseXForRender;
@@ -21,13 +20,15 @@ public abstract class InteractableLayerRenderer extends LayerRenderer {
     }
 
     @Override
-    protected abstract List<? extends InteractableRenderStep> generateRenderSteps(List<? extends ILocationProvider> visibleElements);
+    protected abstract List<? extends InteractableRenderStep> generateRenderSteps(
+            List<? extends ILocationProvider> visibleElements);
 
     public void updateHovered(double mouseX, double mouseY, double cameraX, double cameraZ, double scale) {
         mouseXForRender = mouseX - cameraX;
         mouseYForRender = mouseY - cameraZ;
         for (RenderStep step : renderStepsReversed) {
-            if (step instanceof InteractableRenderStep && ((InteractableRenderStep) step).isMouseOver(mouseXForRender, mouseYForRender, scale)) {
+            if (step instanceof InteractableRenderStep
+                    && ((InteractableRenderStep) step).isMouseOver(mouseXForRender, mouseYForRender, scale)) {
                 hovered = (InteractableRenderStep) step;
                 return;
             }

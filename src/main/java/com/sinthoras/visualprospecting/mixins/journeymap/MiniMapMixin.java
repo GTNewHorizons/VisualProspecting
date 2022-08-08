@@ -4,6 +4,7 @@ import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapState;
 import com.sinthoras.visualprospecting.integration.journeymap.render.LayerRenderer;
 import com.sinthoras.visualprospecting.integration.model.MapState;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
+import java.lang.reflect.Field;
 import journeymap.client.render.draw.DrawStep;
 import journeymap.client.render.map.GridRenderer;
 import journeymap.client.ui.minimap.DisplayVars;
@@ -17,9 +18,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.awt.geom.Point2D;
-import java.lang.reflect.Field;
 
 @Mixin(MiniMap.class)
 public abstract class MiniMapMixin {
@@ -39,8 +37,7 @@ public abstract class MiniMapMixin {
             shape.setAccessible(true);
             minimapWidth = DisplayVars.class.getDeclaredField("minimapWidth");
             minimapWidth.setAccessible(true);
-        }
-        catch (NoSuchFieldException e) {
+        } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
     }
@@ -48,8 +45,7 @@ public abstract class MiniMapMixin {
     private static float getDrawScale(DisplayVars displayVars) {
         try {
             return drawScale.getFloat(displayVars);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             return 0.0f;
         }
     }
@@ -57,8 +53,7 @@ public abstract class MiniMapMixin {
     private static double getFontScale(DisplayVars displayVars) {
         try {
             return fontScale.getDouble(displayVars);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             return 0.0;
         }
     }
@@ -66,8 +61,7 @@ public abstract class MiniMapMixin {
     private static Shape getShape(DisplayVars displayVars) {
         try {
             return (Shape) shape.get(displayVars);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             return Shape.Circle;
         }
     }
@@ -75,8 +69,7 @@ public abstract class MiniMapMixin {
     private static int getMinimapWidth(DisplayVars displayVars) {
         try {
             return minimapWidth.getInt(displayVars);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             return 1;
         }
     }
@@ -92,25 +85,29 @@ public abstract class MiniMapMixin {
     @Shadow(remap = false)
     private DisplayVars dv;
 
-    @Inject(method = "drawOnMapWaypoints",
+    @Inject(
+            method = "drawOnMapWaypoints",
             at = @At(value = "HEAD"),
             remap = false,
             require = 1,
             locals = LocalCapture.CAPTURE_FAILHARD)
     private void onBeforeDrawWaypoints(double rotation, CallbackInfo callbackInfo) {
-        for(LayerManager layerManager : MapState.instance.layers) {
+        for (LayerManager layerManager : MapState.instance.layers) {
             if (layerManager.isLayerActive()) {
                 if (getShape(dv) == Shape.Circle) {
                     layerManager.recacheMiniMap((int) mc.thePlayer.posX, (int) mc.thePlayer.posZ, getMinimapWidth(dv));
-                }
-                else {
-                    layerManager.recacheMiniMap((int) mc.thePlayer.posX, (int) mc.thePlayer.posZ, gridRenderer.getWidth(), gridRenderer.getHeight());
+                } else {
+                    layerManager.recacheMiniMap(
+                            (int) mc.thePlayer.posX,
+                            (int) mc.thePlayer.posZ,
+                            gridRenderer.getWidth(),
+                            gridRenderer.getHeight());
                 }
             }
         }
 
-        for(LayerRenderer layerRenderer : JourneyMapState.instance.renderers) {
-            if(layerRenderer.isLayerActive()) {
+        for (LayerRenderer layerRenderer : JourneyMapState.instance.renderers) {
+            if (layerRenderer.isLayerActive()) {
                 for (DrawStep drawStep : layerRenderer.getDrawStepsCachedForRendering()) {
                     drawStep.draw(0.0D, 0.0D, gridRenderer, getDrawScale(dv), getFontScale(dv), rotation);
                 }

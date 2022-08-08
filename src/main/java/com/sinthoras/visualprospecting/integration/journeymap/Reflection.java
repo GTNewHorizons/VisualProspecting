@@ -1,10 +1,9 @@
 package com.sinthoras.visualprospecting.integration.journeymap;
 
 import com.sinthoras.visualprospecting.VP;
+import java.lang.reflect.Field;
 import journeymap.client.render.map.GridRenderer;
 import journeymap.client.ui.fullscreen.Fullscreen;
-
-import java.lang.reflect.Field;
 
 public class Reflection {
 
@@ -14,8 +13,7 @@ public class Reflection {
         try {
             gridRenderer = Fullscreen.class.getDeclaredField("gridRenderer");
             gridRenderer.setAccessible(true);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             VP.error("Failed to access private fields in JourneyMap!");
             e.printStackTrace();
         }
@@ -24,8 +22,7 @@ public class Reflection {
     public static GridRenderer getJourneyMapGridRenderer() {
         try {
             return (GridRenderer) gridRenderer.get(null);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
             return null;
         }

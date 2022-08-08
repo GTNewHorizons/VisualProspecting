@@ -4,7 +4,6 @@ import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluid
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.UndergroundFluidRenderStep;
-
 import java.util.ArrayList;
 import java.util.List;
 

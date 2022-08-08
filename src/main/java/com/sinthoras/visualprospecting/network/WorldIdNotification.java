@@ -11,9 +11,7 @@ public class WorldIdNotification implements IMessage {
 
     private String worldId;
 
-    public WorldIdNotification() {
-
-    }
+    public WorldIdNotification() {}
 
     public WorldIdNotification(String worldId) {
         this.worldId = worldId;

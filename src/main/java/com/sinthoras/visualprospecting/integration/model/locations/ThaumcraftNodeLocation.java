@@ -14,8 +14,11 @@ import thaumcraft.common.tiles.TileNode;
 
 public class ThaumcraftNodeLocation implements IWaypointAndLocationProvider {
 
-    private static final String deleteHint = EnumChatFormatting.DARK_GRAY + I18n.format("visualprospecting.node.deletehint", Keyboard.getKeyName(VP.keyAction.getKeyCode()));;
-    private static final String activeWaypointHint = EnumChatFormatting.GOLD + I18n.format("visualprospecting.iswaypoint");
+    private static final String deleteHint = EnumChatFormatting.DARK_GRAY
+            + I18n.format("visualprospecting.node.deletehint", Keyboard.getKeyName(VP.keyAction.getKeyCode()));
+    ;
+    private static final String activeWaypointHint =
+            EnumChatFormatting.GOLD + I18n.format("visualprospecting.iswaypoint");
     private static final String title = EnumChatFormatting.BOLD + I18n.format("tile.blockAiry.0.name");
 
     private final NodeList node;
@@ -29,11 +32,11 @@ public class ThaumcraftNodeLocation implements IWaypointAndLocationProvider {
 
         nodeTile = new TileNode();
         final AspectList aspectList = new AspectList();
-        for(String aspectTag : node.aspect.keySet()) {
+        for (String aspectTag : node.aspect.keySet()) {
             aspectList.add(Aspect.getAspect(aspectTag), node.aspect.get(aspectTag));
         }
         nodeTile.setAspects(aspectList);
-        switch(node.type) {
+        switch (node.type) {
             case "NORMAL":
                 nodeTile.setNodeType(NodeType.NORMAL);
                 break;
@@ -56,8 +59,10 @@ public class ThaumcraftNodeLocation implements IWaypointAndLocationProvider {
         nodeTile.blockType = ConfigBlocks.blockAiry;
         nodeTile.blockMetadata = 0;
 
-        description = node.mod.equals("BLANK") ? EnumChatFormatting.GRAY + I18n.format("nodetype." + node.type + ".name")
-                : EnumChatFormatting.GRAY + I18n.format("nodetype." + node.type + ".name") + ", " + I18n.format("nodemod." + node.mod + ".name");
+        description = node.mod.equals("BLANK")
+                ? EnumChatFormatting.GRAY + I18n.format("nodetype." + node.type + ".name")
+                : EnumChatFormatting.GRAY + I18n.format("nodetype." + node.type + ".name") + ", "
+                        + I18n.format("nodemod." + node.mod + ".name");
     }
 
     @Override
@@ -81,7 +86,11 @@ public class ThaumcraftNodeLocation implements IWaypointAndLocationProvider {
 
     @Override
     public Waypoint toWaypoint() {
-        return new Waypoint(node.x, node.y, node.z, node.dim,
+        return new Waypoint(
+                node.x,
+                node.y,
+                node.z,
+                node.dim,
                 I18n.format("visualprospecting.tracked", I18n.format("tile.blockAiry.0.name")),
                 nodeTile.targetColor.getRGB());
     }
@@ -101,7 +110,7 @@ public class ThaumcraftNodeLocation implements IWaypointAndLocationProvider {
         isActiveAsWaypoint = waypoint.dimensionId == node.dim
                 && waypoint.blockX == node.x
                 && waypoint.blockY == node.y
-                && waypoint.blockZ== node.z;
+                && waypoint.blockZ == node.z;
     }
 
     public boolean belongsToNode(NodeList other) {

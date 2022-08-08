@@ -1,5 +1,6 @@
 package com.sinthoras.visualprospecting.integration.xaeroworldmap.buttons;
 
+import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
@@ -7,8 +8,6 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import xaero.map.gui.CursorBox;
 import xaero.map.gui.GuiTexturedButton;
-
-import java.util.function.Consumer;
 
 public class SizedGuiTexturedButton extends GuiTexturedButton {
 
@@ -19,7 +18,8 @@ public class SizedGuiTexturedButton extends GuiTexturedButton {
 
     protected boolean active;
 
-    public SizedGuiTexturedButton(int x, int y, ResourceLocation texture, Consumer<GuiButton> action, CursorBox tooltip) {
+    public SizedGuiTexturedButton(
+            int x, int y, ResourceLocation texture, Consumer<GuiButton> action, CursorBox tooltip) {
         super(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, 0, 0, ICON_WIDTH, ICON_HEIGHT, texture, action, tooltip);
         active = false;
     }
@@ -34,12 +34,10 @@ public class SizedGuiTexturedButton extends GuiTexturedButton {
                 if (isMouseOver(mouseX, mouseY)) {
                     iconY--;
                     GL11.glColor4f(0.5F, 0.9F, 0.5F, 1.0F);
-                }
-                else {
+                } else {
                     GL11.glColor4f(0.5882F, 0.9882F, 0.5882F, 1.0F);
                 }
-            }
-            else {
+            } else {
                 if (isMouseOver(mouseX, mouseY)) {
                     iconY--;
                     GL11.glColor4f(0.9F, 0.9F, 0.9F, 1.0F);

@@ -12,5 +12,4 @@ public interface InteractableRenderStep extends RenderStep {
     void onActionButton();
 
     IWaypointAndLocationProvider getLocationProvider();
-
 }

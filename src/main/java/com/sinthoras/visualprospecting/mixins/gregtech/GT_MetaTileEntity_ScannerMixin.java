@@ -1,5 +1,7 @@
 package com.sinthoras.visualprospecting.mixins.gregtech;
 
+import static gregtech.api.util.GT_Utility.ItemNBT.setNBT;
+
 import com.sinthoras.visualprospecting.ServerTranslations;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -8,6 +10,7 @@ import gregtech.api.interfaces.ITexture;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_Scanner;
+import java.util.List;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -17,10 +20,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.List;
-
-import static gregtech.api.util.GT_Utility.ItemNBT.setNBT;
-
 @Mixin(value = GT_MetaTileEntity_Scanner.class, remap = false)
 public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_BasicMachine {
 
@@ -28,16 +27,20 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
         super(0, "", "", 0, 0, "", 0, 0, "", "", (ITexture[]) null);
     }
 
-    @Inject(method = "checkRecipe",
-            at = @At(value = "INVOKE",
-                    target = "Lgregtech/api/util/GT_Utility$ItemNBT;convertProspectionData(Lnet/minecraft/item/ItemStack;)V"),
+    @Inject(
+            method = "checkRecipe",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lgregtech/api/util/GT_Utility$ItemNBT;convertProspectionData(Lnet/minecraft/item/ItemStack;)V"),
             remap = false,
             require = 1,
             cancellable = true)
     private void onAnalyzeProspectionData(CallbackInfoReturnable<Integer> callbackInfoReturnable) {
         final ItemStack itemStack = getInputAt(0);
         final NBTTagCompound compound = itemStack.getTagCompound();
-        if(compound.hasKey(Tags.VISUALPROSPECTING_FLAG)) {
+        if (compound.hasKey(Tags.VISUALPROSPECTING_FLAG)) {
             final int dimensionId = compound.getInteger(Tags.PROSPECTION_DIMENSION_ID);
             final int blockX = compound.getInteger(Tags.PROSPECTION_BLOCK_X);
             final int blockY = compound.getInteger(Tags.PROSPECTION_BLOCK_Y);
@@ -56,28 +59,43 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
                     + "Results are synchronized to your map";
             bookPages.appendTag(new NBTTagString(frontPage));
 
-            final List<OreVeinPosition> foundOreVeins = ServerCache.instance.prospectOreBlockRadius(dimensionId, blockX, blockZ, blockRadius);
-            if(foundOreVeins.isEmpty() == false) {
+            final List<OreVeinPosition> foundOreVeins =
+                    ServerCache.instance.prospectOreBlockRadius(dimensionId, blockX, blockZ, blockRadius);
+            if (foundOreVeins.isEmpty() == false) {
                 final int pageSize = 7;
-                final int numberOfPages = (foundOreVeins.size() + pageSize) / pageSize;  // Equals to ceil((foundOreVeins.size())
+                final int numberOfPages =
+                        (foundOreVeins.size() + pageSize) / pageSize; // Equals to ceil((foundOreVeins.size())
 
-                for(int pageNumber = 0; pageNumber < numberOfPages; pageNumber++) {
+                for (int pageNumber = 0; pageNumber < numberOfPages; pageNumber++) {
                     final StringBuilder pageString = new StringBuilder();
-                    for(int i = 0; i < pageSize; i++) {
+                    for (int i = 0; i < pageSize; i++) {
                         final int veinId = pageNumber * pageSize + i;
-                        if(veinId < foundOreVeins.size()) {
+                        if (veinId < foundOreVeins.size()) {
                             final OreVeinPosition oreVein = foundOreVeins.get(veinId);
-                            pageString.append(oreVein.getBlockX()).append(",").append(oreVein.getBlockZ()).append(" - ").append(ServerTranslations.getEnglishLocalization(oreVein.veinType)).append("\n");
+                            pageString
+                                    .append(oreVein.getBlockX())
+                                    .append(",")
+                                    .append(oreVein.getBlockZ())
+                                    .append(" - ")
+                                    .append(ServerTranslations.getEnglishLocalization(oreVein.veinType))
+                                    .append("\n");
                         }
                     }
-                    String pageCounter = numberOfPages > 1 ? String.format(" %d/%d", pageNumber + 1, numberOfPages) : "";
-                    NBTTagString pageTag = new NBTTagString(String.format("Ore Veins %s\n\n", pageCounter) + pageString);
+                    String pageCounter =
+                            numberOfPages > 1 ? String.format(" %d/%d", pageNumber + 1, numberOfPages) : "";
+                    NBTTagString pageTag =
+                            new NBTTagString(String.format("Ore Veins %s\n\n", pageCounter) + pageString);
                     bookPages.appendTag(pageTag);
                 }
             }
 
-            if(compound.hasKey(Tags.PROSPECTION_FLUIDS)) {
-                GT_Utility.ItemNBT.fillBookWithList(bookPages, "Fluids%s\n\n", "\n", 9, compound.getString(Tags.PROSPECTION_FLUIDS).split("\\|"));
+            if (compound.hasKey(Tags.PROSPECTION_FLUIDS)) {
+                GT_Utility.ItemNBT.fillBookWithList(
+                        bookPages,
+                        "Fluids%s\n\n",
+                        "\n",
+                        9,
+                        compound.getString(Tags.PROSPECTION_FLUIDS).split("\\|"));
 
                 final String fluidCoverPage = "Fluid notes\n\n"
                         + "Prospects from NW to SE 576 chunks"
@@ -89,8 +107,8 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
                         + "[5] - Prospector in this 8x8 area";
                 bookPages.appendTag(new NBTTagString(fluidCoverPage));
 
-
-                String tFluidsPosStr = "X: " + Math.floorDiv(blockX, 16 * 8) * 16 * 8 + " Z: " + Math.floorDiv(blockZ, 16 * 8) * 16 * 8 + "\n";
+                String tFluidsPosStr = "X: " + Math.floorDiv(blockX, 16 * 8) * 16 * 8 + " Z: "
+                        + Math.floorDiv(blockZ, 16 * 8) * 16 * 8 + "\n";
                 int xOff = blockX - Math.floorDiv(blockX, 16 * 8) * 16 * 8;
                 xOff = xOff / 16;
                 int xOffRemain = 7 - xOff;
@@ -115,10 +133,10 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
                 for (; zOffRemain > 0; zOffRemain--) {
                     tFluidsPosStr = tFluidsPosStr.concat("--------\n");
                 }
-                tFluidsPosStr = tFluidsPosStr.concat("            X: " + (Math.floorDiv(blockX, 16 * 8) + 1) * 16 * 8 + " Z: " + (Math.floorDiv(blockZ, 16 * 8) + 1) * 16 * 8); // +1 field to find bottomright of [5]
-                final String fluidsPage = "Corners of [5] are \n" +
-                        tFluidsPosStr + "\n" +
-                        "P - Prospector in 8x8 field";
+                tFluidsPosStr = tFluidsPosStr.concat("            X: " + (Math.floorDiv(blockX, 16 * 8) + 1) * 16 * 8
+                        + " Z: " + (Math.floorDiv(blockZ, 16 * 8) + 1) * 16 * 8); // +1 field to find bottomright of [5]
+                final String fluidsPage =
+                        "Corners of [5] are \n" + tFluidsPosStr + "\n" + "P - Prospector in 8x8 field";
                 bookPages.appendTag(new NBTTagString(fluidsPage));
             }
 
@@ -126,16 +144,14 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
             compound.setTag("pages", bookPages);
             setNBT(itemStack, compound);
 
-
             // Mimic original behaviour
             itemStack.stackSize -= 1;
             mOutputItems[0] = GT_Utility.copyAmount(1L, itemStack);
             calculateOverclockedNess(30, 1000);
-            //In case recipe is too OP for that machine
+            // In case recipe is too OP for that machine
             if (mMaxProgresstime == Integer.MAX_VALUE - 1 && mEUt == Integer.MAX_VALUE - 1) {
                 callbackInfoReturnable.setReturnValue(FOUND_RECIPE_BUT_DID_NOT_MEET_REQUIREMENTS);
-            }
-            else {
+            } else {
                 callbackInfoReturnable.setReturnValue(2);
             }
         }

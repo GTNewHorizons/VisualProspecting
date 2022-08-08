@@ -4,7 +4,6 @@ import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.buttons.ButtonManager;
 import com.sinthoras.visualprospecting.integration.model.buttons.LayerButton;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -28,7 +27,7 @@ public abstract class LayerManager {
     }
 
     public void onButtonClicked(LayerButton button) {
-        if(buttonManager.containsButton(button)) {
+        if (buttonManager.containsButton(button)) {
             toggleLayer();
         }
     }
@@ -53,11 +52,10 @@ public abstract class LayerManager {
         forceRefresh = true;
     }
 
-    public void onOpenMap() {
+    public void onOpenMap() {}
 
-    }
-
-    protected abstract List<? extends ILocationProvider> generateVisibleElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ);
+    protected abstract List<? extends ILocationProvider> generateVisibleElements(
+            int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ);
 
     protected boolean needsRegenerateVisibleElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
         return true;
@@ -92,7 +90,7 @@ public abstract class LayerManager {
     }
 
     protected void checkAndUpdateElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
-        if(forceRefresh || needsRegenerateVisibleElements(minBlockX, minBlockZ, maxBlockX, maxBlockZ)) {
+        if (forceRefresh || needsRegenerateVisibleElements(minBlockX, minBlockZ, maxBlockX, maxBlockZ)) {
             visibleElements = generateVisibleElements(minBlockX, minBlockZ, maxBlockX, maxBlockZ);
             layerRenderer.values().forEach(layer -> layer.updateVisibleElements(visibleElements));
             forceRefresh = false;

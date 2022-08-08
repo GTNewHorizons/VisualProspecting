@@ -4,10 +4,9 @@ import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.Undergro
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
-import journeymap.client.render.draw.DrawStep;
-
 import java.util.ArrayList;
 import java.util.List;
+import journeymap.client.render.draw.DrawStep;
 
 public class UndergroundFluidRenderer extends LayerRenderer {
 

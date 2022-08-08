@@ -5,11 +5,15 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 
-
-@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]", dependencies = "required-after:spongemixins@[1.1.0,);")
+@Mod(
+        modid = Tags.MODID,
+        version = Tags.VERSION,
+        name = Tags.MODNAME,
+        acceptedMinecraftVersions = "[1.7.10]",
+        dependencies = "required-after:spongemixins@[1.1.0,);")
 public class VPMod {
 
-    @SidedProxy(clientSide= Tags.GROUPNAME + ".hooks.HooksClient", serverSide= Tags.GROUPNAME + ".hooks.HooksShared")
+    @SidedProxy(clientSide = Tags.GROUPNAME + ".hooks.HooksClient", serverSide = Tags.GROUPNAME + ".hooks.HooksShared")
     public static HooksShared proxy;
 
     @Mod.EventHandler
@@ -17,7 +21,7 @@ public class VPMod {
     // etc, and register them with the GameRegistry."
     public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
         VP.debug("Registered sided proxy for: " + (Utils.isLogicalClient() ? "Client" : "Dedicated server"));
-        VP.debug("preInit()"+event.getModMetadata().name);
+        VP.debug("preInit()" + event.getModMetadata().name);
         proxy.fmlLifeCycleEvent(event);
     }
 

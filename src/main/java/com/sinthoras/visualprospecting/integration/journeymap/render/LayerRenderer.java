@@ -3,10 +3,9 @@ package com.sinthoras.visualprospecting.integration.journeymap.render;
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
-import journeymap.client.render.draw.DrawStep;
-
 import java.util.ArrayList;
 import java.util.List;
+import journeymap.client.render.draw.DrawStep;
 
 public abstract class LayerRenderer extends com.sinthoras.visualprospecting.integration.model.layers.LayerRenderer {
 
@@ -36,5 +35,6 @@ public abstract class LayerRenderer extends com.sinthoras.visualprospecting.inte
         drawSteps = (List<DrawStep>) mapLocationProviderToDrawStep(visibleElements);
     }
 
-    protected abstract List<? extends DrawStep> mapLocationProviderToDrawStep(List<? extends ILocationProvider> visibleElements);
+    protected abstract List<? extends DrawStep> mapLocationProviderToDrawStep(
+            List<? extends ILocationProvider> visibleElements);
 }

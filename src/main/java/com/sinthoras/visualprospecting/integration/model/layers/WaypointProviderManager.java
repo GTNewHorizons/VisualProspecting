@@ -1,11 +1,10 @@
 package com.sinthoras.visualprospecting.integration.model.layers;
 
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
-import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
 import com.sinthoras.visualprospecting.integration.model.buttons.ButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
+import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
 import com.sinthoras.visualprospecting.integration.model.waypoints.WaypointManager;
-
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -46,14 +45,15 @@ public abstract class WaypointProviderManager extends LayerManager {
         return waypointManagers.get(map);
     }
 
-    protected abstract List<? extends IWaypointAndLocationProvider> generateVisibleElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ);
+    protected abstract List<? extends IWaypointAndLocationProvider> generateVisibleElements(
+            int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ);
 
     @Override
     protected void checkAndUpdateElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
-        if(forceRefresh || needsRegenerateVisibleElements(minBlockX, minBlockZ, maxBlockX, maxBlockZ)) {
+        if (forceRefresh || needsRegenerateVisibleElements(minBlockX, minBlockZ, maxBlockX, maxBlockZ)) {
             visibleElements = generateVisibleElements(minBlockX, minBlockZ, maxBlockX, maxBlockZ);
 
-            if(hasActiveWaypoint()) {
+            if (hasActiveWaypoint()) {
                 for (IWaypointAndLocationProvider element : visibleElements) {
                     element.onWaypointUpdated(activeWaypoint);
                 }

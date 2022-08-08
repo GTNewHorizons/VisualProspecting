@@ -1,35 +1,33 @@
 package com.sinthoras.visualprospecting.integration.gregtech;
 
-import gregtech.GT_Mod;
-import gregtech.api.objects.GT_UO_Dimension;
-import gregtech.api.objects.GT_UO_Fluid;
-import gregtech.api.objects.XSTR;
-import gregtech.common.GT_UndergroundOil;
-import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidStack;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
 import static gregtech.common.GT_Proxy.*;
 import static gregtech.common.GT_Proxy.GTOIL;
 import static gregtech.common.GT_UndergroundOil.undergroundOil;
 
+import gregtech.GT_Mod;
+import gregtech.api.objects.GT_UO_Dimension;
+import gregtech.api.objects.GT_UO_Fluid;
+import gregtech.api.objects.XSTR;
+import gregtech.common.GT_UndergroundOil;
+import java.util.HashMap;
+import java.util.Map;
+import net.minecraft.world.ChunkCoordIntPair;
+import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+
 public class UndergroundFluidsWrapper {
 
-    private final static boolean isGTNHGregTechUndergroundFluids;
-    private final static float MODE_READ_ONLY = -1;
+    private static final boolean isGTNHGregTechUndergroundFluids;
+    private static final float MODE_READ_ONLY = -1;
 
     static {
         boolean foundMethod;
         try {
             GT_UndergroundOil.class.getDeclaredMethod("undergroundOil", World.class, int.class, int.class, float.class);
             foundMethod = true;
-        }
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             foundMethod = false;
         }
         isGTNHGregTechUndergroundFluids = foundMethod;
@@ -37,10 +35,9 @@ public class UndergroundFluidsWrapper {
 
     // GTNH's GregTech5-Unofficial was rewritten and requires different access
     public static FluidStack prospectFluid(World world, int chunkX, int chunkZ) {
-        if(isGTNHGregTechUndergroundFluids) {
+        if (isGTNHGregTechUndergroundFluids) {
             return undergroundOil(world, chunkX, chunkZ, MODE_READ_ONLY);
-        }
-        else {
+        } else {
             return vanillaProspectFluid(world, chunkX, chunkZ);
         }
     }
@@ -55,14 +52,14 @@ public class UndergroundFluidsWrapper {
             return null;
         }
 
-        Map<ChunkCoordIntPair, int[]> chunkData = dimensionWiseChunkData.computeIfAbsent(dimensionId, k -> new HashMap<>(1024));
+        Map<ChunkCoordIntPair, int[]> chunkData =
+                dimensionWiseChunkData.computeIfAbsent(dimensionId, k -> new HashMap<>(1024));
 
         int[] tInts = chunkData.get(chunkCoordinate);
 
         if (tInts == null) {
             tInts = getDefaultChunkDataOnCreation();
-        }
-        else if (tInts[GTOIL] == 0) {
+        } else if (tInts[GTOIL] == 0) {
             return new FluidStack(FluidRegistry.getFluid(tInts[GTOILFLUID]), 0);
         }
 
@@ -73,32 +70,30 @@ public class UndergroundFluidsWrapper {
         FluidStack fluidInChunk;
 
         if (uoFluid == null || uoFluid.getFluid() == null) {
-            tInts[GTOILFLUID] = Integer.MAX_VALUE;//null fluid pointer... kind of
+            tInts[GTOILFLUID] = Integer.MAX_VALUE; // null fluid pointer... kind of
             tInts[GTOIL] = 0;
-            chunkData.put(chunkCoordinate, tInts);//update hash map
+            chunkData.put(chunkCoordinate, tInts); // update hash map
             return null;
-        }
-        else {
-            if (tInts[GTOILFLUID] == uoFluid.getFluid().getID()) {//if stored fluid matches uoFluid
+        } else {
+            if (tInts[GTOILFLUID] == uoFluid.getFluid().getID()) { // if stored fluid matches uoFluid
                 fluidInChunk = new FluidStack(uoFluid.getFluid(), tInts[GTOIL]);
-            }
-            else {
+            } else {
                 fluidInChunk = new FluidStack(uoFluid.getFluid(), uoFluid.getRandomAmount(tRandom));
-                fluidInChunk.amount = (int) ((float) fluidInChunk.amount * (0.75f + (XSTR_INSTANCE.nextFloat() / 2f)));//Randomly change amounts by +/- 25%
+                fluidInChunk.amount = (int) ((float) fluidInChunk.amount
+                        * (0.75f + (XSTR_INSTANCE.nextFloat() / 2f))); // Randomly change amounts by +/- 25%
             }
             tInts[GTOIL] = fluidInChunk.amount;
             tInts[GTOILFLUID] = fluidInChunk.getFluidID();
         }
 
         if (fluidInChunk.amount <= GT_UndergroundOil.DIVIDER) {
-            fluidInChunk.amount = 0;//return informative stack
-            tInts[GTOIL] = 0;//so in next access it will stop way above
-        }
-        else {
-            fluidInChunk.amount = fluidInChunk.amount / GT_UndergroundOil.DIVIDER;//give moderate extraction speed
+            fluidInChunk.amount = 0; // return informative stack
+            tInts[GTOIL] = 0; // so in next access it will stop way above
+        } else {
+            fluidInChunk.amount = fluidInChunk.amount / GT_UndergroundOil.DIVIDER; // give moderate extraction speed
         }
 
-        chunkData.put(chunkCoordinate, tInts);//update hash map
+        chunkData.put(chunkCoordinate, tInts); // update hash map
         return fluidInChunk;
     }
 }

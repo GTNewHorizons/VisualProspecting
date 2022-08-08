@@ -6,12 +6,11 @@ import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.TransferCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.network.ProspectionSharing;
+import java.util.List;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
-
-import java.util.List;
 
 public class SnapshotDownloadTask implements ITask {
 
@@ -30,7 +29,7 @@ public class SnapshotDownloadTask implements ITask {
     @Override
     public boolean process() {
         final long timestamp = System.currentTimeMillis();
-        if(timestamp - lastUpload > 1000 / Config.uploadPacketsPerSecond && listsEmpty() == false) {
+        if (timestamp - lastUpload > 1000 / Config.uploadPacketsPerSecond && listsEmpty() == false) {
             lastUpload = timestamp;
             final ProspectionSharing packet = new ProspectionSharing();
 
@@ -47,8 +46,9 @@ public class SnapshotDownloadTask implements ITask {
 
             VP.network.sendTo(packet, player);
 
-            if(listsEmpty()) {
-                final IChatComponent notification = new ChatComponentTranslation("item.visualprospecting.prospectorslog.reading.end", player.getDisplayName());
+            if (listsEmpty()) {
+                final IChatComponent notification = new ChatComponentTranslation(
+                        "item.visualprospecting.prospectorslog.reading.end", player.getDisplayName());
                 notification.getChatStyle().setItalic(true);
                 notification.getChatStyle().setColor(EnumChatFormatting.GRAY);
                 player.addChatMessage(notification);

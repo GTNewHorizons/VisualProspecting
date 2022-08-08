@@ -3,7 +3,6 @@ package com.sinthoras.visualprospecting.database.cachebuilder;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import io.xol.enklume.MinecraftWorld;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -14,7 +13,7 @@ public class WorldAnalysis {
     private final MinecraftWorld world;
 
     public WorldAnalysis(File worldDirectory) throws IOException {
-            world = new MinecraftWorld(worldDirectory);
+        world = new MinecraftWorld(worldDirectory);
     }
 
     public void cacheVeins() throws IOException, DataFormatException {
@@ -22,7 +21,7 @@ public class WorldAnalysis {
         ServerCache.instance.reset();
         final List<Integer> dimensionIds = world.getDimensionIds();
         AnalysisProgressTracker.setNumberOfDimensions(dimensionIds.size());
-        for(int dimensionId : dimensionIds) {
+        for (int dimensionId : dimensionIds) {
             final DimensionAnalysis dimension = new DimensionAnalysis(dimensionId);
             dimension.processMinecraftWorld(world);
             AnalysisProgressTracker.dimensionProcessed();

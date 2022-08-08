@@ -3,11 +3,7 @@ package com.sinthoras.visualprospecting;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sinthoras.visualprospecting.hooks.HooksClient;
-
 import cpw.mods.fml.common.Loader;
-import net.minecraft.client.Minecraft;
-import net.minecraft.launchwrapper.Launch;
-
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -19,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import net.minecraft.client.Minecraft;
+import net.minecraft.launchwrapper.Launch;
 
 public class Utils {
 
@@ -45,7 +43,7 @@ public class Utils {
     public static boolean isXaerosWorldMapInstalled() {
         return Loader.isModLoaded("XaeroWorldMap");
     }
-    
+
     public static boolean isVoxelMapInstalled() {
         try {
             // If a LiteLoader mod is present cannot be checked by calling Loader#isModLoaded.
@@ -66,14 +64,13 @@ public class Utils {
     }
 
     public static long chunkCoordsToKey(int chunkX, int chunkZ) {
-        return (((long)chunkX) << 32) | (chunkZ & 0xffffffffL);
+        return (((long) chunkX) << 32) | (chunkZ & 0xffffffffL);
     }
 
     public static int mapToCenterOreChunkCoord(final int chunkCoord) {
-        if(chunkCoord >= 0) {
+        if (chunkCoord >= 0) {
             return chunkCoord - (chunkCoord % 3) + 1;
-        }
-        else {
+        } else {
             return chunkCoord - (chunkCoord % 3) - 1;
         }
     }
@@ -91,7 +88,7 @@ public class Utils {
     }
 
     public static short oreIdToMaterialId(short metaData) {
-        return (short)(metaData % 1000);
+        return (short) (metaData % 1000);
     }
 
     public static boolean isLogicalClient() {
@@ -99,10 +96,9 @@ public class Utils {
     }
 
     public static File getMinecraftDirectory() {
-        if(isLogicalClient()) {
+        if (isLogicalClient()) {
             return Minecraft.getMinecraft().mcDataDir;
-        }
-        else {
+        } else {
             return new File(".");
         }
     }
@@ -117,18 +113,16 @@ public class Utils {
                     .sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static ByteBuffer readFileToBuffer(File file) {
-        if(file.exists() == false) {
+        if (file.exists() == false) {
             return null;
         }
-        try
-        {
+        try {
             final FileInputStream inputStream = new FileInputStream(file);
             final FileChannel inputChannel = inputStream.getChannel();
             final ByteBuffer buffer = ByteBuffer.allocate((int) inputChannel.size());
@@ -140,25 +134,23 @@ public class Utils {
             inputStream.close();
 
             return buffer;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
     public static Map<String, Short> readFileToMap(File file) {
-        if(file.exists() == false) {
+        if (file.exists() == false) {
             return new HashMap<>();
         }
         try {
             final Gson gson = new Gson();
             final Reader reader = Files.newBufferedReader(file.toPath());
-            final Map<String, Short> map = gson.fromJson(reader, new TypeToken<Map<String, Short>>() { }.getType());
+            final Map<String, Short> map = gson.fromJson(reader, new TypeToken<Map<String, Short>>() {}.getType());
             reader.close();
             return map;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return new HashMap<>();
         }
@@ -166,22 +158,21 @@ public class Utils {
 
     public static void writeMapToFile(File file, Map<String, Short> map) {
         try {
-            if(file.exists()) {
+            if (file.exists()) {
                 file.delete();
             }
             final Gson gson = new Gson();
             final Writer writer = Files.newBufferedWriter(file.toPath(), StandardOpenOption.CREATE_NEW);
-            gson.toJson(map, new TypeToken<Map<String, Short>>() { }.getType(), writer);
+            gson.toJson(map, new TypeToken<Map<String, Short>>() {}.getType(), writer);
             writer.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void appendToFile(File file, ByteBuffer byteBuffer) {
         try {
-            if(file.exists() == false) {
+            if (file.exists() == false) {
                 file.createNewFile();
             }
             final FileOutputStream outputStream = new FileOutputStream(file, true);
@@ -191,8 +182,7 @@ public class Utils {
 
             outputChannel.close();
             outputStream.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -202,7 +192,8 @@ public class Utils {
             final List<Integer> dimensionIds = Files.walk(directory.toPath(), 1)
                     .filter(Files::isRegularFile)
                     .filter(path -> path.getFileName().toString().startsWith("DIM"))
-                    .map(dimensionFolder -> Integer.parseInt(dimensionFolder.getFileName().toString().substring(3)))
+                    .map(dimensionFolder -> Integer.parseInt(
+                            dimensionFolder.getFileName().toString().substring(3)))
                     .collect(Collectors.toList());
             final Map<Integer, ByteBuffer> dimensionFiles = new HashMap<>();
             for (int dimensionId : dimensionIds) {
@@ -213,8 +204,7 @@ public class Utils {
             }
             return dimensionFiles;
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return new HashMap<>();
         }

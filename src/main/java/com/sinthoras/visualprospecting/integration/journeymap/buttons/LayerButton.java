@@ -19,7 +19,7 @@ public class LayerButton extends com.sinthoras.visualprospecting.integration.mod
     @Override
     public void updateState(boolean active) {
         isActive = active;
-        if(button != null) {
+        if (button != null) {
             button.setToggled(active, false);
         }
     }

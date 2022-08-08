@@ -8,10 +8,9 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
-import net.minecraft.client.Minecraft;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 
 public class OreVeinLayerManager extends WaypointProviderManager {
 
@@ -38,7 +37,10 @@ public class OreVeinLayerManager extends WaypointProviderManager {
         final int maxOreChunkX = Utils.mapToCenterOreChunkCoord(Utils.coordBlockToChunk(maxBlockX));
         final int maxOreChunkZ = Utils.mapToCenterOreChunkCoord(Utils.coordBlockToChunk(maxBlockZ));
 
-        if (minOreChunkX != oldMinOreChunkX || maxOreChunkX != oldMaxOreChunkX || minOreChunkZ != oldMinOreChunkZ || maxOreChunkZ != oldMaxOreChunkZ) {
+        if (minOreChunkX != oldMinOreChunkX
+                || maxOreChunkX != oldMaxOreChunkX
+                || minOreChunkZ != oldMinOreChunkZ
+                || maxOreChunkZ != oldMaxOreChunkZ) {
             oldMinOreChunkX = minOreChunkX;
             oldMaxOreChunkX = maxOreChunkX;
             oldMinOreChunkZ = minOreChunkZ;
@@ -49,7 +51,8 @@ public class OreVeinLayerManager extends WaypointProviderManager {
     }
 
     @Override
-    protected List<? extends IWaypointAndLocationProvider> generateVisibleElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
+    protected List<? extends IWaypointAndLocationProvider> generateVisibleElements(
+            int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
         final int minOreChunkX = Utils.mapToCenterOreChunkCoord(Utils.coordBlockToChunk(minBlockX));
         final int minOreChunkZ = Utils.mapToCenterOreChunkCoord(Utils.coordBlockToChunk(minBlockZ));
         final int maxOreChunkX = Utils.mapToCenterOreChunkCoord(Utils.coordBlockToChunk(maxBlockX));
@@ -59,8 +62,11 @@ public class OreVeinLayerManager extends WaypointProviderManager {
         ArrayList<OreVeinLocation> oreChunkLocations = new ArrayList<>();
 
         for (int chunkX = minOreChunkX; chunkX <= maxOreChunkX; chunkX = Utils.mapToCenterOreChunkCoord(chunkX + 3)) {
-            for (int chunkZ = minOreChunkZ; chunkZ <= maxOreChunkZ; chunkZ = Utils.mapToCenterOreChunkCoord(chunkZ + 3)) {
-                final OreVeinPosition oreVeinPosition = ClientCache.instance.getOreVein(playerDimensionId, chunkX, chunkZ);
+            for (int chunkZ = minOreChunkZ;
+                    chunkZ <= maxOreChunkZ;
+                    chunkZ = Utils.mapToCenterOreChunkCoord(chunkZ + 3)) {
+                final OreVeinPosition oreVeinPosition =
+                        ClientCache.instance.getOreVein(playerDimensionId, chunkX, chunkZ);
                 if (oreVeinPosition.veinType != VeinType.NO_VEIN) {
                     oreChunkLocations.add(new OreVeinLocation(oreVeinPosition));
                 }

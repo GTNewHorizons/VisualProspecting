@@ -7,6 +7,7 @@ import com.sinthoras.visualprospecting.integration.journeymap.render.LayerRender
 import com.sinthoras.visualprospecting.integration.journeymap.render.WaypointProviderLayerRenderer;
 import com.sinthoras.visualprospecting.integration.model.MapState;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
+import java.util.List;
 import journeymap.client.Constants;
 import journeymap.client.io.ThemeFileHandler;
 import journeymap.client.log.LogFormatter;
@@ -38,8 +39,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-
-import java.util.List;
 
 @Mixin(value = Fullscreen.class, remap = false)
 public abstract class FullscreenMixin extends JmUI {
@@ -107,44 +106,59 @@ public abstract class FullscreenMixin extends JmUI {
         MapState.instance.layers.forEach(LayerManager::onOpenMap);
     }
 
-    @Inject(method = "drawMap",
-            at = @At(value = "INVOKE",
-                    target = "Ljourneymap/client/model/MapState;getDrawWaypointSteps()Ljava/util/List;"),
+    @Inject(
+            method = "drawMap",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Ljourneymap/client/model/MapState;getDrawWaypointSteps()Ljava/util/List;"),
             remap = false,
             require = 1,
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private void onBeforeDrawJourneyMapWaypoints(CallbackInfo callbackInfo, boolean refreshReady, StatTimer timer, int xOffset, int yOffset, float drawScale) {
+    private void onBeforeDrawJourneyMapWaypoints(
+            CallbackInfo callbackInfo,
+            boolean refreshReady,
+            StatTimer timer,
+            int xOffset,
+            int yOffset,
+            float drawScale) {
         final int fontScale = getMapFontScale();
         final Minecraft minecraft = Minecraft.getMinecraft();
         final int centerBlockX = (int) Math.round(gridRenderer.getCenterBlockX());
         final int centerBlockZ = (int) Math.round(gridRenderer.getCenterBlockZ());
         final int widthBlocks = minecraft.displayWidth >> gridRenderer.getZoom();
         final int heightBlocks = minecraft.displayHeight >> gridRenderer.getZoom();
-        for(LayerManager layerManager : MapState.instance.layers) {
-            if(layerManager.isLayerActive()) {
+        for (LayerManager layerManager : MapState.instance.layers) {
+            if (layerManager.isLayerActive()) {
                 layerManager.recacheFullscreenMap(centerBlockX, centerBlockZ, widthBlocks, heightBlocks);
             }
         }
 
-        for(LayerRenderer layerRenderer : JourneyMapState.instance.renderers) {
-            if(layerRenderer.isLayerActive()) {
-                gridRenderer.draw(layerRenderer.getDrawStepsCachedForRendering(), xOffset, yOffset, drawScale, fontScale, 0.0);
+        for (LayerRenderer layerRenderer : JourneyMapState.instance.renderers) {
+            if (layerRenderer.isLayerActive()) {
+                gridRenderer.draw(
+                        layerRenderer.getDrawStepsCachedForRendering(), xOffset, yOffset, drawScale, fontScale, 0.0);
             }
         }
     }
 
-    @Redirect(method = "initButtons",
-            at = @At(value = "FIELD",
-                    target = "Ljourneymap/client/ui/fullscreen/Fullscreen;mapTypeToolbar:Ljourneymap/client/ui/theme/ThemeToolbar;",
-                    opcode = Opcodes.PUTFIELD),
+    @Redirect(
+            method = "initButtons",
+            at =
+                    @At(
+                            value = "FIELD",
+                            target =
+                                    "Ljourneymap/client/ui/fullscreen/Fullscreen;mapTypeToolbar:Ljourneymap/client/ui/theme/ThemeToolbar;",
+                            opcode = Opcodes.PUTFIELD),
             remap = false,
             require = 1)
     private void OnCreateMapTypeToolbar(Fullscreen owner, ThemeToolbar value) {
         final Theme theme = ThemeFileHandler.getCurrentTheme();
         final ButtonList buttonList = new ButtonList();
 
-        for(LayerButton layerButton : JourneyMapState.instance.buttons) {
-            final ThemeToggle button = new ThemeToggle(theme, layerButton.getButtonTextKey(), layerButton.getIconName());
+        for (LayerButton layerButton : JourneyMapState.instance.buttons) {
+            final ThemeToggle button =
+                    new ThemeToggle(theme, layerButton.getButtonTextKey(), layerButton.getIconName());
             layerButton.setButton(button);
             button.setToggled(layerButton.isActive(), false);
             button.addToggleListener((unused, toggled) -> {
@@ -171,13 +185,12 @@ public abstract class FullscreenMixin extends JmUI {
             if (firstLayoutPass) {
                 layoutButtons();
                 firstLayoutPass = false;
-            }
-            else {
-                for(int k = 0; k < buttonList.size(); ++k) {
+            } else {
+                for (int k = 0; k < buttonList.size(); ++k) {
                     GuiButton guibutton = (GuiButton) buttonList.get(k);
                     guibutton.drawButton(mc, width, height);
                     if (tooltip == null && guibutton instanceof Button) {
-                        Button button = (Button)guibutton;
+                        Button button = (Button) guibutton;
                         if (button.mouseOver(mx, my)) {
                             tooltip = button.getTooltip();
                         }
@@ -187,17 +200,18 @@ public abstract class FullscreenMixin extends JmUI {
 
             final int scaledMouseX = (mx * mc.displayWidth) / this.width;
             final int scaledMouseY = (my * mc.displayHeight) / this.height;
-            for(LayerRenderer layer : JourneyMapState.instance.renderers) {
+            for (LayerRenderer layer : JourneyMapState.instance.renderers) {
                 if (layer instanceof WaypointProviderLayerRenderer) {
                     final WaypointProviderLayerRenderer waypointProviderLayer = (WaypointProviderLayerRenderer) layer;
                     waypointProviderLayer.onMouseMove(scaledMouseX, scaledMouseY);
                 }
             }
 
-            if(tooltip == null) {
-                for(LayerRenderer layer : JourneyMapState.instance.renderers) {
+            if (tooltip == null) {
+                for (LayerRenderer layer : JourneyMapState.instance.renderers) {
                     if (layer instanceof WaypointProviderLayerRenderer) {
-                        final WaypointProviderLayerRenderer waypointProviderLayer = (WaypointProviderLayerRenderer) layer;
+                        final WaypointProviderLayerRenderer waypointProviderLayer =
+                                (WaypointProviderLayerRenderer) layer;
                         if (waypointProviderLayer.isLayerActive()) {
                             tooltip = waypointProviderLayer.getTextTooltip();
                         }
@@ -212,11 +226,11 @@ public abstract class FullscreenMixin extends JmUI {
             if (tooltip != null && !tooltip.isEmpty()) {
                 drawHoveringText(tooltip, mx, my, getFontRenderer());
                 RenderHelper.disableStandardItemLighting();
-            }
-            else {
-                for(LayerRenderer layer : JourneyMapState.instance.renderers) {
+            } else {
+                for (LayerRenderer layer : JourneyMapState.instance.renderers) {
                     if (layer instanceof WaypointProviderLayerRenderer) {
-                        final WaypointProviderLayerRenderer waypointProviderLayer = (WaypointProviderLayerRenderer) layer;
+                        final WaypointProviderLayerRenderer waypointProviderLayer =
+                                (WaypointProviderLayerRenderer) layer;
                         if (waypointProviderLayer.isLayerActive()) {
                             waypointProviderLayer.drawCustomTooltip(getFontRenderer(), mx, my, this.width, this.height);
                         }
@@ -224,26 +238,19 @@ public abstract class FullscreenMixin extends JmUI {
                 }
             }
 
-
-        }
-        catch (Throwable var11) {
-            logger.log(Level.ERROR, "Unexpected exception in jm.fullscreen.drawScreen(): " + LogFormatter.toString(var11));
+        } catch (Throwable var11) {
+            logger.log(
+                    Level.ERROR, "Unexpected exception in jm.fullscreen.drawScreen(): " + LogFormatter.toString(var11));
             UIManager.getInstance().closeAll();
-        }
-        finally {
+        } finally {
             drawScreenTimer.stop();
         }
-
     }
 
-    @Inject(method = "func_73869_a",
-            at = @At(value = "HEAD"),
-            remap = false,
-            require = 1,
-            cancellable = true)
+    @Inject(method = "func_73869_a", at = @At(value = "HEAD"), remap = false, require = 1, cancellable = true)
     private void onKeyPress(CallbackInfo callbackInfo) {
-        if((chat == null || chat.isHidden()) && Constants.isPressed(VP.keyAction)) {
-            for(LayerRenderer layer : JourneyMapState.instance.renderers) {
+        if ((chat == null || chat.isHidden()) && Constants.isPressed(VP.keyAction)) {
+            for (LayerRenderer layer : JourneyMapState.instance.renderers) {
                 if (layer instanceof WaypointProviderLayerRenderer) {
                     ((WaypointProviderLayerRenderer) layer).onActionKeyPressed();
                 }
@@ -263,9 +270,17 @@ public abstract class FullscreenMixin extends JmUI {
             final int scaledMouseX = mx * mc.displayWidth / width;
             final int scaledMouseY = my * mc.displayHeight / height;
             final double blockSize = Math.pow(2.0D, gridRenderer.getZoom());
-            if(onMapClicked(mouseButton, scaledMouseX, scaledMouseY, blockSize) == false) {
-                BlockCoordIntPair blockCoord = gridRenderer.getBlockUnderMouse(Mouse.getEventX(), Mouse.getEventY(), mc.displayWidth, mc.displayHeight);
-                layerDelegate.onMouseClicked(mc, Mouse.getEventX(), Mouse.getEventY(), gridRenderer.getWidth(), gridRenderer.getHeight(), blockCoord, mouseButton);
+            if (onMapClicked(mouseButton, scaledMouseX, scaledMouseY, blockSize) == false) {
+                BlockCoordIntPair blockCoord = gridRenderer.getBlockUnderMouse(
+                        Mouse.getEventX(), Mouse.getEventY(), mc.displayWidth, mc.displayHeight);
+                layerDelegate.onMouseClicked(
+                        mc,
+                        Mouse.getEventX(),
+                        Mouse.getEventY(),
+                        gridRenderer.getWidth(),
+                        gridRenderer.getHeight(),
+                        blockCoord,
+                        mouseButton);
             }
         }
     }
@@ -277,12 +292,12 @@ public abstract class FullscreenMixin extends JmUI {
         oldMouseY = mouseY;
         timeLastClick = isDoubleClick ? 0 : timestamp;
 
-        if(mouseButton != 0) {
+        if (mouseButton != 0) {
             return false;
         }
 
         boolean layerHit = false;
-        for(LayerRenderer layer : JourneyMapState.instance.renderers) {
+        for (LayerRenderer layer : JourneyMapState.instance.renderers) {
             if (layer instanceof WaypointProviderLayerRenderer) {
                 ((WaypointProviderLayerRenderer) layer).onMouseMove(mouseX, mouseY);
                 layerHit |= ((WaypointProviderLayerRenderer) layer).onMouseAction(isDoubleClick);

@@ -4,7 +4,6 @@ import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerMana
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.OreVeinRenderStep;
-
 import java.util.ArrayList;
 import java.util.List;
 

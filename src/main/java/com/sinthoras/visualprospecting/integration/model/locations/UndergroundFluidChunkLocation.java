@@ -13,7 +13,14 @@ public class UndergroundFluidChunkLocation implements ILocationProvider {
     private final int maxAmountInField;
     private final int minAmountInField;
 
-    public UndergroundFluidChunkLocation(int chunkX, int chunkZ, int dimensionId, Fluid fluid, int fluidAmount, int minAmountInField, int maxAmountInField) {
+    public UndergroundFluidChunkLocation(
+            int chunkX,
+            int chunkZ,
+            int dimensionId,
+            Fluid fluid,
+            int fluidAmount,
+            int minAmountInField,
+            int maxAmountInField) {
         blockX = Utils.coordChunkToBlock(chunkX);
         blockZ = Utils.coordChunkToBlock(chunkZ);
         this.dimensionId = dimensionId;
@@ -36,7 +43,7 @@ public class UndergroundFluidChunkLocation implements ILocationProvider {
     }
 
     public String getFluidAmountFormatted() {
-        if(fluidAmount >= 1000) {
+        if (fluidAmount >= 1000) {
             return (fluidAmount / 1000) + "kL";
         }
         return fluidAmount + "L";

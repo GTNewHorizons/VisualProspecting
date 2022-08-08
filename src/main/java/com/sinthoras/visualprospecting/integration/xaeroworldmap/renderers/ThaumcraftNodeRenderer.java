@@ -4,7 +4,6 @@ import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLa
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.ThaumcraftNodeRenderStep;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -1,13 +1,12 @@
 package com.sinthoras.visualprospecting.integration.xaerominimap;
 
+import static com.sinthoras.visualprospecting.Utils.isTCNodeTrackerInstalled;
+
 import com.sinthoras.visualprospecting.integration.xaerominimap.waypoints.OreVeinWaypointManager;
 import com.sinthoras.visualprospecting.integration.xaerominimap.waypoints.ThaumcraftNodeWaypointManager;
 import com.sinthoras.visualprospecting.integration.xaerominimap.waypoints.WaypointManager;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.sinthoras.visualprospecting.Utils.isTCNodeTrackerInstalled;
 
 public class XaeroMiniMapState {
 

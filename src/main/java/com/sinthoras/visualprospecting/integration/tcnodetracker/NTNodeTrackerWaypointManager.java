@@ -5,7 +5,8 @@ import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
 
-public class NTNodeTrackerWaypointManager extends com.sinthoras.visualprospecting.integration.model.waypoints.WaypointManager {
+public class NTNodeTrackerWaypointManager
+        extends com.sinthoras.visualprospecting.integration.model.waypoints.WaypointManager {
 
     public NTNodeTrackerWaypointManager() {
         super(ThaumcraftNodeLayerManager.instance, SupportedMods.TCNodeTracker);

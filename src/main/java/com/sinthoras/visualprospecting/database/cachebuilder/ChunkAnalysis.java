@@ -4,7 +4,6 @@ import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import io.xol.enklume.nbt.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,9 +17,9 @@ public class ChunkAnalysis {
     public void processMinecraftChunk(final NBTCompound chunkRoot) {
         for (final NBTNamed tileEntity : ((NBTList) chunkRoot.getTag("Level.TileEntities")).elements) {
             final GregTechOre gtOre = new GregTechOre((NBTCompound) tileEntity);
-            if(gtOre.isValidGTOre) {
+            if (gtOre.isValidGTOre) {
                 ores.add(gtOre.metaData);
-                if(minVeinBlockY > gtOre.blockY) {
+                if (minVeinBlockY > gtOre.blockY) {
                     minVeinBlockY = gtOre.blockY;
                 }
             }
@@ -28,8 +27,8 @@ public class ChunkAnalysis {
     }
 
     public boolean matchesSingleVein() {
-        for(VeinType veinType : VeinTypeCaching.veinTypes) {
-            if(veinType.matches(ores)) {
+        for (VeinType veinType : VeinTypeCaching.veinTypes) {
+            if (veinType.matches(ores)) {
                 matchedVeins.add(veinType);
             }
         }
@@ -38,7 +37,7 @@ public class ChunkAnalysis {
 
     // Result only valid if matchesSingleVein() returned true
     public VeinType getMatchedVein() {
-        if(matchedVeins.isEmpty()) {
+        if (matchedVeins.isEmpty()) {
             return VeinType.NO_VEIN;
         }
         return matchedVeins.stream().findAny().get();

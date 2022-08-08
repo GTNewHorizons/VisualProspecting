@@ -39,20 +39,20 @@ public class ResetClientCacheConfirmation extends JmUI {
     }
 
     protected void func_146284_a(GuiButton guibutton) {
-        if(guibutton == confirmButton) {
+        if (guibutton == confirmButton) {
             ClientCache.instance.resetPlayerProgression();
-            final IChatComponent confirmation = new ChatComponentTranslation("visualprospecting.resetprogress.confirmation");
+            final IChatComponent confirmation =
+                    new ChatComponentTranslation("visualprospecting.resetprogress.confirmation");
             confirmation.getChatStyle().setItalic(true);
             Minecraft.getMinecraft().thePlayer.addChatMessage(confirmation);
             UIManager.getInstance().openFullscreenMap();
-        }
-        else if(guibutton == cancelButton) {
+        } else if (guibutton == cancelButton) {
             UIManager.getInstance().openMapActions();
         }
     }
 
     protected void func_73869_a(char c, int i) {
-        switch(i) {
+        switch (i) {
             case 1:
                 UIManager.getInstance().openMapActions();
             default:

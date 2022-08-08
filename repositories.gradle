@@ -11,7 +11,7 @@ repositories {
             artifact()
         }
     }
-        maven {
+    maven {
         name = "ic2"
         url = "https://maven2.ic2.player.to/"
         metadataSources {

@@ -4,13 +4,13 @@ import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.layers.WaypointProviderManager;
 import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
-import xaero.common.minimap.waypoints.WaypointsManager;
-
 import java.util.Hashtable;
+import xaero.common.minimap.waypoints.WaypointsManager;
 
 public class WaypointManager extends com.sinthoras.visualprospecting.integration.model.waypoints.WaypointManager {
 
-    private static final Hashtable<Integer, xaero.common.minimap.waypoints.Waypoint> xWaypointTable = WaypointsManager.getCustomWaypoints(Tags.MODID);
+    private static final Hashtable<Integer, xaero.common.minimap.waypoints.Waypoint> xWaypointTable =
+            WaypointsManager.getCustomWaypoints(Tags.MODID);
 
     private WaypointWithDimension xWaypoint;
     private final WaypointType waypointType;
@@ -36,9 +36,19 @@ public class WaypointManager extends com.sinthoras.visualprospecting.integration
 
     @Override
     public void updateActiveWaypoint(Waypoint waypoint) {
-        if (!hasWaypoint() || waypoint.blockX != xWaypoint.getX() || waypoint.blockY != xWaypoint.getY() ||
-                waypoint.blockZ != xWaypoint.getZ() || waypoint.dimensionId != xWaypoint.getDimID()) {
-            xWaypoint = new WaypointWithDimension(waypoint.blockX, waypoint.blockY, waypoint.blockZ, waypoint.label, getSymbol(waypoint), 15, waypoint.dimensionId);
+        if (!hasWaypoint()
+                || waypoint.blockX != xWaypoint.getX()
+                || waypoint.blockY != xWaypoint.getY()
+                || waypoint.blockZ != xWaypoint.getZ()
+                || waypoint.dimensionId != xWaypoint.getDimID()) {
+            xWaypoint = new WaypointWithDimension(
+                    waypoint.blockX,
+                    waypoint.blockY,
+                    waypoint.blockZ,
+                    waypoint.label,
+                    getSymbol(waypoint),
+                    15,
+                    waypoint.dimensionId);
             xWaypointTable.put(waypointType.ordinal(), xWaypoint);
         }
     }

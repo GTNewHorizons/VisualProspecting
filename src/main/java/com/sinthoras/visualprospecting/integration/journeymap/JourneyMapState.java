@@ -1,18 +1,17 @@
 package com.sinthoras.visualprospecting.integration.journeymap;
 
+import static com.sinthoras.visualprospecting.Utils.isTCNodeTrackerInstalled;
+import static com.sinthoras.visualprospecting.integration.journeymap.Reflection.getJourneyMapGridRenderer;
+
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.integration.journeymap.buttons.*;
 import com.sinthoras.visualprospecting.integration.journeymap.render.*;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.OreVeinWaypointManager;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.ThaumcraftNodeWaypointManager;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.WaypointManager;
-import journeymap.client.render.map.GridRenderer;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.sinthoras.visualprospecting.Utils.isTCNodeTrackerInstalled;
-import static com.sinthoras.visualprospecting.integration.journeymap.Reflection.getJourneyMapGridRenderer;
+import journeymap.client.render.map.GridRenderer;
 
 public class JourneyMapState {
 
@@ -23,7 +22,7 @@ public class JourneyMapState {
     public final List<WaypointManager> waypointManagers = new ArrayList<>();
 
     public JourneyMapState() {
-        if(isTCNodeTrackerInstalled()) {
+        if (isTCNodeTrackerInstalled()) {
             buttons.add(ThaumcraftNodeButton.instance);
             renderers.add(ThaumcraftNodeRenderer.instance);
             waypointManagers.add(ThaumcraftNodeWaypointManager.instance);
@@ -37,7 +36,7 @@ public class JourneyMapState {
         renderers.add(OreVeinRenderer.instance);
         waypointManagers.add(OreVeinWaypointManager.instance);
 
-        if(Config.enableDeveloperOverlays) {
+        if (Config.enableDeveloperOverlays) {
             buttons.add(DirtyChunkButton.instance);
             renderers.add(DirtyChunkRenderer.instance);
         }

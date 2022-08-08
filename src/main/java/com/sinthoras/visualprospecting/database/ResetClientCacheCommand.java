@@ -21,7 +21,8 @@ public class ResetClientCacheCommand extends CommandBase {
     @Override
     public void processCommand(ICommandSender sender, String[] parameters) {
         ClientCache.instance.resetPlayerProgression();
-        final IChatComponent confirmation = new ChatComponentTranslation("visualprospecting.resetprogress.confirmation");
+        final IChatComponent confirmation =
+                new ChatComponentTranslation("visualprospecting.resetprogress.confirmation");
         confirmation.getChatStyle().setItalic(true);
         sender.addChatMessage(confirmation);
     }

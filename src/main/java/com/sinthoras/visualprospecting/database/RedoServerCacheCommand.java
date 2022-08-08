@@ -3,6 +3,9 @@ package com.sinthoras.visualprospecting.database;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.cachebuilder.WorldAnalysis;
 import cpw.mods.fml.server.FMLServerHandler;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.zip.DataFormatException;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -10,10 +13,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.util.StatCollector;
-
-import java.io.IOException;
-import java.util.Objects;
-import java.util.zip.DataFormatException;
 
 public class RedoServerCacheCommand extends CommandBase {
 
@@ -44,7 +43,8 @@ public class RedoServerCacheCommand extends CommandBase {
         start.getChatStyle().setItalic(true);
         sender.addChatMessage(start);
         try {
-            WorldAnalysis world = new WorldAnalysis(server.getEntityWorld().getSaveHandler().getWorldDirectory());
+            WorldAnalysis world =
+                    new WorldAnalysis(server.getEntityWorld().getSaveHandler().getWorldDirectory());
             world.cacheVeins();
         } catch (IOException | DataFormatException e) {
             VP.info("Could not load world save files to build vein cache!");
@@ -53,7 +53,8 @@ public class RedoServerCacheCommand extends CommandBase {
             failure.getChatStyle().setItalic(true);
             sender.addChatMessage(failure);
         }
-        final IChatComponent confirmation = new ChatComponentTranslation("visualprospecting.redoservercache.confirmation");
+        final IChatComponent confirmation =
+                new ChatComponentTranslation("visualprospecting.redoservercache.confirmation");
         confirmation.getChatStyle().setItalic(true);
         sender.addChatMessage(confirmation);
     }

@@ -15,7 +15,16 @@ public class GT_Block_Ores_AbstractMixin extends GT_Generic_Block {
     }
 
     @Override
-    public boolean onBlockActivated(World world, int blockX, int blockY, int blockZ, EntityPlayer player, int side, float offsetX, float offsetY, float offsetZ) {
+    public boolean onBlockActivated(
+            World world,
+            int blockX,
+            int blockY,
+            int blockZ,
+            EntityPlayer player,
+            int side,
+            float offsetX,
+            float offsetY,
+            float offsetZ) {
         ClientCache.instance.onOreInteracted(world, blockX, blockY, blockZ, player);
         return super.onBlockActivated(world, blockX, blockY, blockZ, player, side, offsetX, offsetY, offsetZ);
     }

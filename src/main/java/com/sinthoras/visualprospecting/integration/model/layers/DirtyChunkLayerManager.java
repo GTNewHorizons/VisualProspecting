@@ -4,15 +4,13 @@ import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.integration.model.buttons.DirtyChunkButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.DirtyChunkLocation;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderServer;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DirtyChunkLayerManager extends LayerManager {
 
@@ -28,7 +26,8 @@ public class DirtyChunkLayerManager extends LayerManager {
     }
 
     @Override
-    protected List<? extends ILocationProvider> generateVisibleElements(int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
+    protected List<? extends ILocationProvider> generateVisibleElements(
+            int minBlockX, int minBlockZ, int maxBlockX, int maxBlockZ) {
         final int minX = Utils.coordBlockToChunk(minBlockX);
         final int minZ = Utils.coordBlockToChunk(minBlockZ);
         final int maxX = Utils.coordBlockToChunk(maxBlockX);
@@ -38,7 +37,8 @@ public class DirtyChunkLayerManager extends LayerManager {
 
         ArrayList<DirtyChunkLocation> dirtyChunks = new ArrayList<>();
 
-        if (MinecraftServer.getServer() == null || MinecraftServer.getServer().worldServerForDimension(playerDimensionId) == null) {
+        if (MinecraftServer.getServer() == null
+                || MinecraftServer.getServer().worldServerForDimension(playerDimensionId) == null) {
             return dirtyChunks;
         }
 

@@ -1,12 +1,10 @@
 package com.sinthoras.visualprospecting;
 
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import java.util.Random;
 import net.minecraft.client.settings.KeyBinding;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-
-import java.util.Random;
 
 public class VP {
 
@@ -29,7 +27,6 @@ public class VP {
     public static final int chunkDepth = 16;
     public static final int undergroundFluidChunkProspectingBlockRadius = undergroundFluidSizeChunkX * chunkWidth;
     public static int uploadSizePerPacketInBytes = 30000; // Larger then 32kB will kick the player!
-
 
     public static void debug(String message) {
         VP.LOG.debug(formatMessage(message));

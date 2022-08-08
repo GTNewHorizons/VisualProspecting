@@ -6,16 +6,15 @@ import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.integration.DrawUtils;
 import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class OreVeinRenderStep implements InteractableRenderStep {
 
@@ -42,28 +41,44 @@ public class OreVeinRenderStep implements InteractableRenderStep {
         GL11.glScaled(1 / scaleForGui, 1 / scaleForGui, 1);
         DrawUtils.drawQuad(blockStoneIcon, -iconSizeHalf, -iconSizeHalf, iconSize, iconSize, 0xFFFFFF, 255);
 
-        DrawUtils.drawQuad(oreVeinLocation.getIconFromPrimaryOre(), -iconSizeHalf, -iconSizeHalf, iconSize, iconSize, oreVeinLocation.getColor(), 255);
+        DrawUtils.drawQuad(
+                oreVeinLocation.getIconFromPrimaryOre(),
+                -iconSizeHalf,
+                -iconSizeHalf,
+                iconSize,
+                iconSize,
+                oreVeinLocation.getColor(),
+                255);
 
         if (!oreVeinLocation.drawSearchHighlight() || oreVeinLocation.isDepleted()) {
-            DrawUtils.drawGradientRect(-iconSizeHalf, -iconSizeHalf, iconSizeHalf, iconSizeHalf, 0, 0x96000000, 0x96000000);
+            DrawUtils.drawGradientRect(
+                    -iconSizeHalf, -iconSizeHalf, iconSizeHalf, iconSizeHalf, 0, 0x96000000, 0x96000000);
             if (oreVeinLocation.isDepleted()) {
-                DrawUtils.drawQuad(depletedTextureLocation, -iconSizeHalf, -iconSizeHalf, iconSize, iconSize, 0xFFFFFF, 255);
+                DrawUtils.drawQuad(
+                        depletedTextureLocation, -iconSizeHalf, -iconSizeHalf, iconSize, iconSize, 0xFFFFFF, 255);
             }
         }
 
-        if (gui != null && scale >= Utils.journeyMapScaleToLinear(Config.minZoomLevelForOreLabel) && !oreVeinLocation.isDepleted()) {
+        if (gui != null
+                && scale >= Utils.journeyMapScaleToLinear(Config.minZoomLevelForOreLabel)
+                && !oreVeinLocation.isDepleted()) {
             final int fontColor = oreVeinLocation.drawSearchHighlight() ? 0xFFFFFFFF : 0xFF7F7F7F;
             String text = I18n.format(oreVeinLocation.getName());
-            DrawUtils.drawSimpleLabel(gui, text, 0, -iconSizeHalf - gui.mc.fontRenderer.FONT_HEIGHT - 5, fontColor, 0xB4000000, true);
+            DrawUtils.drawSimpleLabel(
+                    gui, text, 0, -iconSizeHalf - gui.mc.fontRenderer.FONT_HEIGHT - 5, fontColor, 0xB4000000, true);
         }
 
         if (oreVeinLocation.isActiveAsWaypoint()) {
             final double thickness = iconSize / 8;
             final int color = 0xFFFFD700;
-            DrawUtils.drawGradientRect(-iconSizeHalf - thickness, -iconSizeHalf - thickness, iconSizeHalf, -iconSizeHalf, 0, color, color);
-            DrawUtils.drawGradientRect(iconSizeHalf, -iconSizeHalf - thickness, iconSizeHalf + thickness, iconSizeHalf, 0, color, color);
-            DrawUtils.drawGradientRect(-iconSizeHalf, iconSizeHalf, iconSizeHalf + thickness, iconSizeHalf + thickness, 0, color, color);
-            DrawUtils.drawGradientRect(-iconSizeHalf - thickness, -iconSizeHalf, -iconSizeHalf, iconSizeHalf + thickness, 0, color, color);
+            DrawUtils.drawGradientRect(
+                    -iconSizeHalf - thickness, -iconSizeHalf - thickness, iconSizeHalf, -iconSizeHalf, 0, color, color);
+            DrawUtils.drawGradientRect(
+                    iconSizeHalf, -iconSizeHalf - thickness, iconSizeHalf + thickness, iconSizeHalf, 0, color, color);
+            DrawUtils.drawGradientRect(
+                    -iconSizeHalf, iconSizeHalf, iconSizeHalf + thickness, iconSizeHalf + thickness, 0, color, color);
+            DrawUtils.drawGradientRect(
+                    -iconSizeHalf - thickness, -iconSizeHalf, -iconSizeHalf, iconSizeHalf + thickness, 0, color, color);
         }
 
         GL11.glPopMatrix();
@@ -79,7 +94,7 @@ public class OreVeinRenderStep implements InteractableRenderStep {
 
     @Override
     public void drawTooltip(GuiScreen gui, double mouseX, double mouseY, double scale, int scaleAdj) {
-        //correct for gl matrix differences
+        // correct for gl matrix differences
         mouseX = mouseX * scale + (gui.mc.displayWidth >> 1);
         mouseY = mouseY * scale + (gui.mc.displayHeight >> 1);
 
@@ -98,7 +113,8 @@ public class OreVeinRenderStep implements InteractableRenderStep {
 
         GL11.glPushMatrix();
 
-        DrawUtils.drawSimpleTooltip(gui, tooltip, mouseX / scaleAdj + 6, mouseY / scaleAdj - 12, 0xFFFFFFFF, 0x86000000);
+        DrawUtils.drawSimpleTooltip(
+                gui, tooltip, mouseX / scaleAdj + 6, mouseY / scaleAdj - 12, 0xFFFFFFFF, 0x86000000);
 
         GL11.glPopMatrix();
     }
