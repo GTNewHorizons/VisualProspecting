@@ -45,6 +45,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
             final int blockRadius = compound.getInteger(Tags.PROSPECTION_ORE_RADIUS);
             final int numberOfUndergroundFluids = compound.getInteger(Tags.PROSPECTION_NUMBER_OF_UNDERGROUND_FLUID);
             final String position = "X: " + blockX + " Y: " + blockY + " Z: " + blockZ;
+            final String warning = "\nTo correctly synchronize data with your map, open the book in the dimension in which the prospector was placed";
 
             final NBTTagList bookPages = new NBTTagList();
 
@@ -122,7 +123,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
                 bookPages.appendTag(new NBTTagString(fluidsPage));
             }
 
-            compound.setString("author", position);
+            compound.setString("author", position + warning);
             compound.setTag("pages", bookPages);
             setNBT(itemStack, compound);
 
