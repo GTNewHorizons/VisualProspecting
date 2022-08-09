@@ -35,25 +35,28 @@ public class ItemEditableBookMixin {
             World world,
             EntityPlayer entityPlayer,
             CallbackInfoReturnable<ItemStack> callbackInfoReturnable) {
-        if (world.isRemote == false) {
+        if (!world.isRemote) {
             final NBTTagCompound compound = itemStack.getTagCompound();
             if (compound.hasKey(Tags.VISUALPROSPECTING_FLAG)) {
                 final int dimensionId = compound.getInteger(Tags.PROSPECTION_DIMENSION_ID);
                 final int blockX = compound.getInteger(Tags.PROSPECTION_BLOCK_X);
                 final int blockZ = compound.getInteger(Tags.PROSPECTION_BLOCK_Z);
                 final int blockRadius = compound.getInteger(Tags.PROSPECTION_ORE_RADIUS);
-                final List<OreVeinPosition> foundOreVeins =
-                        ServerCache.instance.prospectOreBlockRadius(dimensionId, blockX, blockZ, blockRadius);
-                final List<UndergroundFluidPosition> foundUndergroundFluids =
-                        ServerCache.instance.prospectUndergroundFluidBlockRadius(
-                                world, blockX, blockZ, VP.undergroundFluidChunkProspectingBlockRadius);
-                if (Utils.isLogicalClient()) {
-                    ClientCache.instance.putOreVeins(foundOreVeins);
-                    ClientCache.instance.putUndergroundFluids(foundUndergroundFluids);
-                } else {
-                    VP.network.sendTo(
-                            new ProspectingNotification(foundOreVeins, foundUndergroundFluids),
-                            (EntityPlayerMP) entityPlayer);
+
+                if (world.provider.dimensionId == dimensionId) {
+                    final List<OreVeinPosition> foundOreVeins =
+                            ServerCache.instance.prospectOreBlockRadius(dimensionId, blockX, blockZ, blockRadius);
+                    final List<UndergroundFluidPosition> foundUndergroundFluids =
+                            ServerCache.instance.prospectUndergroundFluidBlockRadius(
+                                    world, blockX, blockZ, VP.undergroundFluidChunkProspectingBlockRadius);
+                    if (Utils.isLogicalClient()) {
+                        ClientCache.instance.putOreVeins(foundOreVeins);
+                        ClientCache.instance.putUndergroundFluids(foundUndergroundFluids);
+                    } else {
+                        VP.network.sendTo(
+                                new ProspectingNotification(foundOreVeins, foundUndergroundFluids),
+                                (EntityPlayerMP) entityPlayer);
+                    }
                 }
             }
         }
