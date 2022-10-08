@@ -7,7 +7,6 @@ dependencies {
     compile('net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev')
     compile('curse.maven:journeymap-32274:2367915')
 
-    compileOnly('com.github.GTNewHorizons:IFU:1.9.4:dev') {transitive = false}
     compileOnly('com.github.GTNewHorizons:GalacticGregGT5:1.0.8:dev') {transitive = false}
     compileOnly('com.github.GTNewHorizons:bartworks:0.5.82:dev') {transitive = false}
 

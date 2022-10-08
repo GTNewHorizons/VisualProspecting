@@ -19,7 +19,6 @@ public enum TargetedMod {
     XAEROWORLDMAP("Xaero's World Map", "XaerosWorldMap", true),
     XAEROMINIMAP("Xaero's Minimap", "Xaeros_Minimap", true),
     TCNODETRACKER("TCNodeTracker", "tcnodetracker-1.7.10", true),
-    IFU("I will find you", "ifu", false),
     BARTWORKS("Bartworks", "bartworks", false),
     GALACTICGREG("GalacticGreg", "GalacticGreg", false);
 
