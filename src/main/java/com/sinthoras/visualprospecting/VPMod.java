@@ -5,12 +5,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.*;
 
-@Mod(
-        modid = Tags.MODID,
-        version = Tags.VERSION,
-        name = Tags.MODNAME,
-        acceptedMinecraftVersions = "[1.7.10]",
-        dependencies = "required-after:spongemixins@[1.1.0,);")
+@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]")
 public class VPMod {
 
     @SidedProxy(clientSide = Tags.GROUPNAME + ".hooks.HooksClient", serverSide = Tags.GROUPNAME + ".hooks.HooksShared")
