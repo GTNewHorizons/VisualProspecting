@@ -26,6 +26,7 @@ public enum Mixin {
     GT_WorldGenContainerMixin("gregtech.WorldGenContainerMixin", GREGTECH),
 
     DisplayVarsAccessor("journeymap.DisplayVarsAccessor", Side.CLIENT, JOURNEYMAP),
+    FullscreenAccessor("journeymap.FullscreenAccessor", Side.CLIENT, JOURNEYMAP),
     FullscreenMixin("journeymap.FullscreenMixin", Side.CLIENT, JOURNEYMAP),
     FullscreenActionsMixin("journeymap.FullscreenActionsMixin", Side.CLIENT, JOURNEYMAP),
     MiniMapMixin("journeymap.MiniMapMixin", Side.CLIENT, JOURNEYMAP),

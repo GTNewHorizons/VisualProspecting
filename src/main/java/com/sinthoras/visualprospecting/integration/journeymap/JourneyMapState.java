@@ -1,7 +1,6 @@
 package com.sinthoras.visualprospecting.integration.journeymap;
 
 import static com.sinthoras.visualprospecting.Utils.isTCNodeTrackerInstalled;
-import static com.sinthoras.visualprospecting.integration.journeymap.Reflection.getJourneyMapGridRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +13,7 @@ import com.sinthoras.visualprospecting.integration.journeymap.render.*;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.OreVeinWaypointManager;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.ThaumcraftNodeWaypointManager;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.WaypointManager;
+import com.sinthoras.visualprospecting.mixins.journeymap.FullscreenAccessor;
 
 public class JourneyMapState {
 
@@ -45,16 +45,14 @@ public class JourneyMapState {
     }
 
     public void openJourneyMapAt(int blockX, int blockZ) {
-        final GridRenderer gridRenderer = getJourneyMapGridRenderer();
+        final GridRenderer gridRenderer = FullscreenAccessor.getGridRenderer();
         assert gridRenderer != null;
-
         gridRenderer.center(gridRenderer.getMapType(), blockX, blockZ, gridRenderer.getZoom());
     }
 
     public void openJourneyMapAt(int blockX, int blockZ, int zoom) {
-        final GridRenderer gridRenderer = getJourneyMapGridRenderer();
+        final GridRenderer gridRenderer = FullscreenAccessor.getGridRenderer();
         assert gridRenderer != null;
-
         gridRenderer.center(gridRenderer.getMapType(), blockX, blockZ, zoom);
     }
 }
