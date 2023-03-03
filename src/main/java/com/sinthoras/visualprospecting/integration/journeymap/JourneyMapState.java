@@ -13,7 +13,7 @@ import com.sinthoras.visualprospecting.integration.journeymap.render.*;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.OreVeinWaypointManager;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.ThaumcraftNodeWaypointManager;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.WaypointManager;
-import com.sinthoras.visualprospecting.mixins.journeymap.FullscreenAccessor;
+import com.sinthoras.visualprospecting.mixins.late.journeymap.FullscreenAccessor;
 
 public class JourneyMapState {
 
