@@ -1,7 +1,5 @@
 package com.sinthoras.visualprospecting.mixins.journeymap;
 
-import java.lang.reflect.Field;
-
 import journeymap.client.render.draw.DrawStep;
 import journeymap.client.render.map.GridRenderer;
 import journeymap.client.ui.minimap.DisplayVars;
@@ -25,58 +23,6 @@ import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
 @Mixin(MiniMap.class)
 public abstract class MiniMapMixin {
 
-    private static Field drawScale;
-    private static Field fontScale;
-    private static Field shape;
-    private static Field minimapWidth;
-
-    static {
-        try {
-            drawScale = DisplayVars.class.getDeclaredField("drawScale");
-            drawScale.setAccessible(true);
-            fontScale = DisplayVars.class.getDeclaredField("fontScale");
-            fontScale.setAccessible(true);
-            shape = DisplayVars.class.getDeclaredField("shape");
-            shape.setAccessible(true);
-            minimapWidth = DisplayVars.class.getDeclaredField("minimapWidth");
-            minimapWidth.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static float getDrawScale(DisplayVars displayVars) {
-        try {
-            return drawScale.getFloat(displayVars);
-        } catch (IllegalAccessException e) {
-            return 0.0f;
-        }
-    }
-
-    private static double getFontScale(DisplayVars displayVars) {
-        try {
-            return fontScale.getDouble(displayVars);
-        } catch (IllegalAccessException e) {
-            return 0.0;
-        }
-    }
-
-    private static Shape getShape(DisplayVars displayVars) {
-        try {
-            return (Shape) shape.get(displayVars);
-        } catch (IllegalAccessException e) {
-            return Shape.Circle;
-        }
-    }
-
-    private static int getMinimapWidth(DisplayVars displayVars) {
-        try {
-            return minimapWidth.getInt(displayVars);
-        } catch (IllegalAccessException e) {
-            return 1;
-        }
-    }
-
     @Final
     @Shadow(remap = false)
     private static GridRenderer gridRenderer;
@@ -92,8 +38,11 @@ public abstract class MiniMapMixin {
     private void visualprospecting$onBeforeDrawWaypoints(double rotation, CallbackInfo ci) {
         for (LayerManager layerManager : MapState.instance.layers) {
             if (layerManager.isLayerActive()) {
-                if (getShape(dv) == Shape.Circle) {
-                    layerManager.recacheMiniMap((int) mc.thePlayer.posX, (int) mc.thePlayer.posZ, getMinimapWidth(dv));
+                if (((DisplayVarsAccessor) dv).getShape() == Shape.Circle) {
+                    layerManager.recacheMiniMap(
+                            (int) mc.thePlayer.posX,
+                            (int) mc.thePlayer.posZ,
+                            ((DisplayVarsAccessor) dv).getMinimapWidth());
                 } else {
                     layerManager.recacheMiniMap(
                             (int) mc.thePlayer.posX,
@@ -107,7 +56,13 @@ public abstract class MiniMapMixin {
         for (LayerRenderer layerRenderer : JourneyMapState.instance.renderers) {
             if (layerRenderer.isLayerActive()) {
                 for (DrawStep drawStep : layerRenderer.getDrawStepsCachedForRendering()) {
-                    drawStep.draw(0.0D, 0.0D, gridRenderer, getDrawScale(dv), getFontScale(dv), rotation);
+                    drawStep.draw(
+                            0.0D,
+                            0.0D,
+                            gridRenderer,
+                            ((DisplayVarsAccessor) dv).getDrawScale(),
+                            ((DisplayVarsAccessor) dv).getFontScale(),
+                            rotation);
                 }
             }
         }
