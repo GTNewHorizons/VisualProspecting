@@ -25,7 +25,7 @@ public class GT_Worldgenerator_SpaceMixin {
                     target = "Lgregtech/api/world/GT_Worldgen;executeWorldgen(Lnet/minecraft/world/World;Ljava/util/Random;Ljava/lang/String;IIILnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/chunk/IChunkProvider;)Z"),
             remap = false,
             require = 1)
-    private boolean onOreVeinGenerated(GT_Worldgen worldGen, World world, Random random, String biome,
+    private boolean visualprospecting$onOreVeinGenerated(GT_Worldgen worldGen, World world, Random random, String biome,
             int dimensionType, int blockX, int blockZ, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
         final boolean oreVeinPlaced = worldGen.executeWorldgen(
                 world,

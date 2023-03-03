@@ -64,8 +64,8 @@ public abstract class GuiMapMixin extends ScreenBase {
     private int screenScale;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void injectConstruct(GuiScreen parent, GuiScreen escape, MapProcessor mapProcessor, Entity player,
-            CallbackInfo ci) {
+    private void visualprospecting$injectConstruct(GuiScreen parent, GuiScreen escape, MapProcessor mapProcessor,
+            Entity player, CallbackInfo ci) {
         MapState.instance.layers.forEach(LayerManager::onOpenMap);
     }
 
@@ -76,8 +76,8 @@ public abstract class GuiMapMixin extends ScreenBase {
             method = "func_73863_a",
             at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL11;glPushMatrix()V", ordinal = 1),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private void injectPreRender(int scaledMouseX, int scaledMouseY, float partialTicks, CallbackInfo ci,
-            Minecraft mc) {
+    private void visualprospecting$injectPreRender(int scaledMouseX, int scaledMouseY, float partialTicks,
+            CallbackInfo ci, Minecraft mc) {
         // snap the camera to whole pixel values. works around a rendering issue but causes another when framerate is
         // uncapped
         if (mc.gameSettings.limitFramerate < 255 || mc.gameSettings.enableVsync) {
@@ -109,7 +109,7 @@ public abstract class GuiMapMixin extends ScreenBase {
                     to = @At(
                             value = "INVOKE",
                             target = "Lxaero/map/mods/SupportXaeroMinimap;renderWaypoints(Lnet/minecraft/client/gui/GuiScreen;DDIIDDDDLjava/util/regex/Pattern;Ljava/util/regex/Pattern;FLxaero/map/mods/gui/Waypoint;Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/ScaledResolution;)Lxaero/map/mods/gui/Waypoint;")))
-    private void injectDraw(int scaledMouseX, int scaledMouseY, float partialTicks, CallbackInfo ci) {
+    private void visualprospecting$injectDraw(int scaledMouseX, int scaledMouseY, float partialTicks, CallbackInfo ci) {
         for (LayerManager layerManager : MapState.instance.layers) {
             if (layerManager.isLayerActive()) {
                 // +20s are to work around precision loss from casting to int and right-shifting
@@ -142,7 +142,8 @@ public abstract class GuiMapMixin extends ScreenBase {
                             target = "Lnet/minecraft/client/Minecraft;field_71462_r:Lnet/minecraft/client/gui/GuiScreen;",
                             opcode = Opcodes.GETFIELD),
                     to = @At(value = "INVOKE", target = "Lxaero/map/gui/CursorBox;drawBox(IIII)V")))
-    private void injectDrawTooltip(int scaledMouseX, int scaledMouseY, float partialTicks, CallbackInfo ci) {
+    private void visualprospecting$injectDrawTooltip(int scaledMouseX, int scaledMouseY, float partialTicks,
+            CallbackInfo ci) {
         for (LayerRenderer layer : XaeroWorldMapState.instance.renderers) {
             if (layer instanceof InteractableLayerRenderer && layer.isLayerActive()) {
                 ((InteractableLayerRenderer) layer).drawTooltip(this, scale, screenScale);
@@ -154,7 +155,7 @@ public abstract class GuiMapMixin extends ScreenBase {
     @Inject(
             method = "func_73866_w_",
             at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Keyboard;enableRepeatEvents(Z)V"))
-    private void injectInitButtons(CallbackInfo ci) {
+    private void visualprospecting$injectInitButtons(CallbackInfo ci) {
         for (int i = 0; i < XaeroWorldMapState.instance.buttons.size(); i++) {
             LayerButton layerButton = XaeroWorldMapState.instance.buttons.get(i);
             SizedGuiTexturedButton button = new SizedGuiTexturedButton(
@@ -169,7 +170,7 @@ public abstract class GuiMapMixin extends ScreenBase {
     }
 
     @Inject(method = "onInputPress", at = @At("TAIL"))
-    private void injectListenKeypress(boolean mouse, int code, CallbackInfoReturnable<Boolean> cir) {
+    private void visualprospecting$injectListenKeypress(boolean mouse, int code, CallbackInfoReturnable<Boolean> cir) {
         if (Misc.inputMatchesKeyBinding(mouse, code, VP.keyAction)) {
             for (LayerRenderer layer : XaeroWorldMapState.instance.renderers) {
                 if (layer instanceof InteractableLayerRenderer) {
@@ -180,7 +181,7 @@ public abstract class GuiMapMixin extends ScreenBase {
     }
 
     @Inject(method = "mapClicked", at = @At("TAIL"))
-    private void injectListenClick(int button, int x, int y, CallbackInfo ci) {
+    private void visualprospecting$injectListenClick(int button, int x, int y, CallbackInfo ci) {
         if (button == 0) {
             final long timestamp = System.currentTimeMillis();
             final boolean isDoubleClick = x == oldMouseX && y == oldMouseY && timestamp - timeLastClick < 500;

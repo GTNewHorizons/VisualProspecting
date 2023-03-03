@@ -39,7 +39,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
             remap = false,
             require = 1,
             cancellable = true)
-    private void onAnalyzeProspectionData(CallbackInfoReturnable<Integer> callbackInfoReturnable) {
+    private void visualprospecting$onAnalyzeProspectionData(CallbackInfoReturnable<Integer> cir) {
         final ItemStack itemStack = getInputAt(0);
         final NBTTagCompound compound = itemStack.getTagCompound();
         if (compound.hasKey(Tags.VISUALPROSPECTING_FLAG)) {
@@ -67,7 +67,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
 
             final List<OreVeinPosition> foundOreVeins = ServerCache.instance
                     .prospectOreBlockRadius(dimensionId, blockX, blockZ, blockRadius);
-            if (foundOreVeins.isEmpty() == false) {
+            if (!foundOreVeins.isEmpty()) {
                 final int pageSize = 7;
                 final int numberOfPages = (foundOreVeins.size() + pageSize) / pageSize; // Equals to
                                                                                         // ceil((foundOreVeins.size())
@@ -159,9 +159,9 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
             calculateOverclockedNess(30, 1000);
             // In case recipe is too OP for that machine
             if (mMaxProgresstime == Integer.MAX_VALUE - 1 && mEUt == Integer.MAX_VALUE - 1) {
-                callbackInfoReturnable.setReturnValue(FOUND_RECIPE_BUT_DID_NOT_MEET_REQUIREMENTS);
+                cir.setReturnValue(FOUND_RECIPE_BUT_DID_NOT_MEET_REQUIREMENTS);
             } else {
-                callbackInfoReturnable.setReturnValue(2);
+                cir.setReturnValue(2);
             }
         }
     }

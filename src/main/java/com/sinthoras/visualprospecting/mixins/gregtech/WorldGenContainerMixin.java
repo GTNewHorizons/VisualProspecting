@@ -26,9 +26,9 @@ public class WorldGenContainerMixin {
                     target = "Lgregtech/common/GT_Worldgen_GT_Ore_Layer;executeWorldgenChunkified(Lnet/minecraft/world/World;Ljava/util/Random;Ljava/lang/String;IIIIILnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/chunk/IChunkProvider;)I"),
             remap = false,
             require = 2)
-    protected int onOreVeinPlaced(GT_Worldgen_GT_Ore_Layer instance, World aWorld, Random aRandom, String aBiome,
-            int aDimensionType, int aChunkX, int aChunkZ, int aSeedX, int aSeedZ, IChunkProvider aChunkGenerator,
-            IChunkProvider aChunkProvider) {
+    protected int visualprospecting$onOreVeinPlaced(GT_Worldgen_GT_Ore_Layer instance, World aWorld, Random aRandom,
+            String aBiome, int aDimensionType, int aChunkX, int aChunkZ, int aSeedX, int aSeedZ,
+            IChunkProvider aChunkGenerator, IChunkProvider aChunkProvider) {
         final int result = instance.executeWorldgenChunkified(
                 aWorld,
                 aRandom,
@@ -40,7 +40,7 @@ public class WorldGenContainerMixin {
                 aSeedZ,
                 aChunkGenerator,
                 aChunkProvider);
-        if (result == GT_Worldgen_GT_Ore_Layer.ORE_PLACED && instance.mWorldGenName.equals("NoOresInVein") == false) {
+        if (result == GT_Worldgen_GT_Ore_Layer.ORE_PLACED && !instance.mWorldGenName.equals("NoOresInVein")) {
             ServerCache.instance.notifyOreVeinGeneration(
                     aWorld.provider.dimensionId,
                     Utils.coordBlockToChunk(aSeedX),

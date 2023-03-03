@@ -28,7 +28,8 @@ public class WaypointsIngameRendererMixin {
                             value = "FIELD",
                             target = "Lxaero/common/minimap/waypoints/WaypointsManager;customWaypoints:Ljava/util/Hashtable;",
                             opcode = Opcodes.GETSTATIC)))
-    private void injectPreRenderCustomWaypoints(XaeroMinimapSession sets, float modCustomWaypoints, CallbackInfo ci) {
+    private void visualprospecting$injectPreRenderCustomWaypoints(XaeroMinimapSession sets, float modCustomWaypoints,
+            CallbackInfo ci) {
         for (WaypointManager manager : XaeroMiniMapState.instance.waypointManagers) {
             if (manager.hasWaypoint()) {
                 manager.getXWaypoint().notifyDimension(Minecraft.getMinecraft().renderViewEntity.dimension);

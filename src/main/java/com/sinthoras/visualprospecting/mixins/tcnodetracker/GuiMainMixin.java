@@ -30,11 +30,10 @@ public class GuiMainMixin {
                     opcode = Opcodes.PUTSTATIC,
                     shift = At.Shift.AFTER,
                     remap = false),
-            remap = true,
             require = 1,
             locals = LocalCapture.CAPTURE_FAILEXCEPTION,
             cancellable = true)
-    private void onWaypointSet(GuiButton button, CallbackInfo callbackInfo, int i) {
+    private void visualprospecting$onWaypointSet(GuiButton button, CallbackInfo ci, int i) {
         final AspectLoc aspect = GuiMain.aspectList.get(low + i);
         GuiMain.aspectList.clear();
         ThaumcraftNodeLayerManager.instance.setActiveWaypoint(
@@ -45,7 +44,7 @@ public class GuiMainMixin {
                         aspect.dimID,
                         I18n.format("visualprospecting.tracked", I18n.format("tile.blockAiry.0.name")),
                         0xFFFFFF));
-        callbackInfo.cancel();
+        ci.cancel();
     }
 
     @Inject(
@@ -56,9 +55,8 @@ public class GuiMainMixin {
                     opcode = Opcodes.PUTSTATIC,
                     ordinal = 0,
                     remap = false),
-            remap = true,
             require = 1)
-    private void onWaypointClear(CallbackInfo callbackInfo) {
+    private void visualprospecting$onWaypointClear(CallbackInfo ci) {
         ThaumcraftNodeLayerManager.instance.clearActiveWaypoint();
     }
 
@@ -70,10 +68,9 @@ public class GuiMainMixin {
                     opcode = Opcodes.PUTSTATIC,
                     ordinal = 1,
                     remap = false),
-            remap = true,
             require = 1,
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private void onWaypointDelete(GuiButton button, CallbackInfo callbackInfo, int i, int k, int j) {
+    private void visualprospecting$onWaypointDelete(GuiButton button, CallbackInfo ci, int i, int k, int j) {
         ThaumcraftNodeLayerManager.instance.clearActiveWaypoint();
     }
 }

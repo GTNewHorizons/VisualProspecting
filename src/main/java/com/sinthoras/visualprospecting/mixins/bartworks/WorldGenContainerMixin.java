@@ -24,8 +24,9 @@ public class WorldGenContainerMixin {
                     target = "Lcom/github/bartimaeusnek/bartworks/system/oregen/BW_OreLayer;executeWorldgen(Lnet/minecraft/world/World;Ljava/util/Random;Ljava/lang/String;IIILnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/chunk/IChunkProvider;)Z"),
             remap = false,
             require = 1)
-    private boolean onOreVeinGenerationAttempt(BW_OreLayer worldGen, World world, Random random, String biome,
-            int dimensionType, int blockX, int blockZ, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
+    private boolean visualprospecting$onOreVeinGenerationAttempt(BW_OreLayer worldGen, World world, Random random,
+            String biome, int dimensionType, int blockX, int blockZ, IChunkProvider chunkGenerator,
+            IChunkProvider chunkProvider) {
         final boolean oreVeinPlaced = worldGen.executeWorldgen(
                 world,
                 random,

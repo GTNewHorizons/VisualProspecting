@@ -12,7 +12,7 @@ public class ForgeHooksClientMixin {
 
     // this is only a mixin because it needs to run before the minecraft window is created
     @Inject(method = "createDisplay", at = @At("HEAD"))
-    private static void enableStencilBuffer(CallbackInfo ci) {
+    private static void visualprospecting$enableStencilBuffer(CallbackInfo ci) {
         // give me my stencil buffer, forge.
         System.setProperty("forge.forceDisplayStencil", "true");
     }

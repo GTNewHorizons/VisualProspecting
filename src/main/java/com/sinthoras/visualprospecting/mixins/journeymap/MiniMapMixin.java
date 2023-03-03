@@ -16,7 +16,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapState;
 import com.sinthoras.visualprospecting.integration.journeymap.render.LayerRenderer;
@@ -89,13 +88,8 @@ public abstract class MiniMapMixin {
     @Shadow(remap = false)
     private DisplayVars dv;
 
-    @Inject(
-            method = "drawOnMapWaypoints",
-            at = @At(value = "HEAD"),
-            remap = false,
-            require = 1,
-            locals = LocalCapture.CAPTURE_FAILHARD)
-    private void onBeforeDrawWaypoints(double rotation, CallbackInfo callbackInfo) {
+    @Inject(method = "drawOnMapWaypoints", at = @At(value = "HEAD"), remap = false, require = 1)
+    private void visualprospecting$onBeforeDrawWaypoints(double rotation, CallbackInfo ci) {
         for (LayerManager layerManager : MapState.instance.layers) {
             if (layerManager.isLayerActive()) {
                 if (getShape(dv) == Shape.Circle) {

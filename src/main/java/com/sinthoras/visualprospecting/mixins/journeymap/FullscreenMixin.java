@@ -91,7 +91,7 @@ public abstract class FullscreenMixin extends JmUI {
     }
 
     @Inject(method = "<init>*", at = @At("RETURN"), remap = false, require = 1)
-    private void init(CallbackInfo callbackInfo) {
+    private void visualprospecting$init(CallbackInfo ci) {
         MapState.instance.layers.forEach(LayerManager::forceRefresh);
     }
 
@@ -106,7 +106,7 @@ public abstract class FullscreenMixin extends JmUI {
     }
 
     @Inject(method = "<init>*", at = @At("RETURN"), remap = false, require = 1)
-    private void onConstructed(CallbackInfo callbackInfo) {
+    private void visualprospecting$onConstructed(CallbackInfo ci) {
         MapState.instance.layers.forEach(LayerManager::onOpenMap);
     }
 
@@ -118,8 +118,8 @@ public abstract class FullscreenMixin extends JmUI {
             remap = false,
             require = 1,
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private void onBeforeDrawJourneyMapWaypoints(CallbackInfo callbackInfo, boolean refreshReady, StatTimer timer,
-            int xOffset, int yOffset, float drawScale) {
+    private void visualprospecting$onBeforeDrawJourneyMapWaypoints(CallbackInfo ci, boolean refreshReady,
+            StatTimer timer, int xOffset, int yOffset, float drawScale) {
         final int fontScale = getMapFontScale();
         final Minecraft minecraft = Minecraft.getMinecraft();
         final int centerBlockX = (int) Math.round(gridRenderer.getCenterBlockX());
@@ -153,7 +153,7 @@ public abstract class FullscreenMixin extends JmUI {
                     opcode = Opcodes.PUTFIELD),
             remap = false,
             require = 1)
-    private void OnCreateMapTypeToolbar(Fullscreen owner, ThemeToolbar value) {
+    private void visualprospecting$OnCreateMapTypeToolbar(Fullscreen owner, ThemeToolbar value) {
         final Theme theme = ThemeFileHandler.getCurrentTheme();
         final ButtonList buttonList = new ButtonList();
 
@@ -250,14 +250,14 @@ public abstract class FullscreenMixin extends JmUI {
     }
 
     @Inject(method = "func_73869_a", at = @At(value = "HEAD"), remap = false, require = 1, cancellable = true)
-    private void onKeyPress(CallbackInfo callbackInfo) {
+    private void visualprospecting$onKeyPress(CallbackInfo ci) {
         if ((chat == null || chat.isHidden()) && Constants.isPressed(VP.keyAction)) {
             for (LayerRenderer layer : JourneyMapState.instance.renderers) {
                 if (layer instanceof WaypointProviderLayerRenderer) {
                     ((WaypointProviderLayerRenderer) layer).onActionKeyPressed();
                 }
             }
-            callbackInfo.cancel();
+            ci.cancel();
         }
     }
 
@@ -272,7 +272,7 @@ public abstract class FullscreenMixin extends JmUI {
             final int scaledMouseX = mx * mc.displayWidth / width;
             final int scaledMouseY = my * mc.displayHeight / height;
             final double blockSize = Math.pow(2.0D, gridRenderer.getZoom());
-            if (onMapClicked(mouseButton, scaledMouseX, scaledMouseY, blockSize) == false) {
+            if (!visualprospecting$onMapClicked(mouseButton, scaledMouseX, scaledMouseY, blockSize)) {
                 BlockCoordIntPair blockCoord = gridRenderer
                         .getBlockUnderMouse(Mouse.getEventX(), Mouse.getEventY(), mc.displayWidth, mc.displayHeight);
                 layerDelegate.onMouseClicked(
@@ -287,17 +287,15 @@ public abstract class FullscreenMixin extends JmUI {
         }
     }
 
-    private boolean onMapClicked(int mouseButton, int mouseX, int mouseY, double blockSize) {
+    private boolean visualprospecting$onMapClicked(int mouseButton, int mouseX, int mouseY, double blockSize) {
         final long timestamp = System.currentTimeMillis();
         final boolean isDoubleClick = mouseX == oldMouseX && mouseY == oldMouseY && timestamp - timeLastClick < 500;
         oldMouseX = mouseX;
         oldMouseY = mouseY;
         timeLastClick = isDoubleClick ? 0 : timestamp;
-
         if (mouseButton != 0) {
             return false;
         }
-
         boolean layerHit = false;
         for (LayerRenderer layer : JourneyMapState.instance.renderers) {
             if (layer instanceof WaypointProviderLayerRenderer) {

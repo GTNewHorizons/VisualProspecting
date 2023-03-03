@@ -35,14 +35,14 @@ public abstract class FullscreenActionsMixin extends JmUI {
             at = @At(value = "INVOKE", target = "Ljourneymap/client/ui/component/Button;setDrawFrame(Z)V"),
             remap = false,
             require = 1)
-    private void onInitGui(CallbackInfo callbackInfo) {
+    private void visualprospecting$onInitGui(CallbackInfo ci) {
         resetVisualProspectingCacheButton = new Button(I18n.format("visualprospecting.button.resetprogress"));
         resetVisualProspectingCacheButton.setTooltip(I18n.format("visualprospecting.button.resetprogress.tooltip"));
         buttonList.add(resetVisualProspectingCacheButton);
     }
 
     @Inject(method = "layoutButtons", at = @At("RETURN"), remap = false, require = 1)
-    private void onLayoutButtons(CallbackInfo callbackInfo) {
+    private void visualprospecting$onLayoutButtons(CallbackInfo ci) {
         final ButtonList row = new ButtonList(buttonAbout, resetVisualProspectingCacheButton);
         row.layoutCenteredHorizontal(width / 2, height / 4, true, 4);
     }
@@ -54,10 +54,10 @@ public abstract class FullscreenActionsMixin extends JmUI {
             cancellable = true,
             require = 1,
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
-    private void onButtonClicked(GuiButton guibutton, CallbackInfo callbackInfo) {
+    private void visualprospecting$onButtonClicked(GuiButton guibutton, CallbackInfo ci) {
         if (guibutton == resetVisualProspectingCacheButton) {
             UIManager.getInstance().open(ResetClientCacheConfirmation.class);
-            callbackInfo.cancel();
+            ci.cancel();
         }
     }
 }
