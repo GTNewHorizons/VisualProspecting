@@ -40,6 +40,7 @@ public enum Mixins {
     MinimapRendererMixin("xaerosminimap.MinimapRendererMixin", Side.CLIENT, XAEROMINIMAP, XAEROWORLDMAP),
 
     // Vanilla Mixins
+    MinecraftServerAccessorMixin("minecraft.MinecraftServerAccessor", Phase.EARLY, Side.BOTH, VANILLA),
     ForgeHooksClientMixin("minecraft.ForgeHooksClientMixin", Phase.EARLY, Side.CLIENT, XAEROMINIMAP, XAEROWORLDMAP),
     ItemEditableBookMixin("minecraft.ItemEditableBookMixin", Phase.EARLY, VANILLA);
 

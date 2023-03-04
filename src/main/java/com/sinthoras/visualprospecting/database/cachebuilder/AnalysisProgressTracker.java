@@ -8,6 +8,7 @@ import net.minecraft.server.MinecraftServer;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
+import com.sinthoras.visualprospecting.mixins.early.minecraft.MinecraftServerAccessor;
 
 public class AnalysisProgressTracker {
 
@@ -34,7 +35,7 @@ public class AnalysisProgressTracker {
         final String message = "Processing dimension with id " + dimensionId + " with fast scanning.";
         VP.info(message);
         if (Utils.isLogicalClient()) {
-            MinecraftServer.getServer().userMessage = message;
+            ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message);
         }
     }
 
@@ -42,7 +43,7 @@ public class AnalysisProgressTracker {
         final String message = "Processing dimension with id " + dimensionId + " with slow (safe) scanning.";
         VP.info(message);
         if (Utils.isLogicalClient()) {
-            MinecraftServer.getServer().userMessage = message;
+            ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message);
         }
     }
 
@@ -59,7 +60,7 @@ public class AnalysisProgressTracker {
 
     private static synchronized void updateLog() {
         long timestamp = System.currentTimeMillis();
-        if (timestamp - (Config.cacheGenerationLogUpdateMinTime * 1000) > lastLogUpdate) {
+        if (timestamp - (Config.cacheGenerationLogUpdateMinTime * 1000L) > lastLogUpdate) {
             lastLogUpdate = timestamp;
             final String message = "Caching GT ore generation meta data - Dimension (" + (dimensionsProcessed + 1)
                     + "/"
@@ -69,7 +70,8 @@ public class AnalysisProgressTracker {
                     + "%";
             VP.info(message);
             if (Utils.isLogicalClient()) {
-                MinecraftServer.getServer().userMessage = message + "%"; // Escape % for String.format
+                // Escape % for String.format
+                ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message + "%");
             }
         }
     }
@@ -84,7 +86,7 @@ public class AnalysisProgressTracker {
                 + "sec";
         VP.info(message);
         if (Utils.isLogicalClient()) {
-            MinecraftServer.getServer().userMessage = message;
+            ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message);
         }
     }
 
@@ -92,7 +94,7 @@ public class AnalysisProgressTracker {
         final String message = "Encountered corrupt/malformed/modified save file: " + regionFile;
         VP.info(message);
         if (Utils.isLogicalClient()) {
-            MinecraftServer.getServer().userMessage = message;
+            ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message);
         }
     }
 }
