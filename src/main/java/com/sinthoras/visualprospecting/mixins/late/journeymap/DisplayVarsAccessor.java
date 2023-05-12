@@ -1,10 +1,10 @@
 package com.sinthoras.visualprospecting.mixins.late.journeymap;
 
-import journeymap.client.ui.minimap.DisplayVars;
-import journeymap.client.ui.minimap.Shape;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+
+import journeymap.client.ui.minimap.DisplayVars;
+import journeymap.client.ui.minimap.Shape;
 
 @Mixin(DisplayVars.class)
 public interface DisplayVarsAccessor {

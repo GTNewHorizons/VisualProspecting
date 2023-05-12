@@ -2,11 +2,11 @@ package com.sinthoras.visualprospecting.integration.journeymap.drawsteps;
 
 import java.util.List;
 
-import journeymap.client.render.draw.DrawStep;
-
 import net.minecraft.client.gui.FontRenderer;
 
 import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
+
+import journeymap.client.render.draw.DrawStep;
 
 public interface ClickableDrawStep extends DrawStep {
 

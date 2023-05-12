@@ -1,10 +1,5 @@
 package com.sinthoras.visualprospecting.integration.journeymap;
 
-import journeymap.client.ui.UIManager;
-import journeymap.client.ui.component.Button;
-import journeymap.client.ui.component.ButtonList;
-import journeymap.client.ui.component.JmUI;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
@@ -12,6 +7,11 @@ import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 
 import com.sinthoras.visualprospecting.database.ClientCache;
+
+import journeymap.client.ui.UIManager;
+import journeymap.client.ui.component.Button;
+import journeymap.client.ui.component.ButtonList;
+import journeymap.client.ui.component.JmUI;
 
 public class ResetClientCacheConfirmation extends JmUI {
 

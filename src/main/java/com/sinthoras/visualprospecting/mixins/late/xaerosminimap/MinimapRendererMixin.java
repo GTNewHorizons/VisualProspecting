@@ -15,17 +15,17 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import xaero.common.XaeroMinimapSession;
-import xaero.common.minimap.MinimapProcessor;
-import xaero.common.minimap.render.MinimapRenderer;
-import xaero.common.settings.ModSettings;
-
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.integration.model.MapState;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.XaeroWorldMapState;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.LayerRenderer;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.RenderStep;
+
+import xaero.common.XaeroMinimapSession;
+import xaero.common.minimap.MinimapProcessor;
+import xaero.common.minimap.render.MinimapRenderer;
+import xaero.common.settings.ModSettings;
 
 @Mixin(value = MinimapRenderer.class, remap = false)
 public class MinimapRendererMixin {

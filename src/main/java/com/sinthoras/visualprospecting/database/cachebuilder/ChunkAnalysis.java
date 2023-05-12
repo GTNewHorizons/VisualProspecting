@@ -6,6 +6,7 @@ import java.util.Set;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
+
 import io.xol.enklume.nbt.*;
 
 // A slim, but faster version to identify >90% of veins

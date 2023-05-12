@@ -1,11 +1,5 @@
 package com.sinthoras.visualprospecting.mixins.late.journeymap;
 
-import journeymap.client.ui.UIManager;
-import journeymap.client.ui.component.Button;
-import journeymap.client.ui.component.ButtonList;
-import journeymap.client.ui.component.JmUI;
-import journeymap.client.ui.dialog.FullscreenActions;
-
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.resources.I18n;
 
@@ -17,6 +11,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.sinthoras.visualprospecting.integration.journeymap.ResetClientCacheConfirmation;
+
+import journeymap.client.ui.UIManager;
+import journeymap.client.ui.component.Button;
+import journeymap.client.ui.component.ButtonList;
+import journeymap.client.ui.component.JmUI;
+import journeymap.client.ui.dialog.FullscreenActions;
 
 @Mixin(FullscreenActions.class)
 public abstract class FullscreenActionsMixin extends JmUI {

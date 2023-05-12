@@ -3,8 +3,6 @@ package com.sinthoras.visualprospecting.integration.journeymap.drawsteps;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-import journeymap.client.render.map.GridRenderer;
-
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.ResourceLocation;
@@ -12,14 +10,15 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.client.lib.UtilsFX;
-
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.integration.DrawUtils;
 import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
+
+import journeymap.client.render.map.GridRenderer;
+import thaumcraft.api.aspects.Aspect;
+import thaumcraft.client.lib.UtilsFX;
 
 public class ThaumcraftNodeDrawStep implements ClickableDrawStep {
 

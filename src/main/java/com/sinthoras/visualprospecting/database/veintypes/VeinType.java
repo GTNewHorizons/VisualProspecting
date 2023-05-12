@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import net.minecraft.util.EnumChatFormatting;
 
 import com.sinthoras.visualprospecting.Tags;
+
 import gregtech.api.GregTech_API;
 
 public class VeinType {

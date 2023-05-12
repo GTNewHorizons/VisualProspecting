@@ -2,24 +2,6 @@ package com.sinthoras.visualprospecting.mixins.late.journeymap;
 
 import java.util.List;
 
-import journeymap.client.Constants;
-import journeymap.client.io.ThemeFileHandler;
-import journeymap.client.log.LogFormatter;
-import journeymap.client.log.StatTimer;
-import journeymap.client.model.BlockCoordIntPair;
-import journeymap.client.render.map.GridRenderer;
-import journeymap.client.ui.UIManager;
-import journeymap.client.ui.component.Button;
-import journeymap.client.ui.component.ButtonList;
-import journeymap.client.ui.component.JmUI;
-import journeymap.client.ui.fullscreen.Fullscreen;
-import journeymap.client.ui.fullscreen.MapChat;
-import journeymap.client.ui.fullscreen.layer.LayerDelegate;
-import journeymap.client.ui.theme.Theme;
-import journeymap.client.ui.theme.ThemeButton;
-import journeymap.client.ui.theme.ThemeToggle;
-import journeymap.client.ui.theme.ThemeToolbar;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.RenderHelper;
@@ -43,6 +25,24 @@ import com.sinthoras.visualprospecting.integration.journeymap.render.LayerRender
 import com.sinthoras.visualprospecting.integration.journeymap.render.WaypointProviderLayerRenderer;
 import com.sinthoras.visualprospecting.integration.model.MapState;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
+
+import journeymap.client.Constants;
+import journeymap.client.io.ThemeFileHandler;
+import journeymap.client.log.LogFormatter;
+import journeymap.client.log.StatTimer;
+import journeymap.client.model.BlockCoordIntPair;
+import journeymap.client.render.map.GridRenderer;
+import journeymap.client.ui.UIManager;
+import journeymap.client.ui.component.Button;
+import journeymap.client.ui.component.ButtonList;
+import journeymap.client.ui.component.JmUI;
+import journeymap.client.ui.fullscreen.Fullscreen;
+import journeymap.client.ui.fullscreen.MapChat;
+import journeymap.client.ui.fullscreen.layer.LayerDelegate;
+import journeymap.client.ui.theme.Theme;
+import journeymap.client.ui.theme.ThemeButton;
+import journeymap.client.ui.theme.ThemeToggle;
+import journeymap.client.ui.theme.ThemeToolbar;
 
 @Mixin(value = Fullscreen.class, remap = false)
 public abstract class FullscreenMixin extends JmUI {

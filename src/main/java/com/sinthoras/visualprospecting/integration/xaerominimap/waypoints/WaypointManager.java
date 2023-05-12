@@ -2,12 +2,12 @@ package com.sinthoras.visualprospecting.integration.xaerominimap.waypoints;
 
 import java.util.Hashtable;
 
-import xaero.common.minimap.waypoints.WaypointsManager;
-
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.layers.WaypointProviderManager;
 import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
+
+import xaero.common.minimap.waypoints.WaypointsManager;
 
 public class WaypointManager extends com.sinthoras.visualprospecting.integration.model.waypoints.WaypointManager {
 

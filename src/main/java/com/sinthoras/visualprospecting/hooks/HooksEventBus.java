@@ -11,6 +11,7 @@ import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.network.WorldIdNotification;
+
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class HooksEventBus {

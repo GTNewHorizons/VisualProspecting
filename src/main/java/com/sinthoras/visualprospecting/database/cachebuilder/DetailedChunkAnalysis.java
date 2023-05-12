@@ -9,6 +9,7 @@ import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
+
 import io.xol.enklume.nbt.*;
 
 // Slower, but more sophisticated approach to identify overlapping veins

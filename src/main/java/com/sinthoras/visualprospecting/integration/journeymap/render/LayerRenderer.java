@@ -3,11 +3,11 @@ package com.sinthoras.visualprospecting.integration.journeymap.render;
 import java.util.ArrayList;
 import java.util.List;
 
-import journeymap.client.render.draw.DrawStep;
-
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
+
+import journeymap.client.render.draw.DrawStep;
 
 public abstract class LayerRenderer extends com.sinthoras.visualprospecting.integration.model.layers.LayerRenderer {
 

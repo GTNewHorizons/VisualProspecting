@@ -19,6 +19,7 @@ import com.sinthoras.visualprospecting.database.TransferCache;
 import com.sinthoras.visualprospecting.task.SnapshotDownloadTask;
 import com.sinthoras.visualprospecting.task.SnapshotUploadTask;
 import com.sinthoras.visualprospecting.task.TaskManager;
+
 import gregtech.api.GregTech_API;
 
 public class ProspectorsLog extends Item {
