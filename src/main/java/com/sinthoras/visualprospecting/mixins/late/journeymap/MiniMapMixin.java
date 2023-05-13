@@ -1,11 +1,5 @@
 package com.sinthoras.visualprospecting.mixins.late.journeymap;
 
-import journeymap.client.render.draw.DrawStep;
-import journeymap.client.render.map.GridRenderer;
-import journeymap.client.ui.minimap.DisplayVars;
-import journeymap.client.ui.minimap.MiniMap;
-import journeymap.client.ui.minimap.Shape;
-
 import net.minecraft.client.Minecraft;
 
 import org.spongepowered.asm.mixin.Final;
@@ -19,6 +13,12 @@ import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapState;
 import com.sinthoras.visualprospecting.integration.journeymap.render.LayerRenderer;
 import com.sinthoras.visualprospecting.integration.model.MapState;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
+
+import journeymap.client.render.draw.DrawStep;
+import journeymap.client.render.map.GridRenderer;
+import journeymap.client.ui.minimap.DisplayVars;
+import journeymap.client.ui.minimap.MiniMap;
+import journeymap.client.ui.minimap.Shape;
 
 @Mixin(MiniMap.class)
 public abstract class MiniMapMixin {

@@ -3,12 +3,12 @@ package com.sinthoras.visualprospecting.integration.journeymap.render;
 import java.util.ArrayList;
 import java.util.List;
 
-import journeymap.client.render.draw.DrawStep;
-
 import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.UndergroundFluidChunkDrawStep;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidChunkLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidChunkLocation;
+
+import journeymap.client.render.draw.DrawStep;
 
 public class UndergroundFluidChunkRenderer extends LayerRenderer {
 

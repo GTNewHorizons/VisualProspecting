@@ -193,4 +193,29 @@ public class DimensionCache {
     public Collection<UndergroundFluidPosition> getAllUndergroundFluids() {
         return undergroundFluids.values();
     }
+
+    /**
+     * Reset selected veins; these veins need not be present. Input coords are in chunk coordinates, NOT block coords.
+     * Will not error on bad input, but it also probably won't do anything useful.
+     *
+     * @param startX The X coord of the starting chunk. Must be less than endX.
+     * @param startZ The Z coord of the starting chunk. Must be less than endZ.
+     * @param endX   The X coord of the ending chunk.
+     * @param endZ   The Z coord of the ending chunk.
+     */
+    public void clearOreVeins(int startX, int startZ, int endX, int endZ) {
+
+        // Remove entries if they fall within the corners
+        // This method iterates for each chunk mapped. In many cases, it is probably faster to iterate over chunks to
+        // be cleared instead. i.e. if (chunksToClear < totalChunks) {useAltIterator()}. If someone calls this enough to
+        // make it a problem, they can add that.
+        oreChunks.entrySet().removeIf(entry -> {
+
+            // Get the value
+            OreVeinPosition val = entry.getValue();
+
+            // Check X & Z
+            return (val.chunkX >= startX && val.chunkX <= endX) && (val.chunkZ >= startZ && val.chunkZ <= endZ);
+        });
+    }
 }

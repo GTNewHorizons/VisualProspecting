@@ -18,6 +18,7 @@ import net.minecraftforge.common.MinecraftForge;
 import com.sinthoras.visualprospecting.*;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
+
 import gregtech.common.blocks.GT_TileEntity_Ores;
 
 public class ClientCache extends WorldCache {

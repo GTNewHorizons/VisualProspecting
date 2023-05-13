@@ -4,9 +4,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import journeymap.client.render.draw.DrawUtil;
-import journeymap.client.render.map.GridRenderer;
-
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
@@ -17,6 +14,9 @@ import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.integration.DrawUtils;
 import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
+
+import journeymap.client.render.draw.DrawUtil;
+import journeymap.client.render.map.GridRenderer;
 
 public class OreVeinDrawStep implements ClickableDrawStep {
 

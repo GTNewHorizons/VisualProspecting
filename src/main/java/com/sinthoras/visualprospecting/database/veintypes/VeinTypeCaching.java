@@ -9,9 +9,6 @@ import java.util.regex.Pattern;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 
-import codechicken.nei.NEIClientConfig;
-import codechicken.nei.SearchField;
-
 import com.github.bartimaeusnek.bartworks.system.material.Werkstoff;
 import com.github.bartimaeusnek.bartworks.system.oregen.BW_OreLayer;
 import com.google.common.collect.BiMap;
@@ -19,6 +16,8 @@ import com.google.common.collect.HashBiMap;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 
+import codechicken.nei.NEIClientConfig;
+import codechicken.nei.SearchField;
 import gregtech.api.GregTech_API;
 import gregtech.api.enums.Materials;
 import gregtech.common.GT_Worldgen_GT_Ore_Layer;

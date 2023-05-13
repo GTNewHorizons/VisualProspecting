@@ -7,14 +7,14 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.client.lib.UtilsFX;
-
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.integration.DrawUtils;
 import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
+
+import thaumcraft.api.aspects.Aspect;
+import thaumcraft.client.lib.UtilsFX;
 
 public class ThaumcraftNodeRenderStep implements InteractableRenderStep {
 

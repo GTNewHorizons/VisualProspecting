@@ -2,6 +2,7 @@ package com.sinthoras.visualprospecting.hooks;
 
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+
 import cpw.mods.fml.common.eventhandler.Event;
 
 public class ProspectingNotificationEvent extends Event {

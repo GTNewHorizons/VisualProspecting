@@ -2,12 +2,12 @@ package com.sinthoras.visualprospecting.integration.journeymap.drawsteps;
 
 import java.awt.geom.Point2D;
 
+import com.sinthoras.visualprospecting.VP;
+import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
+
 import journeymap.client.render.draw.DrawStep;
 import journeymap.client.render.draw.DrawUtil;
 import journeymap.client.render.map.GridRenderer;
-
-import com.sinthoras.visualprospecting.VP;
-import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 
 public class UndergroundFluidDrawStep implements DrawStep {
 

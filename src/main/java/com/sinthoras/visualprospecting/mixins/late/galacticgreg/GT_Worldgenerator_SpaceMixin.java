@@ -9,10 +9,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import bloodasp.galacticgreg.GT_Worldgenerator_Space;
-
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ServerCache;
+
+import bloodasp.galacticgreg.GT_Worldgenerator_Space;
 import gregtech.api.world.GT_Worldgen;
 
 @Mixin(GT_Worldgenerator_Space.class)

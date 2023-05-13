@@ -9,11 +9,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import xaero.common.XaeroMinimapSession;
-import xaero.common.minimap.waypoints.render.WaypointsIngameRenderer;
-
 import com.sinthoras.visualprospecting.integration.xaerominimap.XaeroMiniMapState;
 import com.sinthoras.visualprospecting.integration.xaerominimap.waypoints.WaypointManager;
+
+import xaero.common.XaeroMinimapSession;
+import xaero.common.minimap.waypoints.render.WaypointsIngameRenderer;
 
 @Mixin(value = WaypointsIngameRenderer.class, remap = false)
 public class WaypointsIngameRendererMixin {

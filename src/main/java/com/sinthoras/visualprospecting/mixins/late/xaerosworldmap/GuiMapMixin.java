@@ -16,12 +16,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import xaero.map.MapProcessor;
-import xaero.map.gui.CursorBox;
-import xaero.map.gui.GuiMap;
-import xaero.map.gui.ScreenBase;
-import xaero.map.misc.Misc;
-
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.integration.model.MapState;
 import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
@@ -31,6 +25,12 @@ import com.sinthoras.visualprospecting.integration.xaeroworldmap.buttons.SizedGu
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.InteractableLayerRenderer;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.LayerRenderer;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.RenderStep;
+
+import xaero.map.MapProcessor;
+import xaero.map.gui.CursorBox;
+import xaero.map.gui.GuiMap;
+import xaero.map.gui.ScreenBase;
+import xaero.map.misc.Misc;
 
 @Mixin(value = GuiMap.class, remap = false)
 public abstract class GuiMapMixin extends ScreenBase {

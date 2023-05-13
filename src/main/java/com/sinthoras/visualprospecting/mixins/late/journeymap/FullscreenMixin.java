@@ -2,6 +2,30 @@ package com.sinthoras.visualprospecting.mixins.late.journeymap;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.renderer.RenderHelper;
+
+import org.apache.logging.log4j.Level;
+import org.lwjgl.input.Mouse;
+import org.spongepowered.asm.lib.Opcodes;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import com.sinthoras.visualprospecting.VP;
+import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapState;
+import com.sinthoras.visualprospecting.integration.journeymap.buttons.LayerButton;
+import com.sinthoras.visualprospecting.integration.journeymap.render.LayerRenderer;
+import com.sinthoras.visualprospecting.integration.journeymap.render.WaypointProviderLayerRenderer;
+import com.sinthoras.visualprospecting.integration.model.MapState;
+import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
+
 import journeymap.client.Constants;
 import journeymap.client.io.ThemeFileHandler;
 import journeymap.client.log.LogFormatter;
@@ -19,30 +43,6 @@ import journeymap.client.ui.theme.Theme;
 import journeymap.client.ui.theme.ThemeButton;
 import journeymap.client.ui.theme.ThemeToggle;
 import journeymap.client.ui.theme.ThemeToolbar;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.renderer.RenderHelper;
-
-import org.apache.logging.log4j.Level;
-import org.lwjgl.input.Mouse;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import org.spongepowered.libraries.org.objectweb.asm.Opcodes;
-
-import com.sinthoras.visualprospecting.VP;
-import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapState;
-import com.sinthoras.visualprospecting.integration.journeymap.buttons.LayerButton;
-import com.sinthoras.visualprospecting.integration.journeymap.render.LayerRenderer;
-import com.sinthoras.visualprospecting.integration.journeymap.render.WaypointProviderLayerRenderer;
-import com.sinthoras.visualprospecting.integration.model.MapState;
-import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
 
 @Mixin(value = Fullscreen.class, remap = false)
 public abstract class FullscreenMixin extends JmUI {

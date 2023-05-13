@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.mixinplugin;
 import java.util.*;
 
 import com.gtnewhorizon.gtnhmixins.IEarlyMixinLoader;
+
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")

@@ -1,8 +1,5 @@
 package com.sinthoras.visualprospecting.mixins.late.journeymap;
 
-import journeymap.client.model.Waypoint;
-import journeymap.client.render.ingame.RenderWaypointBeacon;
-
 import net.minecraft.client.Minecraft;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,6 +10,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapState;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.WaypointManager;
+
+import journeymap.client.model.Waypoint;
+import journeymap.client.render.ingame.RenderWaypointBeacon;
 
 @Mixin(RenderWaypointBeacon.class)
 public class RenderWaypointBeaconMixin {

@@ -77,6 +77,26 @@ public abstract class WorldCache {
         isLoaded = false;
     }
 
+    /**
+     * Reset some chunks. Not all, and (usually) not none - but some. Input coords are in chunk coordinates, NOT block
+     * coords.
+     *
+     * @param dimID  The dimension ID.
+     * @param startX The X coord of the starting chunk. Must be less than endX.
+     * @param startZ The Z coord of the starting chunk. Must be less than endZ.
+     * @param endX   The X coord of the ending chunk.
+     * @param endZ   The Z coord of the ending chunk.
+     */
+    public void resetSome(int dimID, int startX, int startZ, int endX, int endZ) {
+
+        DimensionCache dim = dimensions.get(dimID);
+        if (dim != null) {
+            dim.clearOreVeins(startX, startZ, endX, endZ);
+        }
+        needsSaving = true;
+        isLoaded = false;
+    }
+
     private DimensionCache.UpdateResult updateSaveFlag(DimensionCache.UpdateResult updateResult) {
         needsSaving |= updateResult != DimensionCache.UpdateResult.AlreadyKnown;
         return updateResult;

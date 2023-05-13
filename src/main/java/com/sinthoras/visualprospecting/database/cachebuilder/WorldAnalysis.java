@@ -7,6 +7,7 @@ import java.util.zip.DataFormatException;
 
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ServerCache;
+
 import io.xol.enklume.MinecraftWorld;
 
 public class WorldAnalysis {

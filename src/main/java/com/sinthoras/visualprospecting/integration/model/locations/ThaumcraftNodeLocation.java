@@ -5,15 +5,15 @@ import net.minecraft.util.EnumChatFormatting;
 
 import org.lwjgl.input.Keyboard;
 
+import com.dyonovan.tcnodetracker.lib.NodeList;
+import com.sinthoras.visualprospecting.VP;
+import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
+
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.nodes.NodeType;
 import thaumcraft.common.config.ConfigBlocks;
 import thaumcraft.common.tiles.TileNode;
-
-import com.dyonovan.tcnodetracker.lib.NodeList;
-import com.sinthoras.visualprospecting.VP;
-import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
 
 public class ThaumcraftNodeLocation implements IWaypointAndLocationProvider {
 

@@ -5,8 +5,6 @@ import static com.sinthoras.visualprospecting.Utils.isTCNodeTrackerInstalled;
 import java.util.ArrayList;
 import java.util.List;
 
-import journeymap.client.render.map.GridRenderer;
-
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.integration.journeymap.buttons.*;
 import com.sinthoras.visualprospecting.integration.journeymap.render.*;
@@ -14,6 +12,8 @@ import com.sinthoras.visualprospecting.integration.journeymap.waypoints.OreVeinW
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.ThaumcraftNodeWaypointManager;
 import com.sinthoras.visualprospecting.integration.journeymap.waypoints.WaypointManager;
 import com.sinthoras.visualprospecting.mixins.late.journeymap.FullscreenAccessor;
+
+import journeymap.client.render.map.GridRenderer;
 
 public class JourneyMapState {
 

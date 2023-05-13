@@ -18,6 +18,7 @@ import net.minecraft.launchwrapper.Launch;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sinthoras.visualprospecting.hooks.HooksClient;
+
 import cpw.mods.fml.common.Loader;
 
 public class Utils {

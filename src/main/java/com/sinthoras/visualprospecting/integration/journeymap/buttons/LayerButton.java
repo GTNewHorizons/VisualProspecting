@@ -1,9 +1,9 @@
 package com.sinthoras.visualprospecting.integration.journeymap.buttons;
 
-import journeymap.client.ui.theme.ThemeToggle;
-
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.buttons.*;
+
+import journeymap.client.ui.theme.ThemeToggle;
 
 public class LayerButton extends com.sinthoras.visualprospecting.integration.model.buttons.LayerButton {
 
