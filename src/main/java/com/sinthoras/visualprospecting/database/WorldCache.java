@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.util.ChunkCoordinates;
+
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
@@ -95,6 +97,26 @@ public abstract class WorldCache {
         }
         needsSaving = true;
         isLoaded = false;
+    }
+
+    /**
+     * Reset spawn chunks.
+     */
+    public void resetSpawn(ChunkCoordinates spawn, int dimID) {
+
+        // I'm pretty sure the spawn chunks are a 16x16 area centered on the world spawn
+        // Convert to chunk coords, and make a 17x17 rect centered on the spawn chunk to be safe
+        // I'm *fairly certain* that this will convert block pos to chunk pos... probably
+        int spawnChunkX = Utils.coordBlockToChunk(spawn.posX);
+        int spawnChunkZ = Utils.coordBlockToChunk(spawn.posZ);
+
+        // The first corner is 8 chunks less in XZ, and the last is 8 more
+        int startX = spawnChunkX - 8;
+        int startZ = spawnChunkZ - 8;
+        int endX = spawnChunkX + 8;
+        int endZ = spawnChunkZ + 8;
+
+        resetSome(dimID, startX, startZ, endX, endZ);
     }
 
     private DimensionCache.UpdateResult updateSaveFlag(DimensionCache.UpdateResult updateResult) {

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.zip.DataFormatException;
 
+import net.minecraft.util.ChunkCoordinates;
+
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ServerCache;
 
@@ -28,6 +30,23 @@ public class WorldAnalysis {
             dimension.processMinecraftWorld(world);
             AnalysisProgressTracker.dimensionProcessed();
         }
+        AnalysisProgressTracker.processingFinished();
+        VP.info("Saving ore vein cache...");
+        ServerCache.instance.saveVeinCache();
+    }
+
+    // This only does overworld spawn
+    public void cacheSpawnVeins(ChunkCoordinates spawn) throws IOException, DataFormatException {
+
+        // Message and reset
+        VP.info("Starting to parse world save to cache GT vein locations near spawn. This might take some time...");
+        ServerCache.instance.resetSpawn(spawn, 0);
+
+        // Only doing one, DIM0 = overworld
+        AnalysisProgressTracker.setNumberOfDimensions(1);
+        final DimensionAnalysis dimension = new DimensionAnalysis(0);
+        dimension.processMinecraftWorld(world);
+        AnalysisProgressTracker.dimensionProcessed();
         AnalysisProgressTracker.processingFinished();
         VP.info("Saving ore vein cache...");
         ServerCache.instance.saveVeinCache();
