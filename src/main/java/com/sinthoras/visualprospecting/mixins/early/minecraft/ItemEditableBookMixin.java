@@ -31,7 +31,7 @@ public class ItemEditableBookMixin {
             CallbackInfoReturnable<ItemStack> cir) {
         if (!world.isRemote) {
             final NBTTagCompound compound = itemStack.getTagCompound();
-            if (compound.hasKey(Tags.VISUALPROSPECTING_FLAG)) {
+            if (compound != null && compound.hasKey(Tags.VISUALPROSPECTING_FLAG)) {
                 final int dimensionId = compound.getInteger(Tags.PROSPECTION_DIMENSION_ID);
                 final int blockX = compound.getInteger(Tags.PROSPECTION_BLOCK_X);
                 final int blockZ = compound.getInteger(Tags.PROSPECTION_BLOCK_Z);
