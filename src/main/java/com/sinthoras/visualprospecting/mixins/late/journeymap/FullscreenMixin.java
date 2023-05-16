@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.RenderHelper;
 
 import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Mouse;
-import org.spongepowered.asm.lib.Opcodes;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
