@@ -1,20 +1,15 @@
 package com.sinthoras.visualprospecting.hooks;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Objects;
 import java.util.zip.DataFormatException;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChunkCoordinates;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
-import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.RedoServerCacheCommand;
 import com.sinthoras.visualprospecting.database.RedoServerSpawnCacheCommand;
