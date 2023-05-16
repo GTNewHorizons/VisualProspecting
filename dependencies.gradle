@@ -2,10 +2,9 @@ dependencies {
     shadowImplementation('com.github.GTNewHorizons:Enklume:2.1.0:dev')
 
     api('com.github.GTNewHorizons:GT5-Unofficial:5.09.43.36:dev')
-    api('com.github.GTNewHorizons:TCNodeTracker:1.1.7:dev')
-
-    api('net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev')
     api('curse.maven:journeymap-32274:4500658')
+
+    devOnlyNonPublishable('com.github.GTNewHorizons:TCNodeTracker:1.1.7:dev')
 
     compileOnly('com.github.GTNewHorizons:GalacticGregGT5:1.0.9:dev') {transitive = false}
     compileOnly('com.github.GTNewHorizons:bartworks:0.7.7:dev') {transitive = false}
