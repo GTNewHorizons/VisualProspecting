@@ -6,8 +6,6 @@ import net.minecraft.client.settings.KeyBinding;
 
 import org.lwjgl.input.Keyboard;
 
-import com.sinthoras.visualprospecting.integration.model.MapState;
-import com.sinthoras.visualprospecting.integration.model.buttons.ButtonManager;
 import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
 import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeButtonManager;
 import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
@@ -51,25 +49,13 @@ public class HooksKey {
 
     private void checkAndToggleOverlays() {
         if (keyToggleOres.isPressed()) {
-            for (ButtonManager btn : MapState.instance.buttons) {
-                if (btn instanceof OreVeinButtonManager) {
-                    btn.toggle();
-                }
-            }
+            OreVeinButtonManager.instance.toggle();
         }
         if (keyToggleFluids.isPressed()) {
-            for (ButtonManager btn : MapState.instance.buttons) {
-                if (btn instanceof UndergroundFluidButtonManager) {
-                    btn.toggle();
-                }
-            }
+            UndergroundFluidButtonManager.instance.toggle();
         }
-        if (keyToggleNodes.isPressed()) {
-            for (ButtonManager btn : MapState.instance.buttons) {
-                if (btn instanceof ThaumcraftNodeButtonManager) {
-                    btn.toggle();
-                }
-            }
+        if (keyToggleNodes.isPressed() && isTCNodeTrackerInstalled()) {
+            ThaumcraftNodeButtonManager.instance.toggle();
         }
     }
 }
