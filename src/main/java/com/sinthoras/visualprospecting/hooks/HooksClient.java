@@ -39,6 +39,7 @@ public class HooksClient extends HooksShared {
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes."
     public void fmlLifeCycleEvent(FMLInitializationEvent event) {
         super.fmlLifeCycleEvent(event);
+        MinecraftForge.EVENT_BUS.register(new HooksKey());
     }
 
     @Override
