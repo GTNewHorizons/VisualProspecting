@@ -75,11 +75,7 @@ public class Utils {
     }
 
     public static int mapToCenterOreChunkCoord(final int chunkCoord) {
-        if (chunkCoord >= 0) {
-            return chunkCoord - (chunkCoord % 3) + 1;
-        } else {
-            return chunkCoord - (chunkCoord % 3) - 1;
-        }
+        return chunkCoord - Math.floorMod(chunkCoord, 3) + 1;
     }
 
     public static int mapToCornerUndergroundFluidChunkCoord(final int chunkCoord) {
