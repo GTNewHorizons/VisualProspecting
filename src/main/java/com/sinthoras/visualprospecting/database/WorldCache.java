@@ -94,27 +94,21 @@ public abstract class WorldCache {
         DimensionCache dim = dimensions.get(dimID);
         if (dim != null) {
             dim.clearOreVeins(startX, startZ, endX, endZ);
+            needsSaving = true;
+            isLoaded = false;
         }
-        needsSaving = true;
-        isLoaded = false;
     }
 
-    /**
-     * Reset spawn chunks.
-     */
-    public void resetSpawn(ChunkCoordinates spawn, int dimID) {
+    public void resetSpawnChunks(ChunkCoordinates spawn, int dimID) {
 
-        // I'm pretty sure the spawn chunks are a 16x16 area centered on the world spawn
-        // Convert to chunk coords, and make a 17x17 rect centered on the spawn chunk to be safe
-        // I'm *fairly certain* that this will convert block pos to chunk pos... probably
         int spawnChunkX = Utils.coordBlockToChunk(spawn.posX);
         int spawnChunkZ = Utils.coordBlockToChunk(spawn.posZ);
 
-        // The first corner is 8 chunks less in XZ, and the last is 8 more
-        int startX = spawnChunkX - 8;
-        int startZ = spawnChunkZ - 8;
-        int endX = spawnChunkX + 8;
-        int endZ = spawnChunkZ + 8;
+        int spawnChunksRadius = 8
+        int startX = spawnChunkX - spawnChunksRadius ;
+        int startZ = spawnChunkZ - spawnChunksRadius ;
+        int endX = spawnChunkX + spawnChunksRadius ;
+        int endZ = spawnChunkZ + spawnChunksRadius ;
 
         resetSome(dimID, startX, startZ, endX, endZ);
     }
