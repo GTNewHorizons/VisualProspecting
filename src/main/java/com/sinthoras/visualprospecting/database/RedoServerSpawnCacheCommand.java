@@ -57,7 +57,7 @@ public class RedoServerSpawnCacheCommand extends CommandBase {
         try {
 
             WorldAnalysis world = new WorldAnalysis(server.getEntityWorld().getSaveHandler().getWorldDirectory());
-            world.cacheSpawnVeins(server.getEntityWorld().getSpawnPoint());
+            world.cacheOverworldSpawnVeins(server.getEntityWorld().getSpawnPoint());
         } catch (IOException | DataFormatException e) {
 
             VP.info("Could not load world save files to build vein cache near spawn!");

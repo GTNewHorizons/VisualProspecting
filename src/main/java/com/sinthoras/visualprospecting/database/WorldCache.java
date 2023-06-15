@@ -104,11 +104,11 @@ public abstract class WorldCache {
         int spawnChunkX = Utils.coordBlockToChunk(spawn.posX);
         int spawnChunkZ = Utils.coordBlockToChunk(spawn.posZ);
 
-        int spawnChunksRadius = 8
-        int startX = spawnChunkX - spawnChunksRadius ;
-        int startZ = spawnChunkZ - spawnChunksRadius ;
-        int endX = spawnChunkX + spawnChunksRadius ;
-        int endZ = spawnChunkZ + spawnChunksRadius ;
+        int spawnChunksRadius = 8;
+        int startX = spawnChunkX - spawnChunksRadius;
+        int startZ = spawnChunkZ - spawnChunksRadius;
+        int endX = spawnChunkX + spawnChunksRadius;
+        int endZ = spawnChunkZ + spawnChunksRadius;
 
         resetSome(dimID, startX, startZ, endX, endZ);
     }
