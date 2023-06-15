@@ -12,6 +12,7 @@ import com.sinthoras.visualprospecting.database.ResetClientCacheCommand;
 import com.sinthoras.visualprospecting.integration.voxelmap.VoxelMapEventHandler;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -39,6 +40,7 @@ public class HooksClient extends HooksShared {
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes."
     public void fmlLifeCycleEvent(FMLInitializationEvent event) {
         super.fmlLifeCycleEvent(event);
+        FMLCommonHandler.instance().bus().register(new HooksKey());
     }
 
     @Override
