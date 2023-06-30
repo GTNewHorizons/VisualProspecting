@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.util.ChunkCoordinates;
+
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
@@ -75,6 +77,40 @@ public abstract class WorldCache {
         dimensions.clear();
         needsSaving = false;
         isLoaded = false;
+    }
+
+    /**
+     * Reset some chunks. Not all, and (usually) not none - but some. Input coords are in chunk coordinates, NOT block
+     * coords.
+     *
+     * @param dimID  The dimension ID.
+     * @param startX The X coord of the starting chunk. Must be less than endX.
+     * @param startZ The Z coord of the starting chunk. Must be less than endZ.
+     * @param endX   The X coord of the ending chunk.
+     * @param endZ   The Z coord of the ending chunk.
+     */
+    public void resetSome(int dimID, int startX, int startZ, int endX, int endZ) {
+
+        DimensionCache dim = dimensions.get(dimID);
+        if (dim != null) {
+            dim.clearOreVeins(startX, startZ, endX, endZ);
+            needsSaving = true;
+            isLoaded = false;
+        }
+    }
+
+    public void resetSpawnChunks(ChunkCoordinates spawn, int dimID) {
+
+        int spawnChunkX = Utils.coordBlockToChunk(spawn.posX);
+        int spawnChunkZ = Utils.coordBlockToChunk(spawn.posZ);
+
+        int spawnChunksRadius = 8;
+        int startX = spawnChunkX - spawnChunksRadius;
+        int startZ = spawnChunkZ - spawnChunksRadius;
+        int endX = spawnChunkX + spawnChunksRadius;
+        int endZ = spawnChunkZ + spawnChunksRadius;
+
+        resetSome(dimID, startX, startZ, endX, endZ);
     }
 
     private DimensionCache.UpdateResult updateSaveFlag(DimensionCache.UpdateResult updateResult) {
