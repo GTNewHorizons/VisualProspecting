@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sinthoras.visualprospecting.hooks.HooksClient;
 
 import cpw.mods.fml.common.Loader;
+import gregtech.common.GT_Worldgenerator;
 
 public class Utils {
 
@@ -75,10 +76,16 @@ public class Utils {
     }
 
     public static int mapToCenterOreChunkCoord(final int chunkCoord) {
-        if (chunkCoord >= 0) {
-            return chunkCoord - (chunkCoord % 3) + 1;
+        if (GT_Worldgenerator.oregenPattern == GT_Worldgenerator.OregenPattern.EQUAL_SPACING) {
+            // new evenly spaced ore pattern
+            return chunkCoord - Math.floorMod(chunkCoord, 3) + 1;
         } else {
-            return chunkCoord - (chunkCoord % 3) - 1;
+            // old bugged ore pattern
+            if (chunkCoord >= 0) {
+                return chunkCoord - (chunkCoord % 3) + 1;
+            } else {
+                return chunkCoord - (chunkCoord % 3) - 1;
+            }
         }
     }
 
