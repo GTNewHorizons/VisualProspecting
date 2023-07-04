@@ -12,6 +12,7 @@ import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.RedoServerCacheCommand;
+import com.sinthoras.visualprospecting.database.RedoServerSpawnCacheCommand;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.database.cachebuilder.WorldAnalysis;
@@ -100,19 +101,30 @@ public class HooksShared {
 
     // register server commands in this event handler
     public void fmlLifeCycleEvent(FMLServerStartingEvent event) {
+
+        // Get the server and load the ID handler
         final MinecraftServer minecraftServer = event.getServer();
         WorldIdHandler.load(minecraftServer.worldServers[0]);
-        if (ServerCache.instance.loadVeinCache(WorldIdHandler.getWorldId()) == false || Config.recacheVeins) {
+
+        // Attempt to load the vein cache. If unable or forcing a recache...
+        if (!ServerCache.instance.loadVeinCache(WorldIdHandler.getWorldId()) || Config.recacheVeins) {
+
+            // Reanalyze the world and reload it into memory.
             try {
                 WorldAnalysis world = new WorldAnalysis(
                         minecraftServer.getEntityWorld().getSaveHandler().getWorldDirectory());
                 world.cacheVeins();
             } catch (IOException | DataFormatException e) {
+
+                // Oops
                 VP.info("Could not load world save files to build vein cache!");
                 e.printStackTrace();
             }
         }
+
+        // Register the recache command
         event.registerServerCommand(new RedoServerCacheCommand());
+        event.registerServerCommand(new RedoServerSpawnCacheCommand());
     }
 
     public void fmlLifeCycleEvent(FMLServerStartedEvent event) {}
