@@ -60,6 +60,7 @@ public class UndergroundFluidDrawStep implements DrawStep {
                     borderColor,
                     borderAlpha);
 
+            @SuppressWarnings("deprecation")
             final String label = undergroundFluidLocation.getMinProduction() + "L - "
                     + maxAmountInField
                     + "L  "

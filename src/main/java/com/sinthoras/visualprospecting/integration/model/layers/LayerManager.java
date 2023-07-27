@@ -14,7 +14,6 @@ public abstract class LayerManager {
 
     private final ButtonManager buttonManager;
 
-    private boolean isLayerActive = false;
     protected boolean forceRefresh = false;
     private List<? extends ILocationProvider> visibleElements = new ArrayList<>();
     protected Map<SupportedMods, LayerRenderer> layerRenderer = new EnumMap<>(SupportedMods.class);

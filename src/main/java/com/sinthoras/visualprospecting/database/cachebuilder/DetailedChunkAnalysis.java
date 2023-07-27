@@ -19,6 +19,7 @@ public class DetailedChunkAnalysis {
     public final int chunkX;
     public final int chunkZ;
     // For each height we count how often a ore (short) has occured
+    @SuppressWarnings("unchecked")
     private final Map<Short, Integer>[] oresPerY = new HashMap[VP.minecraftWorldHeight];
 
     public DetailedChunkAnalysis(int dimensionId, int chunkX, int chunkZ) {

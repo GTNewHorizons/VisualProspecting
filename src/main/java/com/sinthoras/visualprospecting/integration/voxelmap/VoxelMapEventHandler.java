@@ -48,6 +48,7 @@ public class VoxelMapEventHandler {
                         dim)); // dimension
     }
 
+    @SuppressWarnings("deprecation")
     @SubscribeEvent
     public void onFluidProspected(ProspectingNotificationEvent.UndergroundFluid event) {
         if (event.isCanceled()) {

@@ -86,7 +86,7 @@ public class ProspectorsLog extends Item {
     }
 
     @Override
-    public void addInformation(ItemStack item, EntityPlayer player, List infoList, boolean ignored) {
+    public void addInformation(ItemStack item, EntityPlayer player, List<String> infoList, boolean ignored) {
         if (isFilledLog(item)) {
             final NBTTagCompound compound = item.getTagCompound();
             infoList.add(

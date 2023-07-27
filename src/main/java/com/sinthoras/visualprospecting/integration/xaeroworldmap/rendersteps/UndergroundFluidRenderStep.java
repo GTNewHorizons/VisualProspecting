@@ -40,6 +40,7 @@ public class UndergroundFluidRenderStep implements RenderStep {
             // min scale that journeymap can go to
             if (scale >= 1 && gui != null) {
                 GL11.glScaled(1 / scale, 1 / scale, 1);
+                @SuppressWarnings("deprecation")
                 final String label = undergroundFluidLocation.getMinProduction() + "L - "
                         + maxAmountInField
                         + "L  "

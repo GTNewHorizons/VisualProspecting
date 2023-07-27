@@ -9,6 +9,7 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 // Backup translations for server side lookups only
 public class ServerTranslations {
 
+    @SuppressWarnings("deprecation")
     public static String getEnglishLocalization(Fluid fluid) {
         if (MinecraftServer.getServer().isSinglePlayer()) {
             return fluid.getLocalizedName();
