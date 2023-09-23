@@ -1,7 +1,7 @@
 package com.sinthoras.visualprospecting.integration.journeymap.buttons;
 
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
-import com.sinthoras.visualprospecting.integration.model.buttons.*;
+import com.sinthoras.visualprospecting.integration.model.buttons.ButtonManager;
 
 import journeymap.client.ui.theme.ThemeToggle;
 

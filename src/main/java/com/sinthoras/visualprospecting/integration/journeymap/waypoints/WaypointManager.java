@@ -1,6 +1,6 @@
 package com.sinthoras.visualprospecting.integration.journeymap.waypoints;
 
-import java.awt.*;
+import java.awt.Color;
 
 import com.sinthoras.visualprospecting.integration.model.SupportedMods;
 import com.sinthoras.visualprospecting.integration.model.layers.WaypointProviderManager;

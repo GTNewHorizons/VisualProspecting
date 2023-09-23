@@ -15,7 +15,10 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
-import com.sinthoras.visualprospecting.*;
+import com.sinthoras.visualprospecting.Config;
+import com.sinthoras.visualprospecting.Tags;
+import com.sinthoras.visualprospecting.Utils;
+import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
 

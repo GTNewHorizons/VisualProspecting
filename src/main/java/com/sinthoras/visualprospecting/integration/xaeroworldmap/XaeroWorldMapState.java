@@ -9,7 +9,11 @@ import com.sinthoras.visualprospecting.integration.xaeroworldmap.buttons.LayerBu
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.buttons.OreVeinButton;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.buttons.ThaumcraftNodeButton;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.buttons.UndergroundFluidButton;
-import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.*;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.LayerRenderer;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.OreVeinRenderer;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.ThaumcraftNodeRenderer;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.UndergroundFluidChunkRenderer;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.UndergroundFluidRenderer;
 
 public class XaeroWorldMapState {
 

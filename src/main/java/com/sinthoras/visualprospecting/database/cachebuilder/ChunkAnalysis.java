@@ -7,7 +7,9 @@ import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
-import io.xol.enklume.nbt.*;
+import io.xol.enklume.nbt.NBTCompound;
+import io.xol.enklume.nbt.NBTList;
+import io.xol.enklume.nbt.NBTNamed;
 
 // A slim, but faster version to identify >90% of veins
 public class ChunkAnalysis {

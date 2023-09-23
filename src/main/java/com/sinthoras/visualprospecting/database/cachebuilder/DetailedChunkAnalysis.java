@@ -1,6 +1,11 @@
 package com.sinthoras.visualprospecting.database.cachebuilder;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import com.sinthoras.visualprospecting.Utils;
@@ -10,7 +15,9 @@ import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
-import io.xol.enklume.nbt.*;
+import io.xol.enklume.nbt.NBTCompound;
+import io.xol.enklume.nbt.NBTList;
+import io.xol.enklume.nbt.NBTNamed;
 
 // Slower, but more sophisticated approach to identify overlapping veins
 public class DetailedChunkAnalysis {

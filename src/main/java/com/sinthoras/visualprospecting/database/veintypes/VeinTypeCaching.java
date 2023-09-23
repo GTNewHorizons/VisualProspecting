@@ -3,7 +3,13 @@ package com.sinthoras.visualprospecting.database.veintypes;
 import static com.sinthoras.visualprospecting.Utils.*;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import net.minecraft.client.resources.I18n;

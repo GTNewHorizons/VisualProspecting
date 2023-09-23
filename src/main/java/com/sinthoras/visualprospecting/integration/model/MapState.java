@@ -6,8 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sinthoras.visualprospecting.Config;
-import com.sinthoras.visualprospecting.integration.model.buttons.*;
-import com.sinthoras.visualprospecting.integration.model.layers.*;
+import com.sinthoras.visualprospecting.integration.model.buttons.ButtonManager;
+import com.sinthoras.visualprospecting.integration.model.buttons.DirtyChunkButtonManager;
+import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
+import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeButtonManager;
+import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
+import com.sinthoras.visualprospecting.integration.model.layers.DirtyChunkLayerManager;
+import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
+import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
+import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
+import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidChunkLayerManager;
+import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
 import com.sinthoras.visualprospecting.integration.tcnodetracker.NTNodeTrackerWaypointManager;
 import com.sinthoras.visualprospecting.integration.xaerominimap.XaeroMiniMapState;
 

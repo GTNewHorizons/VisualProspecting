@@ -3,7 +3,9 @@ package com.sinthoras.visualprospecting.network;
 import static com.sinthoras.visualprospecting.Utils.isSmallOreId;
 import static com.sinthoras.visualprospecting.Utils.oreIdToMaterialId;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
