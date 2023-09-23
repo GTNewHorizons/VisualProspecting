@@ -19,7 +19,6 @@ import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 
-import gregtech.api.interfaces.ITexture;
 import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
 import gregtech.api.util.GT_Utility;
 import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_Scanner;
@@ -28,7 +27,7 @@ import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_Scanner;
 public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_BasicMachine {
 
     public GT_MetaTileEntity_ScannerMixin() {
-        super(0, "", "", 0, 0, "", 0, 0, "", "", (ITexture[]) null);
+        super(0, "", "", 0, 0, "", 0, 0);
     }
 
     @Inject(
