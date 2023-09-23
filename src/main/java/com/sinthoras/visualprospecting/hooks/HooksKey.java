@@ -11,7 +11,6 @@ import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeB
 import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.relauncher.Side;
@@ -33,7 +32,6 @@ public class HooksKey {
             "visualprospecting.key.action.category");
 
     public HooksKey() {
-        FMLCommonHandler.instance().bus().register(this);
         ClientRegistry.registerKeyBinding(keyToggleOres);
         ClientRegistry.registerKeyBinding(keyToggleFluids);
         if (isTCNodeTrackerInstalled()) {
