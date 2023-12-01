@@ -68,6 +68,10 @@ public class Utils {
         }
     }
 
+    public static boolean isServerUtilitiesInstalled() {
+        return Loader.isModLoaded("ServerUtilities");
+    }
+
     public static int coordBlockToChunk(int blockCoord) {
         return blockCoord < 0 ? -((-blockCoord - 1) >> 4) - 1 : blockCoord >> 4;
     }

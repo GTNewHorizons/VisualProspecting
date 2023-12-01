@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.hooks;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
 
+import com.sinthoras.visualprospecting.integration.serverutilities.SUIntegration;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -81,6 +82,8 @@ public class HooksShared {
     public void fmlLifeCycleEvent(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new HooksEventBus());
         FMLCommonHandler.instance().bus().register(new HooksFML());
+
+        SUIntegration.proxy.init(event);
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this."
