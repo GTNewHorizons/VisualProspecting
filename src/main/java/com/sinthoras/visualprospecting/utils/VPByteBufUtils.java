@@ -1,15 +1,17 @@
 package com.sinthoras.visualprospecting.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
-import io.netty.buffer.ByteBuf;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.netty.buffer.ByteBuf;
 
 public final class VPByteBufUtils {
 
@@ -76,7 +78,8 @@ public final class VPByteBufUtils {
         return oreVeinPositions;
     }
 
-    public static void WriteUndergroundFluidPositions(ByteBuf buf, List<UndergroundFluidPosition> undergroundFluidPositions) {
+    public static void WriteUndergroundFluidPositions(ByteBuf buf,
+            List<UndergroundFluidPosition> undergroundFluidPositions) {
         buf.writeInt(undergroundFluidPositions.size());
         for (UndergroundFluidPosition undergroundFluidPosition : undergroundFluidPositions) {
             WriteUndergroundFluidPosition(buf, undergroundFluidPosition);
