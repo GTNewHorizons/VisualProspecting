@@ -35,8 +35,8 @@ public class ProspectingNotification implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-        oreVeins.addAll(VPByteBufUtils.ReadOreVeinPositions(buf));
-        undergroundFluids.addAll(VPByteBufUtils.ReadUndergroundFluidPositions(buf));
+        oreVeins = VPByteBufUtils.ReadOreVeinPositions(buf);
+        undergroundFluids = VPByteBufUtils.ReadUndergroundFluidPositions(buf);
     }
 
     @Override
