@@ -15,6 +15,9 @@ dependencies {
 
     compileOnly('com.github.GTNewHorizons:ServerUtilities:2.0.2')
 
+    // Integration testing
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:ServerUtilities:2.0.2')
+
     // For debugging
     runtimeOnlyNonPublishable('com.github.GTNewHorizons:DetravScannerMod:1.7.2:dev')
 }
