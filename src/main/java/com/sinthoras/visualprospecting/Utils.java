@@ -64,7 +64,7 @@ public class Utils {
     }
 
     public static boolean isServerUtilitiesInstalled() {
-        return Loader.isModLoaded("ServerUtilities");
+        return Loader.isModLoaded("serverutilities");
     }
 
     public static int coordBlockToChunk(int blockCoord) {
