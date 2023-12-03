@@ -1,9 +1,9 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.database;
 
-import com.github.bsideup.jabel.Desugar;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -59,6 +59,9 @@ public class ChangeList {
     }
 
     private List<ChunkPosId> getListOfChangesSince(long timestamp, NavigableMap<Long, List<ChunkPosId>> map) {
+        if (map.isEmpty())
+            return new ArrayList<>();
+
         final long latest = map.lastKey();
         return map.subMap(timestamp, true, latest, true)
                 .values()
@@ -105,13 +108,17 @@ public class ChangeList {
     }
 
     public void fromBytes(ByteBuffer buf) {
-        MapLutPair oreVeinsPair = readChangeMapBytes(buf);
-        MapLutPair undergroundFluidsPair = readChangeMapBytes(buf);
+        try {
+            MapLutPair oreVeinsPair = readChangeMapBytes(buf);
+            MapLutPair undergroundFluidsPair = readChangeMapBytes(buf);
 
-        changeListOreVeins.putAll(oreVeinsPair.map);
-        oreVeinTimestampLUT.putAll(oreVeinsPair.lut);
-        changeListUndergroundFluids.putAll(undergroundFluidsPair.map);
-        undergroundFluidTimestampLUT.putAll(undergroundFluidsPair.lut);
+            changeListOreVeins.putAll(oreVeinsPair.map);
+            oreVeinTimestampLUT.putAll(oreVeinsPair.lut);
+            changeListUndergroundFluids.putAll(undergroundFluidsPair.map);
+            undergroundFluidTimestampLUT.putAll(undergroundFluidsPair.lut);
+        } catch (BufferUnderflowException exception) {
+            exception.printStackTrace();
+        }
     }
 
     private MapLutPair readChangeMapBytes(ByteBuffer buf) {
@@ -182,9 +189,35 @@ public class ChangeList {
         }
     }
 
-    @Desugar
-    private record MapLutPair(NavigableMap<Long, List<ChunkPosId>> map, Map<ChunkPosId, Long> lut) { }
+    private static final class MapLutPair {
+        private final NavigableMap<Long, List<ChunkPosId>> map;
+        private final Map<ChunkPosId, Long> lut;
 
-    @Desugar
-    public record ChangesPair(List<ChunkPosId> oreVeinList, List<ChunkPosId> undergroundFluidList) { }
+        private MapLutPair(NavigableMap<Long, List<ChunkPosId>> map, Map<ChunkPosId, Long> lut) {
+            this.map = map;
+            this.lut = lut;
+        }
+    }
+
+    public static final class ChangesPair {
+        private final List<ChunkPosId> oreVeinList;
+        private final List<ChunkPosId> undergroundFluidList;
+
+        public ChangesPair(List<ChunkPosId> oreVeinList, List<ChunkPosId> undergroundFluidList) {
+            this.oreVeinList = oreVeinList;
+            this.undergroundFluidList = undergroundFluidList;
+        }
+
+        public boolean isEmpty() {
+                return oreVeinList.isEmpty() && undergroundFluidList.isEmpty();
+            }
+
+        public List<ChunkPosId> oreVeinList() {
+            return oreVeinList;
+        }
+
+        public List<ChunkPosId> undergroundFluidList() {
+            return undergroundFluidList;
+        }
+    }
 }
