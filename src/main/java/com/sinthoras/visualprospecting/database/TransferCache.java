@@ -23,10 +23,7 @@ public class TransferCache {
         sharedUndergroundFluids.remove(uuid);
         timestamp.remove(uuid);
 
-        final int oreVeinPositionSizeInRam = OreVeinPosition.getMaxBytes() + 3 * Byte.BYTES; // JVM represents
-                                                                                             // everything aligned at 4
-                                                                                             // bytes
-        final int newEntryBytes = oreVeins.size() * oreVeinPositionSizeInRam
+        final int newEntryBytes = oreVeins.size() * OreVeinPosition.MAX_BYTES
                 + undergroundFluids.size() * UndergroundFluidPosition.BYTES;
 
         while (getUsedMemory() > (Config.maxTransferCacheSizeMB << 20) - newEntryBytes
@@ -54,10 +51,7 @@ public class TransferCache {
     }
 
     private int getUsedMemory() {
-        final int oreVeinPositionSizeInRam = OreVeinPosition.getMaxBytes() + 3 * Byte.BYTES; // JVM represents
-                                                                                             // everything aligned at 4
-                                                                                             // bytes
-        return sharedOreVeins.values().stream().mapToInt(oreVeins -> oreVeins.size() * oreVeinPositionSizeInRam).sum()
+        return sharedOreVeins.values().stream().mapToInt(oreVeins -> oreVeins.size() * OreVeinPosition.MAX_BYTES).sum()
                 + sharedUndergroundFluids.values().stream()
                         .mapToInt(undergroundFluids -> undergroundFluids.size() * UndergroundFluidPosition.BYTES).sum();
     }
