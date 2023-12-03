@@ -1,10 +1,12 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.database;
 
+import com.github.bsideup.jabel.Desugar;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ChangeList {
 
@@ -62,7 +64,7 @@ public class ChangeList {
                 .values()
                 .stream()
                 .flatMap(Collection::stream)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public void clear() {
@@ -180,7 +182,9 @@ public class ChangeList {
         }
     }
 
+    @Desugar
     private record MapLutPair(NavigableMap<Long, List<ChunkPosId>> map, Map<ChunkPosId, Long> lut) { }
 
+    @Desugar
     public record ChangesPair(List<ChunkPosId> oreVeinList, List<ChunkPosId> undergroundFluidList) { }
 }

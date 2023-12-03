@@ -16,6 +16,7 @@ import serverutils.lib.data.ForgeTeam;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ForgeTeamCache extends WorldCache {
 
@@ -92,13 +93,13 @@ public class ForgeTeamCache extends WorldCache {
                 .stream()
                 .map(posId -> getOreVein(posId.dimId, posId.chunkX, posId.chunkZ))
                 .filter(vein -> vein.veinType != VeinType.NO_VEIN)
-                .toList();
+                .collect(Collectors.toList());
 
         List<UndergroundFluidPosition> undergroundFluids = changes.undergroundFluidList()
                 .stream()
                 .map(posId -> getUndergroundFluid(posId.dimId, posId.chunkX, posId.chunkZ))
                 .filter(UndergroundFluidPosition::isProspected)
-                .toList();
+                .collect(Collectors.toList());
 
         TaskManager.instance.addTask(new TeamSyncToPlayerTask(player, oreVeins, undergroundFluids));
     }
