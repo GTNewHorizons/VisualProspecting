@@ -74,6 +74,8 @@ public class HooksShared {
                 networkId++,
                 Side.CLIENT);
 
+        SUIntegration.proxy.preInit(event, networkId);
+
         ProspectorsLog.instance = new ProspectorsLog();
         GameRegistry.registerItem(ProspectorsLog.instance, ProspectorsLog.instance.getUnlocalizedName());
     }
@@ -135,6 +137,8 @@ public class HooksShared {
     public void fmlLifeCycleEvent(FMLServerStoppingEvent event) {
         ServerCache.instance.saveVeinCache();
         ServerCache.instance.reset();
+
+        SUIntegration.proxy.serverStopping(event);
     }
 
     public void fmlLifeCycleEvent(FMLServerStoppedEvent event) {}

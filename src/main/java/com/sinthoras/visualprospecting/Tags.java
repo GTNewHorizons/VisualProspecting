@@ -13,6 +13,7 @@ public class Tags {
     public static final String VISUALPROSPECTING_DIR = MODID + "/";
     public static final String CLIENT_DIR = VISUALPROSPECTING_DIR + "client/";
     public static final String SERVER_DIR = VISUALPROSPECTING_DIR + "server/";
+    public static final String TEAMS_DIR = VISUALPROSPECTING_DIR + "teams/";
     public static final String UNDERGROUNDFLUID_DIR = "fluids/";
     public static final String OREVEIN_DIR = "ore/";
     public static final String worldId = "wId";

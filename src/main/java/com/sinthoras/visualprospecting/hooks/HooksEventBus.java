@@ -1,5 +1,7 @@
 package com.sinthoras.visualprospecting.hooks;
 
+import com.sinthoras.visualprospecting.Config;
+import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamDb;
 import net.minecraftforge.event.world.WorldEvent;
 
 import com.sinthoras.visualprospecting.Utils;
@@ -20,5 +22,9 @@ public class HooksEventBus {
     @SubscribeEvent
     public void onEvent(WorldEvent.Save event) {
         ServerCache.instance.saveVeinCache();
+
+        if (Utils.isServerUtilitiesInstalled() && Config.enableServerUtilsTeamSharing) {
+            ForgeTeamDb.instance.save();
+        }
     }
 }
