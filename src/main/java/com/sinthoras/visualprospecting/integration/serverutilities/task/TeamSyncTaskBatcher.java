@@ -1,15 +1,16 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.task;
 
-import com.sinthoras.visualprospecting.database.OreVeinPosition;
-import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
-import com.sinthoras.visualprospecting.task.ITask;
-import com.sinthoras.visualprospecting.task.TaskManager;
-import serverutils.lib.data.ForgeTeam;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.sinthoras.visualprospecting.database.OreVeinPosition;
+import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+import com.sinthoras.visualprospecting.task.ITask;
+import com.sinthoras.visualprospecting.task.TaskManager;
+
+import serverutils.lib.data.ForgeTeam;
 
 public class TeamSyncTaskBatcher implements ITask {
 
@@ -43,8 +44,7 @@ public class TeamSyncTaskBatcher implements ITask {
     }
 
     private void run() {
-        if (isEmpty())
-            return;
+        if (isEmpty()) return;
 
         List<String> entriesToRemove = new ArrayList<>();
         teamBatchMap.forEach((key, teamBatchData) -> { if (teamBatchData.sendData()) entriesToRemove.add(key); });

@@ -18,14 +18,12 @@ public class TaskManager {
         tasks.addAll(taskQueue);
         taskQueue.clear();
 
-        if (tasks.isEmpty())
-            return;
+        if (tasks.isEmpty()) return;
 
         List<ITask> tasksToRemove = new ArrayList<>();
 
         for (ITask task : tasks) {
-            if (task.process())
-                tasksToRemove.add(task);
+            if (task.process()) tasksToRemove.add(task);
         }
 
         for (ITask task : tasksToRemove) {

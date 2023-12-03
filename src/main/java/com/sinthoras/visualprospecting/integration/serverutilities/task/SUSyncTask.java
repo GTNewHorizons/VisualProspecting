@@ -1,11 +1,11 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.task;
 
+import java.util.List;
+
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.task.ITask;
-
-import java.util.List;
 
 public abstract class SUSyncTask implements ITask {
 

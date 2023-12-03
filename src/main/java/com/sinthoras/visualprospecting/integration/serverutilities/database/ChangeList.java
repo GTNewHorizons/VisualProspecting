@@ -1,17 +1,26 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.database;
 
-import com.sinthoras.visualprospecting.database.OreVeinPosition;
-import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
-
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
+
+import com.sinthoras.visualprospecting.database.OreVeinPosition;
+import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 
 public class ChangeList {
 
     private final NavigableMap<Long, List<ChunkPosId>> changeListOreVeins = new TreeMap<>(Comparator.naturalOrder());
-    private final NavigableMap<Long, List<ChunkPosId>> changeListUndergroundFluids = new TreeMap<>(Comparator.naturalOrder());
+    private final NavigableMap<Long, List<ChunkPosId>> changeListUndergroundFluids = new TreeMap<>(
+            Comparator.naturalOrder());
     private final Map<ChunkPosId, Long> oreVeinTimestampLUT = new HashMap<>();
     private final Map<ChunkPosId, Long> undergroundFluidTimestampLUT = new HashMap<>();
 
@@ -25,13 +34,13 @@ public class ChangeList {
         add(posId, undergroundFluidTimestampLUT, changeListUndergroundFluids, currentTimestamp);
     }
 
-    private void add(ChunkPosId posId, Map<ChunkPosId, Long> lut, NavigableMap<Long, List<ChunkPosId>> changeMap, long currentTimestamp) {
+    private void add(ChunkPosId posId, Map<ChunkPosId, Long> lut, NavigableMap<Long, List<ChunkPosId>> changeMap,
+            long currentTimestamp) {
         Long existingTimestamp = lut.get(posId);
 
         if (existingTimestamp != null) {
             List<ChunkPosId> changeList = changeMap.get(existingTimestamp);
-            if (changeList != null)
-                changeList.remove(posId);
+            if (changeList != null) changeList.remove(posId);
         }
 
         changeMap.compute(currentTimestamp, (key, value) -> {
@@ -41,8 +50,7 @@ public class ChangeList {
 
                 return posIdList;
             } else {
-                if (!value.contains(posId))
-                    value.add(posId);
+                if (!value.contains(posId)) value.add(posId);
 
                 return value;
             }
@@ -59,17 +67,12 @@ public class ChangeList {
     }
 
     private List<ChunkPosId> getListOfChangesSince(long timestamp, NavigableMap<Long, List<ChunkPosId>> map) {
-        if (map.isEmpty())
-            return new ArrayList<>();
+        if (map.isEmpty()) return new ArrayList<>();
 
         final long latest = map.lastKey();
-        if (timestamp > latest)
-            return new ArrayList<>();
+        if (timestamp > latest) return new ArrayList<>();
 
-        return map.subMap(timestamp, true, latest, true)
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
+        return map.subMap(timestamp, true, latest, true).values().stream().flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
 
@@ -81,8 +84,10 @@ public class ChangeList {
     }
 
     private int getByteSize() {
-        final int oreByteSize = Integer.BYTES + (changeListOreVeins.size() * (Long.BYTES + Integer.BYTES)) + (oreVeinTimestampLUT.size() * ChunkPosId.BYTES);
-        final int fluidByteSize = Integer.BYTES + (changeListUndergroundFluids.size() * (Long.BYTES + Integer.BYTES)) + (undergroundFluidTimestampLUT.size() * ChunkPosId.BYTES);
+        final int oreByteSize = Integer.BYTES + (changeListOreVeins.size() * (Long.BYTES + Integer.BYTES))
+                + (oreVeinTimestampLUT.size() * ChunkPosId.BYTES);
+        final int fluidByteSize = Integer.BYTES + (changeListUndergroundFluids.size() * (Long.BYTES + Integer.BYTES))
+                + (undergroundFluidTimestampLUT.size() * ChunkPosId.BYTES);
 
         return oreByteSize + fluidByteSize;
     }
@@ -194,6 +199,7 @@ public class ChangeList {
     }
 
     private static final class MapLutPair {
+
         private final NavigableMap<Long, List<ChunkPosId>> map;
         private final Map<ChunkPosId, Long> lut;
 
@@ -204,6 +210,7 @@ public class ChangeList {
     }
 
     public static final class ChangesPair {
+
         private final List<ChunkPosId> oreVeinList;
         private final List<ChunkPosId> undergroundFluidList;
 
@@ -213,8 +220,8 @@ public class ChangeList {
         }
 
         public boolean isEmpty() {
-                return oreVeinList.isEmpty() && undergroundFluidList.isEmpty();
-            }
+            return oreVeinList.isEmpty() && undergroundFluidList.isEmpty();
+        }
 
         public List<ChunkPosId> oreVeinList() {
             return oreVeinList;

@@ -1,5 +1,10 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.network;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -7,14 +12,11 @@ import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamCache;
 import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamDb;
 import com.sinthoras.visualprospecting.utils.VPByteBufUtils;
+
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayerMP;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TeamDataSyncMsg implements IMessage {
 
@@ -80,7 +82,9 @@ public class TeamDataSyncMsg implements IMessage {
             final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 
             ForgeTeamCache teamCache = ForgeTeamDb.instance.getByPlayer(player);
-            if (teamCache == null) return null; // Player sent a full team sync to the server despite not being on a team, in general this shouldn't be possible, but handling it just in case.
+            if (teamCache == null) return null; // Player sent a full team sync to the server despite not being on a
+                                                // team, in general this shouldn't be possible, but handling it just in
+                                                // case.
 
             teamCache.putOreVeins(message.oreVeins);
             teamCache.putUndergroundFluids(message.undergroundFluids);

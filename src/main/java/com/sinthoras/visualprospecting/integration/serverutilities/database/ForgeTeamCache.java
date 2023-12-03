@@ -1,5 +1,17 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.database;
 
+import java.io.File;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
@@ -12,14 +24,8 @@ import com.sinthoras.visualprospecting.integration.serverutilities.network.Clien
 import com.sinthoras.visualprospecting.integration.serverutilities.task.TeamSyncTaskBatcher;
 import com.sinthoras.visualprospecting.integration.serverutilities.task.TeamSyncToPlayerTask;
 import com.sinthoras.visualprospecting.task.TaskManager;
-import net.minecraft.entity.player.EntityPlayerMP;
-import serverutils.lib.data.ForgeTeam;
 
-import java.io.File;
-import java.nio.BufferUnderflowException;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.stream.Collectors;
+import serverutils.lib.data.ForgeTeam;
 
 public class ForgeTeamCache extends WorldCache {
 
@@ -33,7 +39,6 @@ public class ForgeTeamCache extends WorldCache {
 
     private boolean isLoaded = false;
     private boolean isDirty = false;
-
 
     public ForgeTeamCache(ForgeTeam team) {
         this.team = team;
@@ -61,8 +66,7 @@ public class ForgeTeamCache extends WorldCache {
             isDirty = true;
         }
 
-        if (modified.isEmpty())
-            return;
+        if (modified.isEmpty()) return;
 
         TeamSyncTaskBatcher.instance.addOreVeins(team, modified);
 
@@ -83,8 +87,7 @@ public class ForgeTeamCache extends WorldCache {
             isDirty = true;
         }
 
-        if (modified.isEmpty())
-            return;
+        if (modified.isEmpty()) return;
 
         TeamSyncTaskBatcher.instance.addUndergroundFluids(team, modified);
 
@@ -96,27 +99,21 @@ public class ForgeTeamCache extends WorldCache {
     public void syncPlayer(EntityPlayerMP player) {
         long lastSyncTimestamp = memberSyncMap.computeIfAbsent(player.getPersistentID(), uuid -> 0L);
 
-        if (lastSyncTimestamp == 0L)
-            VP.network.sendTo(new ClientFullSyncReqMsg(), player);
+        if (lastSyncTimestamp == 0L) VP.network.sendTo(new ClientFullSyncReqMsg(), player);
 
         ChangeList.ChangesPair changes = changeList.getAllSince(lastSyncTimestamp);
 
         memberSyncMap.put(player.getPersistentID(), System.currentTimeMillis());
 
-        if (changes.isEmpty())
-            return;
+        if (changes.isEmpty()) return;
 
-        List<OreVeinPosition> oreVeins = changes.oreVeinList()
-                .stream()
+        List<OreVeinPosition> oreVeins = changes.oreVeinList().stream()
                 .map(posId -> getOreVein(posId.dimId, posId.chunkX, posId.chunkZ))
-                .filter(vein -> vein.veinType != VeinType.NO_VEIN)
-                .collect(Collectors.toList());
+                .filter(vein -> vein.veinType != VeinType.NO_VEIN).collect(Collectors.toList());
 
-        List<UndergroundFluidPosition> undergroundFluids = changes.undergroundFluidList()
-                .stream()
+        List<UndergroundFluidPosition> undergroundFluids = changes.undergroundFluidList().stream()
                 .map(posId -> getUndergroundFluid(posId.dimId, posId.chunkX, posId.chunkZ))
-                .filter(UndergroundFluidPosition::isProspected)
-                .collect(Collectors.toList());
+                .filter(UndergroundFluidPosition::isProspected).collect(Collectors.toList());
 
         TaskManager.instance.addTask(new TeamSyncToPlayerTask(player, oreVeins, undergroundFluids));
     }
@@ -145,11 +142,9 @@ public class ForgeTeamCache extends WorldCache {
     public void saveVeinCache() {
         super.saveVeinCache();
 
-        if (!isDirty)
-            return;
+        if (!isDirty) return;
 
-        if (changeListPath == null || memberSyncPath == null)
-            return;
+        if (changeListPath == null || memberSyncPath == null) return;
 
         final ByteBuffer changeListBytes = changeList.toBytes();
         Utils.writeToFile(changeListPath, changeListBytes);
@@ -162,8 +157,7 @@ public class ForgeTeamCache extends WorldCache {
 
     @Override
     public boolean loadVeinCache(String worldId) {
-        if (isLoaded)
-            return true;
+        if (isLoaded) return true;
         isLoaded = true;
 
         super.loadVeinCache(worldId);
@@ -172,12 +166,10 @@ public class ForgeTeamCache extends WorldCache {
         memberSyncPath = new File(getStorageDirectory(), worldId + "/members");
 
         ByteBuffer changeListBuf = Utils.readFileToBuffer(changeListPath);
-        if (changeListBuf != null)
-            changeList.fromBytes(changeListBuf);
+        if (changeListBuf != null) changeList.fromBytes(changeListBuf);
 
         ByteBuffer memberSyncBuf = Utils.readFileToBuffer(memberSyncPath);
-        if (memberSyncBuf != null)
-            loadMemberSyncMap(memberSyncBuf);
+        if (memberSyncBuf != null) loadMemberSyncMap(memberSyncBuf);
 
         return true;
     }

@@ -1,11 +1,13 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.database;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import serverutils.lib.data.ForgeTeam;
-
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
+
+import net.minecraft.entity.player.EntityPlayerMP;
+
+import serverutils.lib.data.ForgeTeam;
 
 public class ForgeTeamDb {
 
@@ -18,17 +20,11 @@ public class ForgeTeamDb {
     }
 
     public @Nullable ForgeTeamCache getByPlayer(EntityPlayerMP player) {
-        return teamCacheMap.values()
-            .stream()
-            .filter(
-                value -> value.getTeam()
-                    .getOnlineMembers()
-                    .stream()
-                    .anyMatch(
-                        teamPlayer -> teamPlayer.getPersistentID()
-                            .equals(player.getPersistentID())))
-            .findFirst()
-            .orElse(null);
+        return teamCacheMap.values().stream()
+                .filter(
+                        value -> value.getTeam().getOnlineMembers().stream()
+                                .anyMatch(teamPlayer -> teamPlayer.getPersistentID().equals(player.getPersistentID())))
+                .findFirst().orElse(null);
     }
 
     public void syncPlayer(EntityPlayerMP player) {

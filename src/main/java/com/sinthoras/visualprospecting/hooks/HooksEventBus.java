@@ -1,12 +1,12 @@
 package com.sinthoras.visualprospecting.hooks;
 
-import com.sinthoras.visualprospecting.Config;
-import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamDb;
 import net.minecraftforge.event.world.WorldEvent;
 
+import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.ServerCache;
+import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamDb;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 

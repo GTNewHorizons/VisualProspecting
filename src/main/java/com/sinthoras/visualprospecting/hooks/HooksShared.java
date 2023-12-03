@@ -3,7 +3,6 @@ package com.sinthoras.visualprospecting.hooks;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
 
-import com.sinthoras.visualprospecting.integration.serverutilities.SUIntegration;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
@@ -18,6 +17,7 @@ import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.database.cachebuilder.WorldAnalysis;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
+import com.sinthoras.visualprospecting.integration.serverutilities.SUIntegration;
 import com.sinthoras.visualprospecting.item.ProspectorsLog;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;

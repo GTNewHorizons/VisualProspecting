@@ -1,11 +1,11 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.task;
 
+import java.util.List;
+
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.integration.serverutilities.network.TeamDataSyncMsg;
-
-import java.util.List;
 
 public class ClientSyncToTeamTask extends SUSyncTask {
 
@@ -17,10 +17,8 @@ public class ClientSyncToTeamTask extends SUSyncTask {
     protected void run() {
         final TeamDataSyncMsg packet = new TeamDataSyncMsg();
 
-        oreVeins.subList(0, packet.addOreVeins(oreVeins))
-                .clear();
-        undergroundFluids.subList(0, packet.addUndergroundFluids(undergroundFluids))
-                .clear();
+        oreVeins.subList(0, packet.addOreVeins(oreVeins)).clear();
+        undergroundFluids.subList(0, packet.addUndergroundFluids(undergroundFluids)).clear();
 
         VP.network.sendToServer(packet);
     }

@@ -1,12 +1,12 @@
 package com.sinthoras.visualprospecting.integration.serverutilities.task;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.task.ITask;
 import com.sinthoras.visualprospecting.task.TaskManager;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClientSyncTaskBatcher implements ITask {
 
@@ -33,7 +33,7 @@ public class ClientSyncTaskBatcher implements ITask {
     }
 
     public void addUndergroundFluids(List<UndergroundFluidPosition> undergroundFluids) {
-       this.undergroundFluids.addAll(undergroundFluids);
+        this.undergroundFluids.addAll(undergroundFluids);
     }
 
     @Override
@@ -49,8 +49,7 @@ public class ClientSyncTaskBatcher implements ITask {
     }
 
     private void run() {
-        if (isEmpty())
-            return;
+        if (isEmpty()) return;
 
         int oreVeinCount = this.oreVeins.size();
         int undergroundFluidsCount = this.undergroundFluids.size();
@@ -61,11 +60,9 @@ public class ClientSyncTaskBatcher implements ITask {
         ClientSyncToTeamTask task = new ClientSyncToTeamTask(oreVeins, undergroundFluids);
         TaskManager.instance.addTask(task);
 
-        if (!oreVeins.isEmpty())
-            this.oreVeins.subList(0, oreVeinCount).clear();
+        if (!oreVeins.isEmpty()) this.oreVeins.subList(0, oreVeinCount).clear();
 
-        if (!undergroundFluids.isEmpty())
-            this.undergroundFluids.subList(0, undergroundFluidsCount).clear();
+        if (!undergroundFluids.isEmpty()) this.undergroundFluids.subList(0, undergroundFluidsCount).clear();
     }
 
     private boolean isEmpty() {

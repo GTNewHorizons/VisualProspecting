@@ -6,9 +6,9 @@ import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 
 public class SUProxyBase {
 
-    public void preInit(FMLPreInitializationEvent event, int networkId) { }
+    public void preInit(FMLPreInitializationEvent event, int networkId) {}
 
-    public void init(FMLInitializationEvent event) { }
+    public void init(FMLInitializationEvent event) {}
 
-    public void serverStopping(FMLServerStoppingEvent event) { }
+    public void serverStopping(FMLServerStoppingEvent event) {}
 }
