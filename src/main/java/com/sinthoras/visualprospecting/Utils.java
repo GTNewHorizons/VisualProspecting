@@ -1,11 +1,6 @@
 package com.sinthoras.visualprospecting;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
@@ -197,6 +192,23 @@ public class Utils {
                 file.createNewFile();
             }
             final FileOutputStream outputStream = new FileOutputStream(file, true);
+            final FileChannel outputChannel = outputStream.getChannel();
+
+            outputChannel.write(byteBuffer);
+
+            outputChannel.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeToFile(File file, ByteBuffer byteBuffer) {
+        try {
+            if (file.exists())
+                file.delete();
+
+            final FileOutputStream outputStream = new FileOutputStream(file, false);
             final FileChannel outputChannel = outputStream.getChannel();
 
             outputChannel.write(byteBuffer);
