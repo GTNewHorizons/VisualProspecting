@@ -41,6 +41,9 @@ public class ClientSyncTaskBatcher implements ITask {
     }
 
     private void run() {
+        if (isEmpty())
+            return;
+
         int oreVeinCount = this.oreVeins.size();
         int undergroundFluidsCount = this.undergroundFluids.size();
 
@@ -50,9 +53,14 @@ public class ClientSyncTaskBatcher implements ITask {
         ClientSyncToTeamTask task = new ClientSyncToTeamTask(oreVeins, undergroundFluids);
         TaskManager.instance.addTask(task);
 
-        this.oreVeins.subList(0, oreVeinCount)
-                .clear();
-        this.undergroundFluids.subList(0, undergroundFluidsCount)
-                .clear();
+        if (!oreVeins.isEmpty())
+            this.oreVeins.subList(0, oreVeinCount).clear();
+
+        if (!undergroundFluids.isEmpty())
+            this.undergroundFluids.subList(0, undergroundFluidsCount).clear();
+    }
+
+    private boolean isEmpty() {
+        return oreVeins.isEmpty() && undergroundFluids.isEmpty();
     }
 }

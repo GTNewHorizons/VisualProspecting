@@ -16,7 +16,6 @@ public class SUEventBus {
 
     @SubscribeEvent
     public void onProspectingOreNotificationEvent(ProspectingNotificationEvent.OreVein event) {
-
         ClientSyncTaskBatcher.instance.addOreVein(event.getPosition());
     }
 

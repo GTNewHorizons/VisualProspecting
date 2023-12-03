@@ -90,6 +90,7 @@ public class ChangeList {
         writeChangeMapBytes(buf, changeListOreVeins);
         writeChangeMapBytes(buf, changeListUndergroundFluids);
 
+        buf.flip();
         return buf;
     }
 

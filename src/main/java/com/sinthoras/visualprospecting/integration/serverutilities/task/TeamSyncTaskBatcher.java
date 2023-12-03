@@ -43,6 +43,9 @@ public class TeamSyncTaskBatcher implements ITask {
     }
 
     private void run() {
+        if (isEmpty())
+            return;
+
         List<String> entriesToRemove = new ArrayList<>();
         teamBatchMap.forEach((key, teamBatchData) -> { if (teamBatchData.sendData()) entriesToRemove.add(key); });
 
@@ -53,6 +56,10 @@ public class TeamSyncTaskBatcher implements ITask {
 
     private TeamBatchData getTeamBatchData(ForgeTeam team) {
         return teamBatchMap.computeIfAbsent(team.getUIDCode(), (_key) -> new TeamBatchData(team));
+    }
+
+    private boolean isEmpty() {
+        return teamBatchMap.isEmpty();
     }
 
     private static class TeamBatchData {

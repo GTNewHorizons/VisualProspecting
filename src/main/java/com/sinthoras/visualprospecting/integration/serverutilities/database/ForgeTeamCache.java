@@ -14,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import serverutils.lib.data.ForgeTeam;
 
 import java.io.File;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -58,6 +59,9 @@ public class ForgeTeamCache extends WorldCache {
             isDirty = true;
         }
 
+        if (modified.isEmpty())
+            return;
+
         TeamSyncTaskBatcher.instance.addOreVeins(team, modified);
 
         for (EntityPlayerMP member : team.getOnlineMembers()) {
@@ -77,6 +81,9 @@ public class ForgeTeamCache extends WorldCache {
             isDirty = true;
         }
 
+        if (modified.isEmpty())
+            return;
+
         TeamSyncTaskBatcher.instance.addUndergroundFluids(team, modified);
 
         for (EntityPlayerMP member : team.getOnlineMembers()) {
@@ -88,6 +95,9 @@ public class ForgeTeamCache extends WorldCache {
         long lastSyncTimestamp = memberSyncMap.computeIfAbsent(player.getPersistentID(), uuid -> 0L);
 
         ChangeList.ChangesPair changes = changeList.getAllSince(lastSyncTimestamp);
+
+        if (changes.isEmpty())
+            return;
 
         List<OreVeinPosition> oreVeins = changes.oreVeinList()
                 .stream()
@@ -135,6 +145,8 @@ public class ForgeTeamCache extends WorldCache {
 
         final ByteBuffer memberSyncBytes = saveMemberSyncMap();
         Utils.writeToFile(memberSyncPath, memberSyncBytes);
+
+        isDirty = false;
     }
 
     @Override
@@ -170,17 +182,22 @@ public class ForgeTeamCache extends WorldCache {
             buf.putLong(timestamp);
         });
 
+        buf.flip();
         return buf;
     }
 
     private void loadMemberSyncMap(ByteBuffer buf) {
-        final int count = buf.getInt();
-        for (int i = 0; i < count; i++) {
-            final long mostSigBits = buf.getLong();
-            final long leastSigBits = buf.getLong();
-            final long timestamp = buf.getLong();
+        try {
+            final int count = buf.getInt();
+            for (int i = 0; i < count; i++) {
+                final long mostSigBits = buf.getLong();
+                final long leastSigBits = buf.getLong();
+                final long timestamp = buf.getLong();
 
-            memberSyncMap.put(new UUID(mostSigBits, leastSigBits), timestamp);
+                memberSyncMap.put(new UUID(mostSigBits, leastSigBits), timestamp);
+            }
+        } catch (BufferUnderflowException exception) {
+            exception.printStackTrace();
         }
     }
 }
