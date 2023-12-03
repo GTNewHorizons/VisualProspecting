@@ -4,6 +4,7 @@ import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.integration.serverutilities.SUEventBus;
 import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamDb;
+import com.sinthoras.visualprospecting.integration.serverutilities.network.ClientFullSyncReqMsg;
 import com.sinthoras.visualprospecting.integration.serverutilities.network.TeamDataSyncMsg;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -25,8 +26,12 @@ public class SUProxyCommon extends SUProxyBase {
                 TeamDataSyncMsg.ClientHandler.class,
                 TeamDataSyncMsg.class,
                 networkId++,
-                Side.CLIENT
-        );
+                Side.CLIENT);
+        VP.network.registerMessage(
+                ClientFullSyncReqMsg.ClientHandler.class,
+                ClientFullSyncReqMsg.class,
+                networkId++,
+                Side.CLIENT);
     }
 
     @Override

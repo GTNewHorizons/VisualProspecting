@@ -2,14 +2,13 @@ package com.sinthoras.visualprospecting.integration.serverutilities;
 
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
+import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamCache;
 import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamDb;
 import com.sinthoras.visualprospecting.integration.serverutilities.task.ClientSyncTaskBatcher;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.entity.player.EntityPlayerMP;
-import serverutils.events.team.ForgeTeamCreatedEvent;
-import serverutils.events.team.ForgeTeamDeletedEvent;
-import serverutils.events.team.ForgeTeamLoadedEvent;
-import serverutils.events.team.ForgeTeamPlayerJoinedEvent;
+import serverutils.events.team.*;
+import serverutils.lib.data.ForgePlayer;
 import serverutils.lib.data.ForgeTeam;
 
 public class SUEventBus {
@@ -28,8 +27,18 @@ public class SUEventBus {
     public void onTeamCreated(ForgeTeamCreatedEvent event) {
         ForgeTeam team = event.getTeam();
 
-        ForgeTeamDb.instance.get(team)
-            .loadVeinCache(WorldIdHandler.getWorldId());
+        ForgeTeamCache teamCache = ForgeTeamDb.instance.get(team);
+        teamCache.loadVeinCache(WorldIdHandler.getWorldId());
+
+        ForgePlayer owner = team.getOwner();
+        if (owner == null)
+            return;
+
+        EntityPlayerMP player = owner.getPlayer();
+        if (player == null)
+            return;
+
+        teamCache.syncPlayer(player);
     }
 
     @SubscribeEvent
@@ -51,5 +60,12 @@ public class SUEventBus {
     public void onTeamPlayerJoined(ForgeTeamPlayerJoinedEvent event) {
         EntityPlayerMP player = event.getPlayer().getPlayer();
         ForgeTeamDb.instance.syncPlayer(player);
+    }
+
+    @SubscribeEvent
+    public void onTeamPlayerLeft(ForgeTeamPlayerLeftEvent event) {
+        EntityPlayerMP player = event.getPlayer().getPlayer();
+        ForgeTeamDb.instance.get(event.getTeam())
+                .removePlayer(player);
     }
 }

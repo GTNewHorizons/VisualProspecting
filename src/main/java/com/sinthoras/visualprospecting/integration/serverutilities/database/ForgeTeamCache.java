@@ -2,11 +2,13 @@ package com.sinthoras.visualprospecting.integration.serverutilities.database;
 
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
+import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.DimensionCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.database.WorldCache;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
+import com.sinthoras.visualprospecting.integration.serverutilities.network.ClientFullSyncReqMsg;
 import com.sinthoras.visualprospecting.integration.serverutilities.task.TeamSyncTaskBatcher;
 import com.sinthoras.visualprospecting.integration.serverutilities.task.TeamSyncToPlayerTask;
 import com.sinthoras.visualprospecting.task.TaskManager;
@@ -94,7 +96,12 @@ public class ForgeTeamCache extends WorldCache {
     public void syncPlayer(EntityPlayerMP player) {
         long lastSyncTimestamp = memberSyncMap.computeIfAbsent(player.getPersistentID(), uuid -> 0L);
 
+        if (lastSyncTimestamp == 0L)
+            VP.network.sendTo(new ClientFullSyncReqMsg(), player);
+
         ChangeList.ChangesPair changes = changeList.getAllSince(lastSyncTimestamp);
+
+        memberSyncMap.put(player.getPersistentID(), System.currentTimeMillis());
 
         if (changes.isEmpty())
             return;
@@ -112,6 +119,10 @@ public class ForgeTeamCache extends WorldCache {
                 .collect(Collectors.toList());
 
         TaskManager.instance.addTask(new TeamSyncToPlayerTask(player, oreVeins, undergroundFluids));
+    }
+
+    public void removePlayer(EntityPlayerMP player) {
+        memberSyncMap.remove(player.getPersistentID());
     }
 
     public void delete(String worldId) {

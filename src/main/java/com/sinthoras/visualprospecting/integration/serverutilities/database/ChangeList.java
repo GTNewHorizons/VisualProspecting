@@ -63,6 +63,9 @@ public class ChangeList {
             return new ArrayList<>();
 
         final long latest = map.lastKey();
+        if (timestamp > latest)
+            return new ArrayList<>();
+
         return map.subMap(timestamp, true, latest, true)
                 .values()
                 .stream()

@@ -24,8 +24,16 @@ public class ClientSyncTaskBatcher implements ITask {
         oreVeins.add(oreVein);
     }
 
+    public void addOreVeins(List<OreVeinPosition> oreVeins) {
+        this.oreVeins.addAll(oreVeins);
+    }
+
     public void addUndergroundFluid(UndergroundFluidPosition undergroundFluid) {
         undergroundFluids.add(undergroundFluid);
+    }
+
+    public void addUndergroundFluids(List<UndergroundFluidPosition> undergroundFluids) {
+       this.undergroundFluids.addAll(undergroundFluids);
     }
 
     @Override
