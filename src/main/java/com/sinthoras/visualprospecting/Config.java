@@ -18,6 +18,7 @@ public class Config {
         public static final int uploadBandwidthBytes = 2000000;
         public static final int maxTransferCacheSizeMB = 50;
         public static final boolean enableVoxelMapWaypointsByDefault = false;
+        public static boolean enableServerUtilsTeamSharing = true;
         public static final int maxDimensionSizeMBForFastScanning = 10000;
         public static boolean enableDeveloperOverlays = false;
     }
@@ -40,6 +41,7 @@ public class Config {
     public static int uploadPacketsPerSecond = uploadBandwidthBytes / VP.uploadSizePerPacketInBytes;
     public static int maxTransferCacheSizeMB = Defaults.maxTransferCacheSizeMB;
     public static boolean enableVoxelMapWaypointsByDefault = Defaults.enableVoxelMapWaypointsByDefault;
+    public static boolean enableServerUtilsTeamSharing = Defaults.enableServerUtilsTeamSharing;
     public static int maxDimensionSizeMBForFastScanning = Defaults.maxDimensionSizeMBForFastScanning;
     public static boolean enableDeveloperOverlays = Defaults.enableDeveloperOverlays;
 
@@ -117,6 +119,13 @@ public class Config {
                 Defaults.enableVoxelMapWaypointsByDefault,
                 "[CLIENT / VoxelMap] Enable waypoints added by prospecting GT ore veins or underground fluids by default");
         enableVoxelMapWaypointsByDefault = enableVoxelMapWaypointsByDefaultProperty.getBoolean();
+
+        Property enableServerUtilsTeamSharingProperty = configuration.get(
+                Categories.integration,
+                "enableServerUtilsTeamSharing",
+                Defaults.enableServerUtilsTeamSharing,
+                "[SERVER] Enable ServerUtils teams to have their prospecting data synced between members.");
+        enableServerUtilsTeamSharing = enableServerUtilsTeamSharingProperty.getBoolean();
 
         Property maxDimensionSizeMBForFastScanningProperty = configuration.get(
                 Categories.caching,
