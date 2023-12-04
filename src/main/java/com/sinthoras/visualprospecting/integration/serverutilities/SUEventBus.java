@@ -3,10 +3,8 @@ package com.sinthoras.visualprospecting.integration.serverutilities;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
-import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamCache;
 import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamDb;
-import com.sinthoras.visualprospecting.integration.serverutilities.task.ClientSyncTaskBatcher;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import serverutils.events.team.ForgeTeamCreatedEvent;
@@ -18,16 +16,6 @@ import serverutils.lib.data.ForgePlayer;
 import serverutils.lib.data.ForgeTeam;
 
 public class SUEventBus {
-
-    @SubscribeEvent
-    public void onProspectingOreNotificationEvent(ProspectingNotificationEvent.OreVein event) {
-        ClientSyncTaskBatcher.instance.addOreVein(event.getPosition());
-    }
-
-    @SubscribeEvent
-    public void OnProspectingFluidNotificationEvent(ProspectingNotificationEvent.UndergroundFluid event) {
-        ClientSyncTaskBatcher.instance.addUndergroundFluid(event.getPosition());
-    }
 
     @SubscribeEvent
     public void onTeamCreated(ForgeTeamCreatedEvent event) {

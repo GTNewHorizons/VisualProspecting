@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.task.ITask;
@@ -20,7 +21,7 @@ public class TeamSyncTaskBatcher implements ITask {
     private long lastTimestamp = 0;
 
     private TeamSyncTaskBatcher() {
-        TaskManager.instance.addTask(this);
+        if (Utils.isServerUtilitiesInstalled()) TaskManager.instance.addTask(this);
     }
 
     public void addOreVeins(ForgeTeam team, List<OreVeinPosition> oreVeins) {
