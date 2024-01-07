@@ -73,7 +73,7 @@ public abstract class GuiMapMixin extends ScreenBase {
     // i guess all the errors mcdev shows here aren't real?
     // deobf method = "drawScreen"
     @Inject(
-            method = "func_73863_a",
+            method = "drawScreen",
             at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL11;glPushMatrix()V", ordinal = 1),
             locals = LocalCapture.CAPTURE_FAILEXCEPTION)
     private void visualprospecting$injectPreRender(int scaledMouseX, int scaledMouseY, float partialTicks,
@@ -98,7 +98,7 @@ public abstract class GuiMapMixin extends ScreenBase {
 
     // deobf method = "drawScreen"
     @Inject(
-            method = "func_73863_a",
+            method = "drawScreen",
             at = @At(
                     value = "INVOKE",
                     target = "Lorg/lwjgl/opengl/GL11;glEnable(I)V",
@@ -132,14 +132,14 @@ public abstract class GuiMapMixin extends ScreenBase {
 
     // deobf method = drawScreen
     @Inject(
-            method = "func_73863_a",
+            method = "drawScreen",
             at = @At(value = "INVOKE", target = "Lorg/lwjgl/opengl/GL11;glTranslated(DDD)V"),
             slice = @Slice(
                     from = @At(
                             value = "FIELD",
                             // deobf target =
                             // "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;"
-                            target = "Lnet/minecraft/client/Minecraft;field_71462_r:Lnet/minecraft/client/gui/GuiScreen;",
+                            target = "Lnet/minecraft/client/Minecraft;currentScreen:Lnet/minecraft/client/gui/GuiScreen;",
                             opcode = Opcodes.GETFIELD),
                     to = @At(value = "INVOKE", target = "Lxaero/map/gui/CursorBox;drawBox(IIII)V")))
     private void visualprospecting$injectDrawTooltip(int scaledMouseX, int scaledMouseY, float partialTicks,
@@ -152,15 +152,15 @@ public abstract class GuiMapMixin extends ScreenBase {
     }
 
     // deobf method = "initGui"
-    @Inject(
-            method = "func_73866_w_",
-            at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Keyboard;enableRepeatEvents(Z)V"))
+    @Inject(method = "initGui", at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Keyboard;enableRepeatEvents(Z)V"))
     private void visualprospecting$injectInitButtons(CallbackInfo ci) {
-        for (int i = 0; i < XaeroWorldMapState.instance.buttons.size(); i++) {
+        int numBtns = XaeroWorldMapState.instance.buttons.size();
+        int totalHeight = numBtns * 20;
+        for (int i = 0; i < numBtns; i++) {
             LayerButton layerButton = XaeroWorldMapState.instance.buttons.get(i);
             SizedGuiTexturedButton button = new SizedGuiTexturedButton(
                     0,
-                    height - 20 * (i + 1),
+                    (height / 2 + totalHeight / 2) - 20 * i,
                     layerButton.textureLocation,
                     (btn) -> layerButton.toggle(),
                     new CursorBox(layerButton.getButtonTextKey()));
