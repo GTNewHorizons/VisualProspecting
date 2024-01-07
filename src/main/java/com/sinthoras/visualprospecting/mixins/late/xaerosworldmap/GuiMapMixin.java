@@ -160,7 +160,7 @@ public abstract class GuiMapMixin extends ScreenBase {
             LayerButton layerButton = XaeroWorldMapState.instance.buttons.get(i);
             SizedGuiTexturedButton button = new SizedGuiTexturedButton(
                     0,
-                    (height / 2 + totalHeight / 2) - 20 * i,
+                    (height / 2 + totalHeight / 2) - 20 - 20 * i,
                     layerButton.textureLocation,
                     (btn) -> layerButton.toggle(),
                     new CursorBox(layerButton.getButtonTextKey()));
