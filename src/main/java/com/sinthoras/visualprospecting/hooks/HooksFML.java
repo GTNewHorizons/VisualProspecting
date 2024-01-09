@@ -3,9 +3,12 @@ package com.sinthoras.visualprospecting.hooks;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 
+import com.sinthoras.visualprospecting.Config;
+import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
+import com.sinthoras.visualprospecting.integration.serverutilities.database.ForgeTeamDb;
 import com.sinthoras.visualprospecting.network.WorldIdNotification;
 import com.sinthoras.visualprospecting.task.TaskManager;
 
@@ -31,6 +34,10 @@ public class HooksFML {
     public void onEvent(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.player instanceof EntityPlayerMP playerMP) {
             VP.network.sendTo(new WorldIdNotification(WorldIdHandler.getWorldId()), playerMP);
+
+            if (Utils.isServerUtilitiesInstalled() && Config.enableServerUtilsTeamSharing) {
+                ForgeTeamDb.instance.syncPlayer(playerMP);
+            }
         } else if (event.player instanceof EntityPlayer) {
             ClientCache.instance.loadVeinCache(WorldIdHandler.getWorldId());
         }

@@ -17,6 +17,7 @@ import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.database.cachebuilder.WorldAnalysis;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
+import com.sinthoras.visualprospecting.integration.serverutilities.SUIntegration;
 import com.sinthoras.visualprospecting.item.ProspectorsLog;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
@@ -73,6 +74,8 @@ public class HooksShared {
                 networkId++,
                 Side.CLIENT);
 
+        SUIntegration.proxy.preInit(event, networkId);
+
         ProspectorsLog.instance = new ProspectorsLog();
         GameRegistry.registerItem(ProspectorsLog.instance, ProspectorsLog.instance.getUnlocalizedName());
     }
@@ -81,6 +84,8 @@ public class HooksShared {
     public void fmlLifeCycleEvent(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new HooksEventBus());
         FMLCommonHandler.instance().bus().register(new HooksFML());
+
+        SUIntegration.proxy.init(event);
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this."
@@ -132,6 +137,8 @@ public class HooksShared {
     public void fmlLifeCycleEvent(FMLServerStoppingEvent event) {
         ServerCache.instance.saveVeinCache();
         ServerCache.instance.reset();
+
+        SUIntegration.proxy.serverStopping(event);
     }
 
     public void fmlLifeCycleEvent(FMLServerStoppedEvent event) {}

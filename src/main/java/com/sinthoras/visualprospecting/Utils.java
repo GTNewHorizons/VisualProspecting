@@ -68,6 +68,10 @@ public class Utils {
         }
     }
 
+    public static boolean isServerUtilitiesInstalled() {
+        return Loader.isModLoaded("serverutilities");
+    }
+
     public static int coordBlockToChunk(int blockCoord) {
         return blockCoord < 0 ? -((-blockCoord - 1) >> 4) - 1 : blockCoord >> 4;
     }
@@ -193,6 +197,22 @@ public class Utils {
                 file.createNewFile();
             }
             final FileOutputStream outputStream = new FileOutputStream(file, true);
+            final FileChannel outputChannel = outputStream.getChannel();
+
+            outputChannel.write(byteBuffer);
+
+            outputChannel.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeToFile(File file, ByteBuffer byteBuffer) {
+        try {
+            if (file.exists()) file.delete();
+
+            final FileOutputStream outputStream = new FileOutputStream(file, false);
             final FileChannel outputChannel = outputStream.getChannel();
 
             outputChannel.write(byteBuffer);
