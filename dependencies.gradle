@@ -9,10 +9,11 @@ dependencies {
     compileOnly('com.github.GTNewHorizons:GalacticGregGT5:1.1.0:dev') {transitive = false}
     compileOnly('com.github.GTNewHorizons:bartworks:0.9.2:dev') {transitive = false}
 
-    compileOnly(deobf('https://media.forgecdn.net/files/4127/308/Xaeros_Minimap_21.10.30_Forge_1.7.10.jar'))
-    compileOnly(deobf('https://media.forgecdn.net/files/4127/328/XaerosWorldMap_1.14.1.22_Forge_1.7.10.jar'))
+    compileOnly(deobfCurse('xaeros-minimap-263420:4905582'))
+    compileOnly(deobfCurse('xaeros-world-map-317780:4905612'))
     compileOnly(deobf('https://media.forgecdn.net/files/2462/146/mod_voxelMap_1.7.0b_for_1.7.10.litemod', 'mod_voxelMap_1.7.0b_for_1.7.10.jar'))
 
     // For debugging
     runtimeOnlyNonPublishable('com.github.GTNewHorizons:DetravScannerMod:1.7.2:dev')
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:ServerUtilities:2.0.9:dev')
 }

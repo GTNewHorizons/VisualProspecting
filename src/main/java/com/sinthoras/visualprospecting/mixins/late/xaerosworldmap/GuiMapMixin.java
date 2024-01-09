@@ -156,11 +156,13 @@ public abstract class GuiMapMixin extends ScreenBase {
             method = "func_73866_w_",
             at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Keyboard;enableRepeatEvents(Z)V"))
     private void visualprospecting$injectInitButtons(CallbackInfo ci) {
-        for (int i = 0; i < XaeroWorldMapState.instance.buttons.size(); i++) {
+        int numBtns = XaeroWorldMapState.instance.buttons.size();
+        int totalHeight = numBtns * 20;
+        for (int i = 0; i < numBtns; i++) {
             LayerButton layerButton = XaeroWorldMapState.instance.buttons.get(i);
             SizedGuiTexturedButton button = new SizedGuiTexturedButton(
                     0,
-                    height - 20 * (i + 1),
+                    (height / 2 + totalHeight / 2) - 20 - 20 * i,
                     layerButton.textureLocation,
                     (btn) -> layerButton.toggle(),
                     new CursorBox(layerButton.getButtonTextKey()));
