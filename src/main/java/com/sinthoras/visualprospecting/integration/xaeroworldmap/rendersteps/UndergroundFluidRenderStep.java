@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.I18n;
 
 import org.lwjgl.opengl.GL11;
 
@@ -18,11 +19,12 @@ public class UndergroundFluidRenderStep implements RenderStep {
         undergroundFluidLocation = undergroundFluid;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void draw(@Nullable GuiScreen gui, double cameraX, double cameraZ, double scale) {
         final int maxAmountInField = undergroundFluidLocation.getMaxProduction();
         // < 0.5 scale is when scaling issues show up
-        if (maxAmountInField > 0 && scale >= 0.5) {
+        if (scale >= 0.5) {
             GL11.glPushMatrix();
             GL11.glTranslated(
                     undergroundFluidLocation.getBlockX() - 0.5 - cameraX,
@@ -40,11 +42,13 @@ public class UndergroundFluidRenderStep implements RenderStep {
             // min scale that journeymap can go to
             if (scale >= 1 && gui != null) {
                 GL11.glScaled(1 / scale, 1 / scale, 1);
-                @SuppressWarnings("deprecation")
-                final String label = undergroundFluidLocation.getMinProduction() + "L - "
-                        + maxAmountInField
-                        + "L  "
-                        + undergroundFluidLocation.getFluid().getLocalizedName();
+                String label = I18n.format("visualprospecting.empty");
+                if (maxAmountInField > 0) {
+                    label = undergroundFluidLocation.getMinProduction() + "L - "
+                            + maxAmountInField
+                            + "L  "
+                            + undergroundFluidLocation.getFluid().getLocalizedName();
+                }
                 DrawUtils.drawSimpleLabel(gui, label, VP.chunkWidth * scale, 0, 0xFFFFFFFF, 0xB4000000, false);
             }
 
