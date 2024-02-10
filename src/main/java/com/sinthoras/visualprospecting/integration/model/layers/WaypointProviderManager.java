@@ -11,6 +11,8 @@ import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndL
 import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
 import com.sinthoras.visualprospecting.integration.model.waypoints.WaypointManager;
 
+import journeymap.client.model.BlockCoordIntPair;
+
 public abstract class WaypointProviderManager extends LayerManager {
 
     private List<? extends IWaypointAndLocationProvider> visibleElements = new ArrayList<>();
@@ -36,6 +38,10 @@ public abstract class WaypointProviderManager extends LayerManager {
 
     public boolean hasActiveWaypoint() {
         return activeWaypoint != null;
+    }
+
+    public boolean doActionOutsideLayer(BlockCoordIntPair blockCoord) {
+        return false;
     }
 
     public void registerWaypointManager(SupportedMods map, WaypointManager waypointManager) {

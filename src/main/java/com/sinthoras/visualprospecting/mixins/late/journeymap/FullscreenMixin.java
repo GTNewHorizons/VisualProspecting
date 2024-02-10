@@ -272,9 +272,9 @@ public abstract class FullscreenMixin extends JmUI {
             final int scaledMouseX = mx * mc.displayWidth / width;
             final int scaledMouseY = my * mc.displayHeight / height;
             final double blockSize = Math.pow(2.0D, gridRenderer.getZoom());
-            if (!visualprospecting$onMapClicked(mouseButton, scaledMouseX, scaledMouseY, blockSize)) {
-                BlockCoordIntPair blockCoord = gridRenderer
-                        .getBlockUnderMouse(Mouse.getEventX(), Mouse.getEventY(), mc.displayWidth, mc.displayHeight);
+            BlockCoordIntPair blockCoord = gridRenderer
+                    .getBlockUnderMouse(Mouse.getEventX(), Mouse.getEventY(), mc.displayWidth, mc.displayHeight);
+            if (!visualprospecting$onMapClicked(mouseButton, scaledMouseX, scaledMouseY, blockSize, blockCoord)) {
                 layerDelegate.onMouseClicked(
                         mc,
                         Mouse.getEventX(),
@@ -287,7 +287,8 @@ public abstract class FullscreenMixin extends JmUI {
         }
     }
 
-    private boolean visualprospecting$onMapClicked(int mouseButton, int mouseX, int mouseY, double blockSize) {
+    private boolean visualprospecting$onMapClicked(int mouseButton, int mouseX, int mouseY, double blockSize,
+            BlockCoordIntPair blockCoord) {
         final long timestamp = System.currentTimeMillis();
         final boolean isDoubleClick = mouseX == oldMouseX && mouseY == oldMouseY && timestamp - timeLastClick < 500;
         oldMouseX = mouseX;
@@ -297,12 +298,16 @@ public abstract class FullscreenMixin extends JmUI {
             return false;
         }
         boolean layerHit = false;
+        boolean clickOutside = false;
         for (LayerRenderer layer : JourneyMapState.instance.renderers) {
-            if (layer instanceof WaypointProviderLayerRenderer) {
-                ((WaypointProviderLayerRenderer) layer).onMouseMove(mouseX, mouseY);
-                layerHit |= ((WaypointProviderLayerRenderer) layer).onMouseAction(isDoubleClick);
+            if (layer instanceof WaypointProviderLayerRenderer wpLayerRender) {
+                wpLayerRender.onMouseMove(mouseX, mouseY);
+                layerHit |= wpLayerRender.onMouseAction(isDoubleClick);
+                if (!layerHit) {
+                    clickOutside |= wpLayerRender.onMouseActionOutsideLayer(isDoubleClick, blockCoord);
+                }
             }
         }
-        return layerHit;
+        return layerHit || clickOutside;
     }
 }

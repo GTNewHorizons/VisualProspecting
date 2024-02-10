@@ -10,6 +10,8 @@ import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.Clickabl
 import com.sinthoras.visualprospecting.integration.model.layers.WaypointProviderManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 
+import journeymap.client.model.BlockCoordIntPair;
+
 public abstract class WaypointProviderLayerRenderer extends LayerRenderer {
 
     private final WaypointProviderManager manager;
@@ -64,6 +66,13 @@ public abstract class WaypointProviderLayerRenderer extends LayerRenderer {
                 }
             }
             return true;
+        }
+        return false;
+    }
+
+    public boolean onMouseActionOutsideLayer(boolean isDoubleClick, BlockCoordIntPair blockCoord) {
+        if (isLayerActive() && isDoubleClick) {
+            return manager.doActionOutsideLayer(blockCoord);
         }
         return false;
     }
