@@ -12,6 +12,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -47,65 +48,71 @@ import journeymap.client.ui.theme.ThemeToolbar;
 @Mixin(value = Fullscreen.class, remap = false)
 public abstract class FullscreenMixin extends JmUI {
 
+    @Unique
     private int oldMouseX = 0;
+    @Unique
     private int oldMouseY = 0;
+    @Unique
     private long timeLastClick = 0;
 
     @Final
-    @Shadow(remap = false)
+    @Shadow
     static GridRenderer gridRenderer;
 
-    @Shadow(remap = false)
+    @Shadow
     ThemeToolbar mapTypeToolbar;
 
-    @Shadow(remap = false)
+    @Shadow
     ThemeButton buttonCaves;
 
-    @Shadow(remap = false)
+    @Shadow
     ThemeButton buttonNight;
 
-    @Shadow(remap = false)
+    @Shadow
     ThemeButton buttonDay;
 
-    @Shadow(remap = false)
+    @Shadow
     StatTimer drawScreenTimer;
 
-    @Shadow(remap = false)
+    @Shadow()
     MapChat chat;
 
     @Final
-    @Shadow(remap = false)
+    @Shadow
     LayerDelegate layerDelegate;
 
-    @Shadow(remap = false)
+    @Shadow
     boolean firstLayoutPass;
 
-    @Shadow(remap = false)
+    @Shadow
     int mx;
 
-    @Shadow(remap = false)
+    @Shadow
     int my;
 
     public FullscreenMixin() {
         super("");
     }
 
-    @Inject(method = "<init>*", at = @At("RETURN"), remap = false, require = 1)
+    @Inject(method = "<init>*", at = @At("RETURN"), require = 1)
     private void visualprospecting$init(CallbackInfo ci) {
         MapState.instance.layers.forEach(LayerManager::forceRefresh);
     }
 
-    @Shadow(remap = false)
+    @Shadow
     private int getMapFontScale() {
         throw new IllegalStateException("Mixin failed to shadow getMapFontScale()");
     }
 
-    @Shadow(remap = false)
+    @Shadow
     void drawMap() {
         throw new IllegalStateException("Mixin failed to shadow drawMap()");
     }
 
-    @Inject(method = "<init>*", at = @At("RETURN"), remap = false, require = 1)
+    @Shadow
+    public abstract void drawBackground(int layer);
+
+    @Inject(method = "<init>*", at = @At("RETURN"), require = 1)
     private void visualprospecting$onConstructed(CallbackInfo ci) {
         MapState.instance.layers.forEach(LayerManager::onOpenMap);
     }
@@ -151,7 +158,6 @@ public abstract class FullscreenMixin extends JmUI {
                     value = "FIELD",
                     target = "Ljourneymap/client/ui/fullscreen/Fullscreen;mapTypeToolbar:Ljourneymap/client/ui/theme/ThemeToolbar;",
                     opcode = Opcodes.PUTFIELD),
-            remap = false,
             require = 1)
     private void visualprospecting$OnCreateMapTypeToolbar(Fullscreen owner, ThemeToolbar value) {
         final Theme theme = ThemeFileHandler.getCurrentTheme();
@@ -178,9 +184,9 @@ public abstract class FullscreenMixin extends JmUI {
     }
 
     @Override
-    public void func_73863_a(int width, int height, float f) {
+    public void drawScreen(int width, int height, float f) {
         try {
-            func_146278_c(0);
+            drawBackground(0);
             drawMap();
             drawScreenTimer.start();
             layoutButtons();
@@ -190,7 +196,7 @@ public abstract class FullscreenMixin extends JmUI {
                 firstLayoutPass = false;
             } else {
                 for (int k = 0; k < buttonList.size(); ++k) {
-                    GuiButton guibutton = (GuiButton) buttonList.get(k);
+                    GuiButton guibutton = buttonList.get(k);
                     guibutton.drawButton(mc, width, height);
                     if (tooltip == null && guibutton instanceof Button) {
                         Button button = (Button) guibutton;
@@ -222,7 +228,7 @@ public abstract class FullscreenMixin extends JmUI {
             }
 
             if (chat != null) {
-                chat.func_73863_a(width, height, f);
+                chat.drawScreen(width, height, f);
             }
 
             if (tooltip != null && !tooltip.isEmpty()) {
@@ -249,7 +255,7 @@ public abstract class FullscreenMixin extends JmUI {
         }
     }
 
-    @Inject(method = "func_73869_a", at = @At(value = "HEAD"), remap = false, require = 1, cancellable = true)
+    @Inject(method = "keyTyped", at = @At(value = "HEAD"), remap = true, require = 1, cancellable = true)
     private void visualprospecting$onKeyPress(CallbackInfo ci) {
         if ((chat == null || chat.isHidden()) && Constants.isPressed(VP.keyAction)) {
             for (LayerRenderer layer : JourneyMapState.instance.renderers) {
@@ -264,7 +270,7 @@ public abstract class FullscreenMixin extends JmUI {
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         if (chat != null && !chat.isHidden()) {
-            chat.func_73864_a(mouseX, mouseY, mouseButton);
+            chat.mouseClicked(mouseX, mouseY, mouseButton);
         }
 
         super.mouseClicked(mouseX, mouseY, mouseButton);
