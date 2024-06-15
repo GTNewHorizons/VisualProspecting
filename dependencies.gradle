@@ -11,6 +11,6 @@ dependencies {
     compileOnly(deobf('https://media.forgecdn.net/files/2462/146/mod_voxelMap_1.7.0b_for_1.7.10.litemod', 'mod_voxelMap_1.7.0b_for_1.7.10.jar'))
 
     // For debugging
-    runtimeOnlyNonPublishable('com.github.GTNewHorizons:DetravScannerMod:1.8.0:dev')
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:DetravScannerMod:1.8.1:dev')
     runtimeOnlyNonPublishable('com.github.GTNewHorizons:ServerUtilities:2.0.51:dev')
 }
