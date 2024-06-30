@@ -72,7 +72,7 @@ public class OreVeinDrawStep implements ClickableDrawStep {
     @Override
     public void draw(double draggedPixelX, double draggedPixelY, GridRenderer gridRenderer, float drawScale,
             double fontScale, double rotation) {
-        iconSize = 32 * fontScale;
+        iconSize = 32 * drawScale;
         final double iconSizeHalf = iconSize / 2;
         final Point2D.Double blockAsPixel = gridRenderer
                 .getBlockPixelInGrid(oreVeinLocation.getBlockX(), oreVeinLocation.getBlockZ());

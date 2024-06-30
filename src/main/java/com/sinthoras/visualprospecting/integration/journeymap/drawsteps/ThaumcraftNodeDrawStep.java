@@ -42,7 +42,7 @@ public class ThaumcraftNodeDrawStep implements ClickableDrawStep {
     @Override
     public void draw(double draggedPixelX, double draggedPixelY, GridRenderer gridRenderer, float drawScale,
             double fontScale, double rotation) {
-        final double borderSize = 44 * fontScale;
+        final double borderSize = 44 * drawScale;
         final double borderSizeHalf = borderSize / 2;
         final Point2D.Double blockAsPixel = gridRenderer
                 .getBlockPixelInGrid(thaumcraftNodeLocation.getBlockX(), thaumcraftNodeLocation.getBlockZ());
