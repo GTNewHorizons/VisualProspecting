@@ -3,8 +3,6 @@ package com.sinthoras.visualprospecting.hooks;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
 
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -36,10 +34,6 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.api.GregTech_API;
-import gregtech.api.enums.GT_Values;
-import gregtech.api.enums.Materials;
-import gregtech.api.enums.OrePrefixes;
-import gregtech.api.util.GT_OreDictUnificator;
 
 public class HooksShared {
 
@@ -86,15 +80,6 @@ public class HooksShared {
     // postInit "Handle interaction with other mods, complete your setup based on this."
     public void fmlLifeCycleEvent(FMLPostInitializationEvent event) {
         GregTech_API.sAfterGTPostload.add(new VeinTypeCaching());
-        GregTech_API.sAfterGTPostload.add(
-                () -> GT_Values.RA.addAssemblerRecipe(
-                        new ItemStack[] { GT_OreDictUnificator.get(OrePrefixes.plate, Materials.Wood, 2L),
-                                new ItemStack(Items.writable_book, 1, 0x7FFF),
-                                new ItemStack(Items.gold_nugget, 1, 0x7FFF) },
-                        Materials.Glue.getFluid(20L),
-                        new ItemStack(ProspectorsLog.instance, 1, 0),
-                        128,
-                        8));
     }
 
     public void fmlLifeCycleEvent(FMLServerAboutToStartEvent event) {}
