@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.init.Blocks;
@@ -25,7 +26,7 @@ public class OreVeinRenderStep implements InteractableRenderStep {
     private final OreVeinLocation oreVeinLocation;
     private final ResourceLocation depletedTextureLocation = new ResourceLocation(Tags.MODID, "textures/depleted.png");
     private final IIcon blockStoneIcon = Blocks.stone.getIcon(0, 0);
-    private final double iconSize = 32;
+    private double iconSize;
     private double iconX;
     private double iconY;
 
@@ -35,6 +36,7 @@ public class OreVeinRenderStep implements InteractableRenderStep {
 
     @Override
     public void draw(@Nullable GuiScreen gui, double cameraX, double cameraZ, double scale) {
+        iconSize = 10 * scale;
         final double iconSizeHalf = iconSize / 2;
         final double scaleForGui = Math.max(1, scale);
         iconX = (oreVeinLocation.getBlockX() - 0.5 - cameraX) * scaleForGui - iconSizeHalf;
@@ -75,18 +77,17 @@ public class OreVeinRenderStep implements InteractableRenderStep {
             }
         }
 
-        if (gui != null && scale >= Utils.journeyMapScaleToLinear(Config.minZoomLevelForOreLabel)
-                && !oreVeinLocation.isDepleted()) {
+        if (scale >= Utils.journeyMapScaleToLinear(Config.minZoomLevelForOreLabel) && !oreVeinLocation.isDepleted()) {
             final int fontColor = oreVeinLocation.drawSearchHighlight() ? 0xFFFFFFFF : 0xFF7F7F7F;
             String text = I18n.format(oreVeinLocation.getName());
-            DrawUtils.drawSimpleLabel(
-                    gui,
+            DrawUtils.drawLabel(
                     text,
                     0,
-                    -iconSizeHalf - gui.mc.fontRenderer.FONT_HEIGHT - 5,
+                    -iconSizeHalf - Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT - 5,
                     fontColor,
                     0xB4000000,
-                    true);
+                    true,
+                    1.6);
         }
 
         if (oreVeinLocation.isActiveAsWaypoint()) {
