@@ -6,8 +6,9 @@ import net.minecraft.util.EnumChatFormatting;
 import org.lwjgl.input.Keyboard;
 
 import com.dyonovan.tcnodetracker.lib.NodeList;
-import com.sinthoras.visualprospecting.VP;
-import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
+import com.gtnewhorizons.navigator.api.NavigatorApi;
+import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
+import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
 
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
@@ -17,8 +18,8 @@ import thaumcraft.common.tiles.TileNode;
 
 public class ThaumcraftNodeLocation implements IWaypointAndLocationProvider {
 
-    private static final String deleteHint = EnumChatFormatting.DARK_GRAY
-            + I18n.format("visualprospecting.node.deletehint", Keyboard.getKeyName(VP.keyAction.getKeyCode()));;
+    private static final String deleteHint = EnumChatFormatting.DARK_GRAY + I18n
+            .format("visualprospecting.node.deletehint", Keyboard.getKeyName(NavigatorApi.ACTION_KEY.getKeyCode()));;
     private static final String activeWaypointHint = EnumChatFormatting.GOLD
             + I18n.format("visualprospecting.iswaypoint");
     private static final String title = EnumChatFormatting.BOLD + I18n.format("tile.blockAiry.0.name");

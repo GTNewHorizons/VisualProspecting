@@ -1,8 +1,5 @@
 package com.sinthoras.visualprospecting;
 
-import static com.sinthoras.visualprospecting.Utils.isJourneyMapInstalled;
-import static com.sinthoras.visualprospecting.Utils.isXaerosWorldMapInstalled;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -14,15 +11,6 @@ import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
-import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapState;
-import com.sinthoras.visualprospecting.integration.journeymap.buttons.LayerButton;
-import com.sinthoras.visualprospecting.integration.journeymap.render.LayerRenderer;
-import com.sinthoras.visualprospecting.integration.model.MapState;
-import com.sinthoras.visualprospecting.integration.model.buttons.ButtonManager;
-import com.sinthoras.visualprospecting.integration.model.layers.LayerManager;
-import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
-import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
-import com.sinthoras.visualprospecting.integration.xaeroworldmap.XaeroWorldMapState;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 
 import cpw.mods.fml.relauncher.Side;
@@ -33,74 +21,6 @@ public class VisualProspecting_API {
 
     @SideOnly(Side.CLIENT)
     public static class LogicalClient {
-
-        // Register the logical button
-        public static void registerCustomButtonManager(ButtonManager customManager) {
-            MapState.instance.buttons.add(customManager);
-        }
-
-        // Register the logical layer
-        public static void registerCustomLayer(LayerManager customLayer) {
-            MapState.instance.layers.add(customLayer);
-        }
-
-        // Register visualization for logical button in JourneyMap
-        public static void registerJourneyMapButton(LayerButton customButton) {
-            if (isJourneyMapInstalled()) {
-                JourneyMapState.instance.buttons.add(customButton);
-            }
-        }
-
-        // Register visualization for logical button in Xaero's World Map
-        public static void registerXaeroMapButton(
-                com.sinthoras.visualprospecting.integration.xaeroworldmap.buttons.LayerButton customButton) {
-            if (isXaerosWorldMapInstalled()) {
-                XaeroWorldMapState.instance.buttons.add(customButton);
-            }
-        }
-
-        // Add the JourneyMap renderer for a layer
-        public static void registerJourneyMapRenderer(LayerRenderer customRenderer) {
-            if (isJourneyMapInstalled()) {
-                JourneyMapState.instance.renderers.add(customRenderer);
-            }
-        }
-
-        // Add the Xaero's World Map renderer for a layer
-        public static void registerXaeroMapRenderer(
-                com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.LayerRenderer customRenderer) {
-            if (isXaerosWorldMapInstalled()) {
-                XaeroWorldMapState.instance.renderers.add(customRenderer);
-            }
-        }
-
-        public static void openJourneyForOreVeinsMapAt(int blockX, int blockZ) {
-            if (isJourneyMapInstalled()) {
-                OreVeinLayerManager.instance.activateLayer();
-                JourneyMapState.instance.openJourneyMapAt(blockX, blockZ);
-            }
-        }
-
-        public static void openJourneyForOreVeinsMapAt(int blockX, int blockZ, int zoom) {
-            if (isJourneyMapInstalled()) {
-                OreVeinLayerManager.instance.activateLayer();
-                JourneyMapState.instance.openJourneyMapAt(blockX, blockZ, zoom);
-            }
-        }
-
-        public static void openJourneyMapForUndergroundFluidsAt(int blockX, int blockZ) {
-            if (isJourneyMapInstalled()) {
-                UndergroundFluidLayerManager.instance.activateLayer();
-                JourneyMapState.instance.openJourneyMapAt(blockX, blockZ);
-            }
-        }
-
-        public static void openJourneyMapForUndergroundFluidsAt(int blockX, int blockZ, int zoom) {
-            if (isJourneyMapInstalled()) {
-                UndergroundFluidLayerManager.instance.activateLayer();
-                JourneyMapState.instance.openJourneyMapAt(blockX, blockZ, zoom);
-            }
-        }
 
         // This mechanic is limited to blocks the player can touch
         public static void triggerProspectingForOreBlock(EntityPlayer player, World world, int blockX, int blockY,
@@ -121,7 +41,7 @@ public class VisualProspecting_API {
         public static void setOreVeinDepleted(int dimensionId, int blockX, int blockZ) {
             final OreVeinPosition oreVeinPosition = ClientCache.instance
                     .getOreVein(dimensionId, Utils.coordBlockToChunk(blockX), Utils.coordBlockToChunk(blockZ));
-            if (oreVeinPosition.isDepleted() == false) {
+            if (!oreVeinPosition.isDepleted()) {
                 oreVeinPosition.toggleDepleted();
             }
             ClientCache.instance.putOreVeins(Collections.singletonList(oreVeinPosition));

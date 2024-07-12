@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.dyonovan.tcnodetracker.gui.GuiMain;
 import com.dyonovan.tcnodetracker.lib.AspectLoc;
+import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
 import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
-import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
 
 @Mixin(GuiMain.class)
 public class GuiMainMixin {

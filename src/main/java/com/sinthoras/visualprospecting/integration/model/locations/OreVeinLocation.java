@@ -9,18 +9,19 @@ import net.minecraft.util.IIcon;
 
 import org.lwjgl.input.Keyboard;
 
-import com.sinthoras.visualprospecting.VP;
+import com.gtnewhorizons.navigator.api.NavigatorApi;
+import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
+import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
-import com.sinthoras.visualprospecting.integration.model.waypoints.Waypoint;
 
 public class OreVeinLocation implements IWaypointAndLocationProvider {
 
     private static final String depletedHint = EnumChatFormatting.RED + I18n.format("visualprospecting.depleted");
     private static final String activeWaypointHint = EnumChatFormatting.GOLD
             + I18n.format("visualprospecting.iswaypoint");
-    private static final String toggleDepletedHint = EnumChatFormatting.DARK_GRAY
-            + I18n.format("visualprospecting.node.deletehint", Keyboard.getKeyName(VP.keyAction.getKeyCode()));
+    private static final String toggleDepletedHint = EnumChatFormatting.DARK_GRAY + I18n
+            .format("visualprospecting.node.deletehint", Keyboard.getKeyName(NavigatorApi.ACTION_KEY.getKeyCode()));
 
     private final OreVeinPosition oreVeinPosition;
     private final String name;

@@ -14,14 +14,15 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
+import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
+import com.gtnewhorizons.navigator.api.util.DrawUtils;
+import com.gtnewhorizons.navigator.api.xaero.rendersteps.XaeroInteractableStep;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
-import com.sinthoras.visualprospecting.integration.DrawUtils;
-import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 
-public class OreVeinRenderStep implements InteractableRenderStep {
+public class OreVeinRenderStep implements XaeroInteractableStep {
 
     private final OreVeinLocation oreVeinLocation;
     private final ResourceLocation depletedTextureLocation = new ResourceLocation(Tags.MODID, "textures/depleted.png");

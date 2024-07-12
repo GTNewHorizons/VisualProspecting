@@ -7,11 +7,12 @@ import net.minecraft.client.resources.I18n;
 
 import org.lwjgl.opengl.GL11;
 
+import com.gtnewhorizons.navigator.api.util.DrawUtils;
+import com.gtnewhorizons.navigator.api.xaero.rendersteps.XaeroRenderStep;
 import com.sinthoras.visualprospecting.VP;
-import com.sinthoras.visualprospecting.integration.DrawUtils;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 
-public class UndergroundFluidRenderStep implements RenderStep {
+public class UndergroundFluidRenderStep implements XaeroRenderStep {
 
     private final UndergroundFluidLocation undergroundFluidLocation;
 

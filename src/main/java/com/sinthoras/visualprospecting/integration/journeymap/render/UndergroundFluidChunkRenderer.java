@@ -3,14 +3,14 @@ package com.sinthoras.visualprospecting.integration.journeymap.render;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gtnewhorizons.navigator.api.journeymap.render.JMLayerRenderer;
+import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
+import com.gtnewhorizons.navigator.api.model.steps.RenderStep;
 import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.UndergroundFluidChunkDrawStep;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidChunkLayerManager;
-import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidChunkLocation;
 
-import journeymap.client.render.draw.DrawStep;
-
-public class UndergroundFluidChunkRenderer extends LayerRenderer {
+public class UndergroundFluidChunkRenderer extends JMLayerRenderer {
 
     public static final UndergroundFluidChunkRenderer instance = new UndergroundFluidChunkRenderer();
 
@@ -19,7 +19,7 @@ public class UndergroundFluidChunkRenderer extends LayerRenderer {
     }
 
     @Override
-    public List<? extends DrawStep> mapLocationProviderToDrawStep(List<? extends ILocationProvider> visibleElements) {
+    protected List<? extends RenderStep> generateRenderSteps(List<? extends ILocationProvider> visibleElements) {
         final List<UndergroundFluidChunkDrawStep> drawSteps = new ArrayList<>();
         visibleElements.stream().map(element -> (UndergroundFluidChunkLocation) element)
                 .forEach(location -> drawSteps.add(new UndergroundFluidChunkDrawStep(location)));

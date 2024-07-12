@@ -9,16 +9,17 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
+import com.gtnewhorizons.navigator.api.journeymap.drawsteps.JMInteractableStep;
+import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
+import com.gtnewhorizons.navigator.api.util.DrawUtils;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
-import com.sinthoras.visualprospecting.integration.DrawUtils;
-import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 
 import journeymap.client.render.draw.DrawUtil;
 import journeymap.client.render.map.GridRenderer;
 
-public class OreVeinDrawStep implements ClickableDrawStep {
+public class OreVeinDrawStep implements JMInteractableStep {
 
     private static final ResourceLocation depletedTextureLocation = new ResourceLocation(
             Tags.MODID,
@@ -44,7 +45,7 @@ public class OreVeinDrawStep implements ClickableDrawStep {
             tooltip.add(oreVeinLocation.getActiveWaypointHint());
         }
         tooltip.add(oreVeinLocation.getName());
-        if (oreVeinLocation.isDepleted() == false) {
+        if (!oreVeinLocation.isDepleted()) {
             tooltip.addAll(oreVeinLocation.getMaterialNames());
         }
         tooltip.add(oreVeinLocation.getToggleDepletedHint());
@@ -80,7 +81,7 @@ public class OreVeinDrawStep implements ClickableDrawStep {
                 blockAsPixel.getX() + draggedPixelX,
                 blockAsPixel.getY() + draggedPixelY);
 
-        if (gridRenderer.getZoom() >= Config.minZoomLevelForOreLabel && oreVeinLocation.isDepleted() == false) {
+        if (gridRenderer.getZoom() >= Config.minZoomLevelForOreLabel && !oreVeinLocation.isDepleted()) {
             final int fontColor = oreVeinLocation.drawSearchHighlight() ? 0xFFFFFF : 0x7F7F7F;
             DrawUtil.drawLabel(
                     oreVeinLocation.getName(),
@@ -111,7 +112,7 @@ public class OreVeinDrawStep implements ClickableDrawStep {
                 oreVeinLocation.getColor(),
                 255);
 
-        if (oreVeinLocation.drawSearchHighlight() == false || oreVeinLocation.isDepleted()) {
+        if (!oreVeinLocation.drawSearchHighlight() || oreVeinLocation.isDepleted()) {
             DrawUtil.drawRectangle(iconX, iconY, iconSize, iconSize, 0x000000, 150);
             if (oreVeinLocation.isDepleted()) {
                 DrawUtils.drawQuad(depletedTextureLocation, iconX, iconY, iconSize, iconSize, 0xFFFFFF, 255);

@@ -1,17 +1,23 @@
 package com.sinthoras.visualprospecting.hooks;
 
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 
-import org.lwjgl.input.Keyboard;
-
+import com.gtnewhorizons.navigator.api.NavigatorApi;
+import com.gtnewhorizons.navigator.api.util.Util;
 import com.sinthoras.visualprospecting.Utils;
-import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ResetClientCacheCommand;
+import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapIntegration;
+import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
+import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeButtonManager;
+import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
+import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
+import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
+import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidChunkLayerManager;
+import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
 import com.sinthoras.visualprospecting.integration.voxelmap.VoxelMapEventHandler;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.XaeroIntegration;
 
-import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -28,12 +34,7 @@ public class HooksClient extends HooksShared {
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes."
     public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
         super.fmlLifeCycleEvent(event);
-
-        VP.keyAction = new KeyBinding(
-                "visualprospecting.key.action.name",
-                Keyboard.KEY_DELETE,
-                "visualprospecting.key.action.category");
-        ClientRegistry.registerKeyBinding(VP.keyAction);
+        registerMapLayers();
     }
 
     @Override
@@ -48,7 +49,7 @@ public class HooksClient extends HooksShared {
     public void fmlLifeCycleEvent(FMLPostInitializationEvent event) {
         super.fmlLifeCycleEvent(event);
         ClientCommandHandler.instance.registerCommand(new ResetClientCacheCommand());
-        if (Utils.isVoxelMapInstalled()) {
+        if (Util.isVoxelMapInstalled()) {
             MinecraftForge.EVENT_BUS.register(new VoxelMapEventHandler());
         }
     }
@@ -76,5 +77,22 @@ public class HooksClient extends HooksShared {
     @Override
     public void fmlLifeCycleEvent(FMLServerStoppedEvent event) {
         super.fmlLifeCycleEvent(event);
+    }
+
+    public void registerMapLayers() {
+        NavigatorApi.registerButtonManager(OreVeinButtonManager.instance);
+        NavigatorApi.registerButtonManager(UndergroundFluidButtonManager.instance);
+
+        NavigatorApi.registerLayerManager(OreVeinLayerManager.instance);
+        NavigatorApi.registerLayerManager(UndergroundFluidLayerManager.instance);
+        NavigatorApi.registerLayerManager(UndergroundFluidChunkLayerManager.instance);
+
+        if (Utils.isTCNodeTrackerInstalled()) {
+            NavigatorApi.registerButtonManager(ThaumcraftNodeButtonManager.instance);
+            NavigatorApi.registerLayerManager(ThaumcraftNodeLayerManager.instance);
+        }
+
+        JourneyMapIntegration.init();
+        XaeroIntegration.init();
     }
 }

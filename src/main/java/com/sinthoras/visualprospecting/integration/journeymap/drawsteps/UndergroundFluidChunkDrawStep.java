@@ -2,15 +2,15 @@ package com.sinthoras.visualprospecting.integration.journeymap.drawsteps;
 
 import java.awt.geom.Point2D;
 
+import com.gtnewhorizons.navigator.api.journeymap.drawsteps.JMRenderStep;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidChunkLocation;
 
-import journeymap.client.render.draw.DrawStep;
 import journeymap.client.render.draw.DrawUtil;
 import journeymap.client.render.map.GridRenderer;
 
-public class UndergroundFluidChunkDrawStep implements DrawStep {
+public class UndergroundFluidChunkDrawStep implements JMRenderStep {
 
     private final UndergroundFluidChunkLocation undergroundFluidChunkLocation;
 
