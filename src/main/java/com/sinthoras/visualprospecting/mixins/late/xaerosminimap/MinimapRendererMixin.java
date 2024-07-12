@@ -67,15 +67,16 @@ public class MinimapRendererMixin {
         }
 
         if (stencilEnabled) {
+            double mapZoom = zoom * (double) minimapScale / 2.0;
             GL11.glPushMatrix();
             GL11.glEnable(GL11.GL_STENCIL_TEST);
             GL11.glRotated(Math.toDegrees(angle) - 90, 0.0, 0.0, 1.0);
-            GL11.glScaled(zoom, zoom, 0);
+            GL11.glScaled(mapZoom, mapZoom, 0);
             GL11.glStencilFunc(GL11.GL_EQUAL, 1, 1);
             for (LayerRenderer renderer : XaeroWorldMapState.instance.renderers) {
                 if (renderer.isLayerActive()) {
                     for (RenderStep renderStep : renderer.getRenderSteps()) {
-                        renderStep.draw(null, playerX, playerZ, scale);
+                        renderStep.draw(null, playerX, playerZ, mapZoom);
                     }
                 }
             }
