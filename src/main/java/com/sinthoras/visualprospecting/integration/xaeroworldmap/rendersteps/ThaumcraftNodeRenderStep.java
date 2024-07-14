@@ -1,5 +1,7 @@
 package com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -17,8 +19,6 @@ import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNod
 
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.client.lib.UtilsFX;
-
-import java.util.List;
 
 public class ThaumcraftNodeRenderStep implements XaeroInteractableStep {
 

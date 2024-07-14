@@ -91,7 +91,8 @@ public class ThaumcraftNodeDrawStep implements JMInteractableStep {
         return thaumcraftNodeLocation;
     }
 
-    public void drawCustomTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth, int displayHeight) {
+    public void drawCustomTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth,
+            int displayHeight) {
         final boolean isWaypoint = thaumcraftNodeLocation.isActiveAsWaypoint();
         final String activeWaypointHint = thaumcraftNodeLocation.getActiveWaypointHint();
         final String title = thaumcraftNodeLocation.getTitle();
