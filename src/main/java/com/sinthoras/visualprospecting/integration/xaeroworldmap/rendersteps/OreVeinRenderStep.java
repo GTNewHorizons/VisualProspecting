@@ -1,6 +1,5 @@
 package com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;

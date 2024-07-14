@@ -1,7 +1,6 @@
 package com.sinthoras.visualprospecting.integration.journeymap.drawsteps;
 
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.gui.FontRenderer;
@@ -51,7 +50,8 @@ public class OreVeinDrawStep implements JMInteractableStep {
     }
 
     @Override
-    public void drawCustomTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth, int displayHeight) {}
+    public void drawCustomTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth,
+            int displayHeight) {}
 
     @Override
     public boolean isMouseOver(int mouseX, int mouseY) {
