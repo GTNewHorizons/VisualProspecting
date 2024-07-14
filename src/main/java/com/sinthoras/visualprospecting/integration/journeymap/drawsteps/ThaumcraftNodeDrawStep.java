@@ -74,9 +74,7 @@ public class ThaumcraftNodeDrawStep implements JMInteractableStep {
                 0);
     }
 
-    public List<String> getTooltip() {
-        return null;
-    }
+    public void getTooltip(List<String> tooltip) {}
 
     public boolean isMouseOver(int mouseX, int mouseY) {
         final double deltaX = mouseX - centerPixelX;
@@ -93,7 +91,7 @@ public class ThaumcraftNodeDrawStep implements JMInteractableStep {
         return thaumcraftNodeLocation;
     }
 
-    public void drawTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth, int displayHeight) {
+    public void drawCustomTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth, int displayHeight) {
         final boolean isWaypoint = thaumcraftNodeLocation.isActiveAsWaypoint();
         final String activeWaypointHint = thaumcraftNodeLocation.getActiveWaypointHint();
         final String title = thaumcraftNodeLocation.getTitle();

@@ -18,6 +18,8 @@ import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNod
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.client.lib.UtilsFX;
 
+import java.util.List;
+
 public class ThaumcraftNodeRenderStep implements XaeroInteractableStep {
 
     private static final ResourceLocation markedTextureLocation = new ResourceLocation(
@@ -78,13 +80,11 @@ public class ThaumcraftNodeRenderStep implements XaeroInteractableStep {
     }
 
     @Override
-    public void drawTooltip(GuiScreen gui, double mouseX, double mouseY, double scale, int scaleAdj) {
+    public void getTooltip(List<String> list) {}
 
+    @Override
+    public void drawCustomTooltip(GuiScreen gui, double mouseX, double mouseY, double scale, int scaleAdj) {
         GL11.glPushMatrix();
-
-        mouseX = (mouseX * scale + (gui.mc.displayWidth >> 1)) / scaleAdj;
-        mouseY = (mouseY * scale + (gui.mc.displayHeight >> 1)) / scaleAdj;
-
         final boolean isWaypoint = thaumcraftNodeLocation.isActiveAsWaypoint();
         final String asWaypoint = thaumcraftNodeLocation.getActiveWaypointHint();
         final String title = thaumcraftNodeLocation.getTitle();

@@ -140,31 +140,26 @@ public class OreVeinRenderStep implements XaeroInteractableStep {
     }
 
     @Override
-    public void drawTooltip(GuiScreen gui, double mouseX, double mouseY, double scale, int scaleAdj) {
-        // correct for gl matrix differences
-        mouseX = mouseX * scale + (gui.mc.displayWidth >> 1);
-        mouseY = mouseY * scale + (gui.mc.displayHeight >> 1);
-
-        final List<String> tooltip = new ArrayList<>();
+    public void getTooltip(List<String> list) {
         if (oreVeinLocation.isDepleted()) {
-            tooltip.add(oreVeinLocation.getDepletedHint());
+            list.add(oreVeinLocation.getDepletedHint());
         }
+
         if (oreVeinLocation.isActiveAsWaypoint()) {
-            tooltip.add(oreVeinLocation.getActiveWaypointHint());
+            list.add(oreVeinLocation.getActiveWaypointHint());
         }
-        tooltip.add(oreVeinLocation.getName());
+
+        list.add(oreVeinLocation.getName());
+
         if (!oreVeinLocation.isDepleted()) {
-            tooltip.addAll(oreVeinLocation.getMaterialNames());
+            list.addAll(oreVeinLocation.getMaterialNames());
         }
-        tooltip.add(oreVeinLocation.getToggleDepletedHint());
 
-        GL11.glPushMatrix();
-
-        DrawUtils
-                .drawSimpleTooltip(gui, tooltip, mouseX / scaleAdj + 6, mouseY / scaleAdj - 12, 0xFFFFFFFF, 0x86000000);
-
-        GL11.glPopMatrix();
+        list.add(oreVeinLocation.getToggleDepletedHint());
     }
+
+    @Override
+    public void drawCustomTooltip(GuiScreen gui, double mouseX, double mouseY, double scale, int scaleAdj) {}
 
     @Override
     public void onActionButton() {
