@@ -36,8 +36,7 @@ public class OreVeinDrawStep implements JMInteractableStep {
     }
 
     @Override
-    public List<String> getTooltip() {
-        final List<String> tooltip = new ArrayList<>();
+    public void getTooltip(List<String> tooltip) {
         if (oreVeinLocation.isDepleted()) {
             tooltip.add(oreVeinLocation.getDepletedHint());
         }
@@ -49,11 +48,10 @@ public class OreVeinDrawStep implements JMInteractableStep {
             tooltip.addAll(oreVeinLocation.getMaterialNames());
         }
         tooltip.add(oreVeinLocation.getToggleDepletedHint());
-        return tooltip;
     }
 
     @Override
-    public void drawTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth, int displayHeight) {}
+    public void drawCustomTooltip(FontRenderer fontRenderer, int mouseX, int mouseY, int displayWidth, int displayHeight) {}
 
     @Override
     public boolean isMouseOver(int mouseX, int mouseY) {
