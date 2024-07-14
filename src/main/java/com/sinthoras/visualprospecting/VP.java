@@ -2,8 +2,6 @@ package com.sinthoras.visualprospecting;
 
 import java.util.Random;
 
-import net.minecraft.client.settings.KeyBinding;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,8 +10,6 @@ import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 public class VP {
 
     public static SimpleNetworkWrapper network;
-    public static KeyBinding keyAction;
-
     public static final Random randomGeneration = new Random();
 
     private static Logger LOG = LogManager.getLogger(Tags.MODID);

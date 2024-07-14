@@ -5,13 +5,14 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
+import com.gtnewhorizons.navigator.api.model.layers.WaypointProviderManager;
+import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
-import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 
 public class OreVeinLayerManager extends WaypointProviderManager {

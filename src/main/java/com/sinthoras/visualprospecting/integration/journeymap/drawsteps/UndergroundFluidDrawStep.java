@@ -4,14 +4,14 @@ import java.awt.geom.Point2D;
 
 import net.minecraft.client.resources.I18n;
 
+import com.gtnewhorizons.navigator.api.journeymap.drawsteps.JMRenderStep;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 
-import journeymap.client.render.draw.DrawStep;
 import journeymap.client.render.draw.DrawUtil;
 import journeymap.client.render.map.GridRenderer;
 
-public class UndergroundFluidDrawStep implements DrawStep {
+public class UndergroundFluidDrawStep implements JMRenderStep {
 
     private final UndergroundFluidLocation undergroundFluidLocation;
 

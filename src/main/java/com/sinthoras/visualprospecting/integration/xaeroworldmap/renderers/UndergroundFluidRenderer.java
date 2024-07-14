@@ -3,12 +3,13 @@ package com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
+import com.gtnewhorizons.navigator.api.xaero.renderers.XaeroLayerRenderer;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
-import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.UndergroundFluidRenderStep;
 
-public class UndergroundFluidRenderer extends LayerRenderer {
+public class UndergroundFluidRenderer extends XaeroLayerRenderer {
 
     public static UndergroundFluidRenderer instance = new UndergroundFluidRenderer();
 

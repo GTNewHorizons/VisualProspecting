@@ -1,13 +1,13 @@
-package com.sinthoras.visualprospecting.integration.journeymap.waypoints;
+package com.sinthoras.visualprospecting.integration.xaerominimap;
 
 import com.dyonovan.tcnodetracker.TCNodeTracker;
-import com.gtnewhorizons.navigator.api.journeymap.waypoints.JMWaypointManager;
 import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
+import com.gtnewhorizons.navigator.api.xaero.waypoints.XaeroWaypointManager;
 import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 
-public class ThaumcraftNodeWaypointManager extends JMWaypointManager {
+public class ThaumcraftNodeWaypointManager extends XaeroWaypointManager {
 
-    public static final ThaumcraftNodeWaypointManager instance = new ThaumcraftNodeWaypointManager();
+    public static ThaumcraftNodeWaypointManager instance = new ThaumcraftNodeWaypointManager();
 
     public ThaumcraftNodeWaypointManager() {
         super(ThaumcraftNodeLayerManager.instance);
@@ -28,5 +28,10 @@ public class ThaumcraftNodeWaypointManager extends JMWaypointManager {
     @Override
     public boolean hasWaypoint() {
         return false;
+    }
+
+    @Override
+    protected String getSymbol(Waypoint waypoint) {
+        return "@";
     }
 }

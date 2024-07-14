@@ -5,12 +5,13 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
+import com.gtnewhorizons.navigator.api.model.layers.LayerManager;
+import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
-import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 
 public class UndergroundFluidLayerManager extends LayerManager {

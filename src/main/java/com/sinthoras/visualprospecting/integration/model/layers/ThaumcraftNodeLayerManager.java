@@ -7,8 +7,9 @@ import net.minecraft.client.Minecraft;
 
 import com.dyonovan.tcnodetracker.TCNodeTracker;
 import com.dyonovan.tcnodetracker.lib.NodeList;
+import com.gtnewhorizons.navigator.api.model.layers.WaypointProviderManager;
+import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeButtonManager;
-import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
 
 public class ThaumcraftNodeLayerManager extends WaypointProviderManager {

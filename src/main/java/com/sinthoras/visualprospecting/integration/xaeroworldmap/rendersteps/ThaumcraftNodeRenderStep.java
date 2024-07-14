@@ -7,16 +7,18 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
+import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
+import com.gtnewhorizons.navigator.api.util.DrawUtils;
+import com.gtnewhorizons.navigator.api.xaero.rendersteps.XaeroInteractableStep;
 import com.sinthoras.visualprospecting.Tags;
-import com.sinthoras.visualprospecting.integration.DrawUtils;
+import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
-import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
 
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.client.lib.UtilsFX;
 
-public class ThaumcraftNodeRenderStep implements InteractableRenderStep {
+public class ThaumcraftNodeRenderStep implements XaeroInteractableStep {
 
     private static final ResourceLocation markedTextureLocation = new ResourceLocation(
             Tags.MODID,
@@ -62,7 +64,7 @@ public class ThaumcraftNodeRenderStep implements InteractableRenderStep {
                 alpha);
 
         final int aspectPixelDiameter = 32;
-        DrawUtils.drawAspect(0, 0, aspectPixelDiameter, thaumcraftNodeLocation.getStrongestAspect(), 0);
+        Utils.drawAspect(0, 0, aspectPixelDiameter, thaumcraftNodeLocation.getStrongestAspect(), 0);
 
         GL11.glPopMatrix();
     }

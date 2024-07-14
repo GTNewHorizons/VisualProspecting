@@ -1,16 +1,12 @@
 dependencies {
     shadowImplementation('com.github.GTNewHorizons:Enklume:2.1.0:dev')
 
-    api('com.github.GTNewHorizons:GT5-Unofficial:5.09.48.75:dev')
-    api(rfg.deobf('maven.modrinth:journeymap:5.2.3'))
-
+    api('com.github.GTNewHorizons:Navigator:1.0.2:dev')
+    api('com.github.GTNewHorizons:GT5-Unofficial:5.09.48.70:dev')
     devOnlyNonPublishable('com.github.GTNewHorizons:TCNodeTracker:1.3.0:dev')
-
-    compileOnly(deobfCurse('xaeros-minimap-263420:5060684'))
-    compileOnly(deobfCurse('xaeros-world-map-317780:5060733'))
-    compileOnly(deobf('https://media.forgecdn.net/files/2462/146/mod_voxelMap_1.7.0b_for_1.7.10.litemod', 'mod_voxelMap_1.7.0b_for_1.7.10.jar'))
 
     // For debugging
     runtimeOnlyNonPublishable('com.github.GTNewHorizons:DetravScannerMod:1.8.1:dev')
-    runtimeOnlyNonPublishable('com.github.GTNewHorizons:ServerUtilities:2.0.60:dev')
+    runtimeOnlyNonPublishable(rfg.deobf('maven.modrinth:journeymap:5.2.5'))
+
 }

@@ -10,17 +10,19 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import com.gtnewhorizons.navigator.api.journeymap.drawsteps.JMInteractableStep;
+import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
+import com.gtnewhorizons.navigator.api.util.DrawUtils;
 import com.sinthoras.visualprospecting.Tags;
-import com.sinthoras.visualprospecting.integration.DrawUtils;
+import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
-import com.sinthoras.visualprospecting.integration.model.locations.IWaypointAndLocationProvider;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
 
 import journeymap.client.render.map.GridRenderer;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.client.lib.UtilsFX;
 
-public class ThaumcraftNodeDrawStep implements ClickableDrawStep {
+public class ThaumcraftNodeDrawStep implements JMInteractableStep {
 
     private static final ResourceLocation markedTextureLocation = new ResourceLocation(
             Tags.MODID,
@@ -64,7 +66,7 @@ public class ThaumcraftNodeDrawStep implements ClickableDrawStep {
                 alpha);
 
         final int aspectPixelDiameter = 32;
-        DrawUtils.drawAspect(
+        Utils.drawAspect(
                 pixel.getX(),
                 pixel.getY(),
                 aspectPixelDiameter,
