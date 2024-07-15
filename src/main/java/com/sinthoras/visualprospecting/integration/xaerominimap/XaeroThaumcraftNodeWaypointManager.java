@@ -1,16 +1,14 @@
 package com.sinthoras.visualprospecting.integration.xaerominimap;
 
 import com.dyonovan.tcnodetracker.TCNodeTracker;
+import com.gtnewhorizons.navigator.api.model.layers.InteractableLayerManager;
 import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
 import com.gtnewhorizons.navigator.api.xaero.waypoints.XaeroWaypointManager;
-import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 
-public class ThaumcraftNodeWaypointManager extends XaeroWaypointManager {
+public class XaeroThaumcraftNodeWaypointManager extends XaeroWaypointManager {
 
-    public static ThaumcraftNodeWaypointManager instance = new ThaumcraftNodeWaypointManager();
-
-    public ThaumcraftNodeWaypointManager() {
-        super(ThaumcraftNodeLayerManager.instance);
+    public XaeroThaumcraftNodeWaypointManager(InteractableLayerManager manager) {
+        super(manager);
     }
 
     @Override

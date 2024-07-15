@@ -4,18 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gtnewhorizons.navigator.api.journeymap.render.JMLayerRenderer;
+import com.gtnewhorizons.navigator.api.model.layers.LayerManager;
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.gtnewhorizons.navigator.api.model.steps.RenderStep;
 import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.UndergroundFluidDrawStep;
-import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 
-public class UndergroundFluidRenderer extends JMLayerRenderer {
+public class JMUndergroundFluidRenderer extends JMLayerRenderer {
 
-    public static final UndergroundFluidRenderer instance = new UndergroundFluidRenderer();
-
-    public UndergroundFluidRenderer() {
-        super(UndergroundFluidLayerManager.instance);
+    public JMUndergroundFluidRenderer(LayerManager manager) {
+        super(manager);
     }
 
     @Override

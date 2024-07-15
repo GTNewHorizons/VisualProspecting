@@ -4,18 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gtnewhorizons.navigator.api.journeymap.render.JMInteractableLayerRenderer;
+import com.gtnewhorizons.navigator.api.model.layers.InteractableLayerManager;
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.gtnewhorizons.navigator.api.model.steps.RenderStep;
 import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.ThaumcraftNodeDrawStep;
-import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
 
-public class ThaumcraftNodeRenderer extends JMInteractableLayerRenderer {
+public class JMThaumcraftNodeRenderer extends JMInteractableLayerRenderer {
 
-    public static ThaumcraftNodeRenderer instance = new ThaumcraftNodeRenderer();
-
-    public ThaumcraftNodeRenderer() {
-        super(ThaumcraftNodeLayerManager.instance);
+    public JMThaumcraftNodeRenderer(InteractableLayerManager manager) {
+        super(manager);
     }
 
     @Override

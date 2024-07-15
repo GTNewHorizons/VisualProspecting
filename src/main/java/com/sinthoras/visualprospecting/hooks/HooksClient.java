@@ -7,16 +7,11 @@ import com.gtnewhorizons.navigator.api.NavigatorApi;
 import com.gtnewhorizons.navigator.api.util.Util;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ResetClientCacheCommand;
-import com.sinthoras.visualprospecting.integration.journeymap.JourneyMapIntegration;
-import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
-import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeButtonManager;
-import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
 import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
 import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidChunkLayerManager;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
 import com.sinthoras.visualprospecting.integration.voxelmap.VoxelMapEventHandler;
-import com.sinthoras.visualprospecting.integration.xaeroworldmap.XaeroIntegration;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -79,23 +74,17 @@ public class HooksClient extends HooksShared {
     }
 
     public void registerMapLayers() {
-        NavigatorApi.registerButtonManager(OreVeinButtonManager.instance);
-        NavigatorApi.registerButtonManager(UndergroundFluidButtonManager.instance);
 
         NavigatorApi.registerLayerManager(OreVeinLayerManager.instance);
         NavigatorApi.registerLayerManager(UndergroundFluidLayerManager.instance);
         NavigatorApi.registerLayerManager(UndergroundFluidChunkLayerManager.instance);
 
         if (Utils.isTCNodeTrackerInstalled()) {
-            NavigatorApi.registerButtonManager(ThaumcraftNodeButtonManager.instance);
             NavigatorApi.registerLayerManager(ThaumcraftNodeLayerManager.instance);
         }
 
         if (Util.isVoxelMapInstalled()) {
             MinecraftForge.EVENT_BUS.register(new VoxelMapEventHandler());
         }
-
-        JourneyMapIntegration.init();
-        XaeroIntegration.init();
     }
 }
