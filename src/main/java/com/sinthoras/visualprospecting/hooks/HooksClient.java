@@ -34,7 +34,9 @@ public class HooksClient extends HooksShared {
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes."
     public void fmlLifeCycleEvent(FMLPreInitializationEvent event) {
         super.fmlLifeCycleEvent(event);
-        registerMapLayers();
+        if (Utils.isNavigatorInstalled()) {
+            registerMapLayers();
+        }
     }
 
     @Override
@@ -49,9 +51,6 @@ public class HooksClient extends HooksShared {
     public void fmlLifeCycleEvent(FMLPostInitializationEvent event) {
         super.fmlLifeCycleEvent(event);
         ClientCommandHandler.instance.registerCommand(new ResetClientCacheCommand());
-        if (Util.isVoxelMapInstalled()) {
-            MinecraftForge.EVENT_BUS.register(new VoxelMapEventHandler());
-        }
     }
 
     @Override
@@ -90,6 +89,10 @@ public class HooksClient extends HooksShared {
         if (Utils.isTCNodeTrackerInstalled()) {
             NavigatorApi.registerButtonManager(ThaumcraftNodeButtonManager.instance);
             NavigatorApi.registerLayerManager(ThaumcraftNodeLayerManager.instance);
+        }
+
+        if (Util.isVoxelMapInstalled()) {
+            MinecraftForge.EVENT_BUS.register(new VoxelMapEventHandler());
         }
 
         JourneyMapIntegration.init();

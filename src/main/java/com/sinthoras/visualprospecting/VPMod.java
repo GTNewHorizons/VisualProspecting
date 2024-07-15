@@ -18,7 +18,7 @@ import cpw.mods.fml.common.event.FMLServerStoppingEvent;
         version = Tags.VERSION,
         name = Tags.MODNAME,
         acceptedMinecraftVersions = "[1.7.10]",
-        dependencies = "required-after:navigator;" + "required-after:gregtech;")
+        dependencies = "required-after:gregtech;" + "after:navigator;")
 public class VPMod {
 
     @SidedProxy(clientSide = Tags.GROUPNAME + ".hooks.HooksClient", serverSide = Tags.GROUPNAME + ".hooks.HooksShared")
