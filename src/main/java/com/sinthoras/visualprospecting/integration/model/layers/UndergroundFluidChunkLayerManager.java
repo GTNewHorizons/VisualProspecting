@@ -5,14 +5,20 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
+import org.jetbrains.annotations.Nullable;
+
+import com.gtnewhorizons.navigator.api.model.SupportedMods;
 import com.gtnewhorizons.navigator.api.model.layers.LayerManager;
+import com.gtnewhorizons.navigator.api.model.layers.LayerRenderer;
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+import com.sinthoras.visualprospecting.integration.journeymap.render.JMUndergroundFluidChunkRenderer;
 import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidChunkLocation;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.XaeroUndergroundFluidChunkRenderer;
 
 public class UndergroundFluidChunkLayerManager extends LayerManager {
 
@@ -47,6 +53,16 @@ public class UndergroundFluidChunkLayerManager extends LayerManager {
             return true;
         }
         return false;
+    }
+
+    @Nullable
+    @Override
+    protected LayerRenderer addLayerRenderer(LayerManager manager, SupportedMods mods) {
+        return switch (mods) {
+            case JourneyMap -> new JMUndergroundFluidChunkRenderer(manager);
+            case XaeroWorldMap -> new XaeroUndergroundFluidChunkRenderer(manager);
+            default -> null;
+        };
     }
 
     @Override

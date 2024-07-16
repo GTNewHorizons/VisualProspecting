@@ -61,6 +61,10 @@ public class Utils {
         return Loader.isModLoaded("XaeroMinimap");
     }
 
+    public static boolean isNavigatorInstalled() {
+        return Loader.isModLoaded("navigator");
+    }
+
     public static int coordBlockToChunk(int blockCoord) {
         return blockCoord < 0 ? -((-blockCoord - 1) >> 4) - 1 : blockCoord >> 4;
     }

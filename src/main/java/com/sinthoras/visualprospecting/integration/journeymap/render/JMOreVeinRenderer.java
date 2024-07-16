@@ -4,18 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.gtnewhorizons.navigator.api.journeymap.render.JMInteractableLayerRenderer;
+import com.gtnewhorizons.navigator.api.model.layers.InteractableLayerManager;
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.gtnewhorizons.navigator.api.model.steps.RenderStep;
 import com.sinthoras.visualprospecting.integration.journeymap.drawsteps.OreVeinDrawStep;
-import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 
-public class OreVeinRenderer extends JMInteractableLayerRenderer {
+public class JMOreVeinRenderer extends JMInteractableLayerRenderer {
 
-    public static final OreVeinRenderer instance = new OreVeinRenderer();
-
-    public OreVeinRenderer() {
-        super(OreVeinLayerManager.instance);
+    public JMOreVeinRenderer(InteractableLayerManager manager) {
+        super(manager);
     }
 
     @Override

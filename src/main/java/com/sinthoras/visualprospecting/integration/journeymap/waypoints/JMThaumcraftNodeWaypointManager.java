@@ -2,15 +2,13 @@ package com.sinthoras.visualprospecting.integration.journeymap.waypoints;
 
 import com.dyonovan.tcnodetracker.TCNodeTracker;
 import com.gtnewhorizons.navigator.api.journeymap.waypoints.JMWaypointManager;
+import com.gtnewhorizons.navigator.api.model.layers.InteractableLayerManager;
 import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
-import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 
-public class ThaumcraftNodeWaypointManager extends JMWaypointManager {
+public class JMThaumcraftNodeWaypointManager extends JMWaypointManager {
 
-    public static final ThaumcraftNodeWaypointManager instance = new ThaumcraftNodeWaypointManager();
-
-    public ThaumcraftNodeWaypointManager() {
-        super(ThaumcraftNodeLayerManager.instance);
+    public JMThaumcraftNodeWaypointManager(InteractableLayerManager manager) {
+        super(manager);
     }
 
     @Override

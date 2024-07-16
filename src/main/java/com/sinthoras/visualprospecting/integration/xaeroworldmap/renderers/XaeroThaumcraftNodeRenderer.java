@@ -3,18 +3,16 @@ package com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.gtnewhorizons.navigator.api.model.layers.InteractableLayerManager;
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.gtnewhorizons.navigator.api.xaero.renderers.XaeroInteractableLayerRenderer;
-import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.ThaumcraftNodeRenderStep;
 
-public class ThaumcraftNodeRenderer extends XaeroInteractableLayerRenderer {
+public class XaeroThaumcraftNodeRenderer extends XaeroInteractableLayerRenderer {
 
-    public static ThaumcraftNodeRenderer instance = new ThaumcraftNodeRenderer();
-
-    public ThaumcraftNodeRenderer() {
-        super(ThaumcraftNodeLayerManager.instance);
+    public XaeroThaumcraftNodeRenderer(InteractableLayerManager manager) {
+        super(manager);
     }
 
     @Override

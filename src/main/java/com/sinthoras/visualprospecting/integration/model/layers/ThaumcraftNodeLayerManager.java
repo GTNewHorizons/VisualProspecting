@@ -5,14 +5,23 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.dyonovan.tcnodetracker.TCNodeTracker;
 import com.dyonovan.tcnodetracker.lib.NodeList;
-import com.gtnewhorizons.navigator.api.model.layers.WaypointProviderManager;
+import com.gtnewhorizons.navigator.api.model.SupportedMods;
+import com.gtnewhorizons.navigator.api.model.layers.InteractableLayerManager;
+import com.gtnewhorizons.navigator.api.model.layers.LayerRenderer;
 import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
+import com.gtnewhorizons.navigator.api.model.waypoints.WaypointManager;
+import com.sinthoras.visualprospecting.integration.journeymap.render.JMThaumcraftNodeRenderer;
+import com.sinthoras.visualprospecting.integration.journeymap.waypoints.JMThaumcraftNodeWaypointManager;
 import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.ThaumcraftNodeLocation;
+import com.sinthoras.visualprospecting.integration.xaerominimap.XaeroThaumcraftNodeWaypointManager;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.XaeroThaumcraftNodeRenderer;
 
-public class ThaumcraftNodeLayerManager extends WaypointProviderManager {
+public class ThaumcraftNodeLayerManager extends InteractableLayerManager {
 
     public static final ThaumcraftNodeLayerManager instance = new ThaumcraftNodeLayerManager();
 
@@ -37,6 +46,26 @@ public class ThaumcraftNodeLayerManager extends WaypointProviderManager {
             return true;
         }
         return false;
+    }
+
+    @Nullable
+    @Override
+    protected LayerRenderer addLayerRenderer(InteractableLayerManager manager, SupportedMods mod) {
+        return switch (mod) {
+            case JourneyMap -> new JMThaumcraftNodeRenderer(manager);
+            case XaeroWorldMap -> new XaeroThaumcraftNodeRenderer(manager);
+            default -> null;
+        };
+    }
+
+    @Nullable
+    @Override
+    protected WaypointManager addWaypointManager(InteractableLayerManager manager, SupportedMods mod) {
+        return switch (mod) {
+            case JourneyMap -> new JMThaumcraftNodeWaypointManager(manager);
+            case XaeroWorldMap -> new XaeroThaumcraftNodeWaypointManager(manager);
+            default -> null;
+        };
     }
 
     @Override

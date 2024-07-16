@@ -5,17 +5,26 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
-import com.gtnewhorizons.navigator.api.model.layers.WaypointProviderManager;
+import org.jetbrains.annotations.Nullable;
+
+import com.gtnewhorizons.navigator.api.journeymap.waypoints.JMWaypointManager;
+import com.gtnewhorizons.navigator.api.model.SupportedMods;
+import com.gtnewhorizons.navigator.api.model.layers.InteractableLayerManager;
+import com.gtnewhorizons.navigator.api.model.layers.LayerRenderer;
 import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
+import com.gtnewhorizons.navigator.api.model.waypoints.WaypointManager;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
+import com.sinthoras.visualprospecting.integration.journeymap.render.JMOreVeinRenderer;
 import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
+import com.sinthoras.visualprospecting.integration.xaerominimap.OreVeinWaypointManager;
+import com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers.XaeroOreVeinRenderer;
 
-public class OreVeinLayerManager extends WaypointProviderManager {
+public class OreVeinLayerManager extends InteractableLayerManager {
 
     public static final OreVeinLayerManager instance = new OreVeinLayerManager();
 
@@ -50,6 +59,26 @@ public class OreVeinLayerManager extends WaypointProviderManager {
             return true;
         }
         return false;
+    }
+
+    @Nullable
+    @Override
+    protected LayerRenderer addLayerRenderer(InteractableLayerManager manager, SupportedMods mod) {
+        return switch (mod) {
+            case JourneyMap -> new JMOreVeinRenderer(manager);
+            case XaeroWorldMap -> new XaeroOreVeinRenderer(manager);
+            default -> null;
+        };
+    }
+
+    @Nullable
+    @Override
+    protected WaypointManager addWaypointManager(InteractableLayerManager manager, SupportedMods mod) {
+        return switch (mod) {
+            case JourneyMap -> new JMWaypointManager(manager);
+            case XaeroWorldMap -> new OreVeinWaypointManager(manager);
+            default -> null;
+        };
     }
 
     @Override
