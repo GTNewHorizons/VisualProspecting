@@ -8,7 +8,6 @@ import com.gtnewhorizons.navigator.api.util.Util;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ResetClientCacheCommand;
 import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
-import com.sinthoras.visualprospecting.integration.model.layers.ThaumcraftNodeLayerManager;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidChunkLayerManager;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
 import com.sinthoras.visualprospecting.integration.voxelmap.VoxelMapEventHandler;
@@ -78,10 +77,6 @@ public class HooksClient extends HooksShared {
         NavigatorApi.registerLayerManager(OreVeinLayerManager.instance);
         NavigatorApi.registerLayerManager(UndergroundFluidLayerManager.instance);
         NavigatorApi.registerLayerManager(UndergroundFluidChunkLayerManager.instance);
-
-        if (Utils.isTCNodeTrackerInstalled()) {
-            NavigatorApi.registerLayerManager(ThaumcraftNodeLayerManager.instance);
-        }
 
         if (Util.isVoxelMapInstalled()) {
             MinecraftForge.EVENT_BUS.register(new VoxelMapEventHandler());

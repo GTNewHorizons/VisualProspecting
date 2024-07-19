@@ -22,9 +22,6 @@ public enum Mixins {
     GT_MetaTileEntity_ScannerMixin("gregtech.GT_MetaTileEntity_ScannerMixin", GT5U),
     GT_WorldGenContainerMixin("gregtech.WorldGenContainerMixin", GT5U),
 
-    // TC node tracker mixins
-    GuiMainMixin("tcnodetracker.GuiMainMixin", Side.CLIENT, TCNODETRACKER),
-
     // Vanilla Mixins
     MinecraftServerAccessorMixin("minecraft.MinecraftServerAccessor", Phase.EARLY, Side.BOTH, VANILLA),
     ItemEditableBookMixin("minecraft.ItemEditableBookMixin", Phase.EARLY, VANILLA);

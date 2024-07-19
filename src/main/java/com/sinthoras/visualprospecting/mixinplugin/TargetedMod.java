@@ -5,7 +5,6 @@ public enum TargetedMod {
     BARTWORKS("BartWorks", "com.github.bartimaeusnek.bartworks.ASM.BWCorePlugin", "bartworks"),
     GALACTICGREG("Galactic Greg", null, "galacticgreg"),
     GT5U("GregTech5u", null, "gregtech"), // Also matches GT6.
-    TCNODETRACKER("TC Node Tracker", null, "tcnodetracker"),
     VANILLA("Minecraft", null);
 
     /** The "name" in the @Mod annotation */

@@ -20,16 +20,12 @@ import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
 import net.minecraft.launchwrapper.Launch;
 
-import org.lwjgl.opengl.GL11;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sinthoras.visualprospecting.hooks.HooksClient;
 
 import cpw.mods.fml.common.Loader;
 import gregtech.common.GT_Worldgenerator;
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.client.lib.UtilsFX;
 
 public class Utils {
 
@@ -43,10 +39,6 @@ public class Utils {
 
     public static boolean isNEIInstalled() {
         return Loader.isModLoaded("NotEnoughItems");
-    }
-
-    public static boolean isTCNodeTrackerInstalled() {
-        return Loader.isModLoaded("tcnodetracker");
     }
 
     public static boolean isJourneyMapInstalled() {
@@ -220,26 +212,5 @@ public class Utils {
             e.printStackTrace();
             return new HashMap<>();
         }
-    }
-
-    public static void drawAspect(double centerPixelX, double centerPixelY, double pixelSize, Aspect aspect,
-            int amount) {
-        final int textureSize = 16;
-
-        GL11.glPushMatrix();
-        final double scale = pixelSize / textureSize;
-        GL11.glScaled(scale, scale, scale);
-        UtilsFX.drawTag(
-                (centerPixelX - pixelSize / 2) / scale,
-                (centerPixelY - pixelSize / 2) / scale,
-                aspect,
-                amount,
-                0,
-                0,
-                GL11.GL_ONE_MINUS_SRC_ALPHA,
-                1.0F,
-                false);
-        GL11.glDisable(GL11.GL_LIGHTING);
-        GL11.glPopMatrix();
     }
 }
