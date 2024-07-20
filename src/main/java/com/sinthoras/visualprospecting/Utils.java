@@ -41,10 +41,6 @@ public class Utils {
         return Loader.isModLoaded("NotEnoughItems");
     }
 
-    public static boolean isTCNodeTrackerInstalled() {
-        return Loader.isModLoaded("tcnodetracker");
-    }
-
     public static boolean isJourneyMapInstalled() {
         return Loader.isModLoaded("journeymap");
     }
@@ -57,15 +53,8 @@ public class Utils {
         return Loader.isModLoaded("XaeroMinimap");
     }
 
-    public static boolean isVoxelMapInstalled() {
-        try {
-            // If a LiteLoader mod is present cannot be checked by calling Loader#isModLoaded.
-            // Instead, we check if the VoxelMap main class is present.
-            Class.forName("com.thevoxelbox.voxelmap.litemod.LiteModVoxelMap");
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public static boolean isNavigatorInstalled() {
+        return Loader.isModLoaded("navigator");
     }
 
     public static int coordBlockToChunk(int blockCoord) {

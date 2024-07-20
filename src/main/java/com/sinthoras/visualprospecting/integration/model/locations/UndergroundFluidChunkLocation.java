@@ -2,6 +2,7 @@ package com.sinthoras.visualprospecting.integration.model.locations;
 
 import net.minecraftforge.fluids.Fluid;
 
+import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.Utils;
 
 public class UndergroundFluidChunkLocation implements ILocationProvider {

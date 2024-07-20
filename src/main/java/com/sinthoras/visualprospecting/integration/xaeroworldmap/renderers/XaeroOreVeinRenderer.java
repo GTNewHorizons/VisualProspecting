@@ -3,17 +3,16 @@ package com.sinthoras.visualprospecting.integration.xaeroworldmap.renderers;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
-import com.sinthoras.visualprospecting.integration.model.locations.ILocationProvider;
+import com.gtnewhorizons.navigator.api.model.layers.InteractableLayerManager;
+import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
+import com.gtnewhorizons.navigator.api.xaero.renderers.XaeroInteractableLayerRenderer;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 import com.sinthoras.visualprospecting.integration.xaeroworldmap.rendersteps.OreVeinRenderStep;
 
-public class OreVeinRenderer extends InteractableLayerRenderer {
+public class XaeroOreVeinRenderer extends XaeroInteractableLayerRenderer {
 
-    public static OreVeinRenderer instance = new OreVeinRenderer();
-
-    public OreVeinRenderer() {
-        super(OreVeinLayerManager.instance);
+    public XaeroOreVeinRenderer(InteractableLayerManager manager) {
+        super(manager);
     }
 
     @Override

@@ -5,11 +5,7 @@ public enum TargetedMod {
     BARTWORKS("BartWorks", "com.github.bartimaeusnek.bartworks.ASM.BWCorePlugin", "bartworks"),
     GALACTICGREG("Galactic Greg", null, "galacticgreg"),
     GT5U("GregTech5u", null, "gregtech"), // Also matches GT6.
-    JOURNEYMAP("JourneyMap", null, "journeymap"),
-    TCNODETRACKER("TC Node Tracker", null, "tcnodetracker"),
-    VANILLA("Minecraft", null),
-    XAEROMINIMAP("Xaero's Minimap", "xaero.common.core.XaeroMinimapPlugin", "XaeroMinimap"),
-    XAEROWORLDMAP("Xaero's World Map", "xaero.map.core.XaeroWorldMapPlugin", "XaeroWorldMap");
+    VANILLA("Minecraft", null);
 
     /** The "name" in the @Mod annotation */
     public final String modName;

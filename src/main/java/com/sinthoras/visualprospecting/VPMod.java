@@ -13,7 +13,12 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 
-@Mod(modid = Tags.MODID, version = Tags.VERSION, name = Tags.MODNAME, acceptedMinecraftVersions = "[1.7.10]")
+@Mod(
+        modid = Tags.MODID,
+        version = Tags.VERSION,
+        name = Tags.MODNAME,
+        acceptedMinecraftVersions = "[1.7.10]",
+        dependencies = "required-after:gregtech;" + "after:navigator;")
 public class VPMod {
 
     @SidedProxy(clientSide = Tags.GROUPNAME + ".hooks.HooksClient", serverSide = Tags.GROUPNAME + ".hooks.HooksShared")

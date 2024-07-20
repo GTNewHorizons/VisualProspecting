@@ -1,13 +1,10 @@
 package com.sinthoras.visualprospecting.hooks;
 
-import static com.sinthoras.visualprospecting.Utils.isTCNodeTrackerInstalled;
-
 import net.minecraft.client.settings.KeyBinding;
 
 import org.lwjgl.input.Keyboard;
 
 import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
-import com.sinthoras.visualprospecting.integration.model.buttons.ThaumcraftNodeButtonManager;
 import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
@@ -26,17 +23,10 @@ public class HooksKey {
             "visualprospecting.key.togglefluid.name",
             Keyboard.KEY_NONE,
             "visualprospecting.key.action.category");
-    private final KeyBinding keyToggleNodes = new KeyBinding(
-            "visualprospecting.key.togglenode.name",
-            Keyboard.KEY_NONE,
-            "visualprospecting.key.action.category");
 
     public HooksKey() {
         ClientRegistry.registerKeyBinding(keyToggleOres);
         ClientRegistry.registerKeyBinding(keyToggleFluids);
-        if (isTCNodeTrackerInstalled()) {
-            ClientRegistry.registerKeyBinding(keyToggleNodes);
-        }
     }
 
     @SideOnly(Side.CLIENT)
@@ -51,9 +41,6 @@ public class HooksKey {
         }
         if (keyToggleFluids.isPressed()) {
             UndergroundFluidButtonManager.instance.toggle();
-        }
-        if (keyToggleNodes.isPressed() && isTCNodeTrackerInstalled()) {
-            ThaumcraftNodeButtonManager.instance.toggle();
         }
     }
 }

@@ -6,13 +6,14 @@ import net.minecraft.client.gui.GuiScreen;
 
 import org.lwjgl.opengl.GL11;
 
+import com.gtnewhorizons.navigator.api.util.DrawUtils;
+import com.gtnewhorizons.navigator.api.xaero.rendersteps.XaeroRenderStep;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
-import com.sinthoras.visualprospecting.integration.DrawUtils;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidChunkLocation;
 
-public class UndergroundFluidChunkRenderStep implements RenderStep {
+public class UndergroundFluidChunkRenderStep implements XaeroRenderStep {
 
     private final UndergroundFluidChunkLocation undergroundFluidChunkLocation;
 

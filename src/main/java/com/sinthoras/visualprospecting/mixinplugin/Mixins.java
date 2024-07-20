@@ -22,26 +22,8 @@ public enum Mixins {
     GT_MetaTileEntity_ScannerMixin("gregtech.GT_MetaTileEntity_ScannerMixin", GT5U),
     GT_WorldGenContainerMixin("gregtech.WorldGenContainerMixin", GT5U),
 
-    // Journeymap mixins
-    DisplayVarsAccessorMixin("journeymap.DisplayVarsAccessor", Side.CLIENT, JOURNEYMAP),
-    FullscreenAccessorMixin("journeymap.FullscreenAccessor", Side.CLIENT, JOURNEYMAP),
-    FullscreenMixin("journeymap.FullscreenMixin", Side.CLIENT, JOURNEYMAP),
-    FullscreenActionsMixin("journeymap.FullscreenActionsMixin", Side.CLIENT, JOURNEYMAP),
-    MiniMapMixin("journeymap.MiniMapMixin", Side.CLIENT, JOURNEYMAP),
-    RenderWaypointBeaconMixin("journeymap.RenderWaypointBeaconMixin", Side.CLIENT, JOURNEYMAP),
-    WaypointManagerMixin("journeymap.WaypointManagerMixin", Side.CLIENT, JOURNEYMAP),
-
-    // TC node tracker mixins
-    GuiMainMixin("tcnodetracker.GuiMainMixin", Side.CLIENT, TCNODETRACKER),
-
-    // Xaerosworldmap & Xaerosminimap mixins
-    GuiMapMixin("xaerosworldmap.GuiMapMixin", Side.CLIENT, XAEROWORLDMAP),
-    WaypointsIngameRendererMixin("xaerosminimap.WaypointsIngameRendererMixin", Side.CLIENT, XAEROMINIMAP),
-    MinimapRendererMixin("xaerosminimap.MinimapRendererMixin", Side.CLIENT, XAEROMINIMAP, XAEROWORLDMAP),
-
     // Vanilla Mixins
     MinecraftServerAccessorMixin("minecraft.MinecraftServerAccessor", Phase.EARLY, Side.BOTH, VANILLA),
-    ForgeHooksClientMixin("minecraft.ForgeHooksClientMixin", Phase.EARLY, Side.CLIENT, XAEROMINIMAP, XAEROWORLDMAP),
     ItemEditableBookMixin("minecraft.ItemEditableBookMixin", Phase.EARLY, VANILLA);
 
     public final String mixinClass;

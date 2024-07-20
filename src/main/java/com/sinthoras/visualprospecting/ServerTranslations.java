@@ -15,72 +15,40 @@ public class ServerTranslations {
             return fluid.getLocalizedName();
         }
 
-        switch (fluid.getUnlocalizedName()) {
-            case "fluid.gas_natural_gas":
-                return "Natural Gas";
-            case "fluid.liquid_light_oil":
-                return "Light Oil";
-            case "fluid.liquid_medium_oil":
-                return "Raw Oil";
-            case "fluid.liquid_heavy_oil":
-                return "Heavy Oil";
-            case "fluid.oil":
-                return "Oil";
-            case "fluid.drillingfluid":
-                return "Drilling Fluid";
-            case "fluid.helium-3":
-                return "Helium-3";
-            case "fluid.saltwater":
-                return "Saltwater";
-            case "fluid.molten.iron":
-                return "Molten Iron";
-            case "fluid.molten.lead":
-                return "Molten Lead";
-            case "fluid.sulfuricacid":
-                return "Sulfuric Acid";
-            case "fluid.carbondioxide":
-                return "Carbondioxide";
-            case "fluid.chlorobenzene":
-                return "Chlorobenzene";
-            case "fluid.liquid_extra_heavy_oil":
-                return "Extra Heavy Oil";
-            case "fluid.ic2distilledwater":
-                return "Distilled Water";
-            case "fluid.oxygen":
-                return "Oxygen";
-            case "fluid.liquidair":
-                return "Liquid Air";
-            case "fluid.methane":
-                return "Methane";
-            case "fluid.ethane":
-                return "Ethane";
-            case "fluid.liquid_hydricsulfur":
-                return "Liquid Hydric Sulfur";
-            case "fluid.carbonmonoxide":
-                return "Carbonmonoxide";
-            case "fluid.nitrogen":
-                return "Nitrogen";
-            case "fluid.ethylene":
-                return "Ethylene";
-            case "fluid.deuterium":
-                return "Deuterium";
-            case "fluid.fluorine":
-                return "Fluorine";
-            case "fluid.hydrofluoricacid_gt5u":
-                return "Hydrofluoric Acid";
-            case "fluid.molten.copper":
-                return "Molten Copper";
-            case "fluid.unknowwater":
-                return "Unknowwater";
-            case "fluid.molten.tin":
-                return "Molten Tin";
-            case "fluid.hydrogen":
-                return "Hydrogen";
-            case "fluid.lava":
-                return "Lava";
-            default:
-                return fluid.getUnlocalizedName();
-        }
+        return switch (fluid.getUnlocalizedName()) {
+            case "fluid.gas_natural_gas" -> "Natural Gas";
+            case "fluid.liquid_light_oil" -> "Light Oil";
+            case "fluid.liquid_medium_oil" -> "Raw Oil";
+            case "fluid.liquid_heavy_oil" -> "Heavy Oil";
+            case "fluid.oil" -> "Oil";
+            case "fluid.drillingfluid" -> "Drilling Fluid";
+            case "fluid.helium-3" -> "Helium-3";
+            case "fluid.saltwater" -> "Saltwater";
+            case "fluid.molten.iron" -> "Molten Iron";
+            case "fluid.molten.lead" -> "Molten Lead";
+            case "fluid.sulfuricacid" -> "Sulfuric Acid";
+            case "fluid.carbondioxide" -> "Carbondioxide";
+            case "fluid.chlorobenzene" -> "Chlorobenzene";
+            case "fluid.liquid_extra_heavy_oil" -> "Extra Heavy Oil";
+            case "fluid.ic2distilledwater" -> "Distilled Water";
+            case "fluid.oxygen" -> "Oxygen";
+            case "fluid.liquidair" -> "Liquid Air";
+            case "fluid.methane" -> "Methane";
+            case "fluid.ethane" -> "Ethane";
+            case "fluid.liquid_hydricsulfur" -> "Liquid Hydric Sulfur";
+            case "fluid.carbonmonoxide" -> "Carbonmonoxide";
+            case "fluid.nitrogen" -> "Nitrogen";
+            case "fluid.ethylene" -> "Ethylene";
+            case "fluid.deuterium" -> "Deuterium";
+            case "fluid.fluorine" -> "Fluorine";
+            case "fluid.hydrofluoricacid_gt5u" -> "Hydrofluoric Acid";
+            case "fluid.molten.copper" -> "Molten Copper";
+            case "fluid.unknowwater" -> "Unknowwater";
+            case "fluid.molten.tin" -> "Molten Tin";
+            case "fluid.hydrogen" -> "Hydrogen";
+            case "fluid.lava" -> "Lava";
+            default -> fluid.getUnlocalizedName();
+        };
     }
 
     /*
@@ -93,189 +61,98 @@ public class ServerTranslations {
             return I18n.format(veinType.name);
         }
 
-        switch (veinType.name) {
-            case "ore.mix.naquadah":
-                return "Naquadah";
-            case "ore.mix.lignite":
-                return "Lignite";
-            case "ore.mix.coal":
-                return "Coal";
-            case "ore.mix.magnetite":
-                return "Magnetite";
-            case "ore.mix.gold":
-                return "Gold";
-            case "ore.mix.iron":
-                return "Iron";
-            case "ore.mix.cassiterite":
-                return "Cassiterite";
-            case "ore.mix.tetrahedrite":
-                return "Tetrahedrite";
-            case "ore.mix.netherquartz":
-                return "Nether Quartz";
-            case "ore.mix.sulfur":
-                return "Sulfur";
-            case "ore.mix.copper":
-                return "Copper";
-            case "ore.mix.bauxite":
-                return "Bauxite";
-            case "ore.mix.salts":
-                return "Salts";
-            case "ore.mix.redstone":
-                return "Redstone";
-            case "ore.mix.soapstone":
-                return "Soapstone";
-            case "ore.mix.nickel":
-                return "Nickel";
-            case "ore.mix.platinum":
-                return "Platinum";
-            case "ore.mix.pitchblende":
-                return "Pitchblende";
-            case "ore.mix.monazite":
-                return "Monazite";
-            case "ore.mix.molybdenum":
-                return "Molybdenum";
-            case "ore.mix.tungstate":
-                return "Tungstate";
-            case "ore.mix.sapphire":
-                return "Sapphire";
-            case "ore.mix.manganese":
-                return "Manganese";
-            case "ore.mix.quartz":
-                return "Quartz";
-            case "ore.mix.diamond":
-                return "Diamond";
-            case "ore.mix.olivine":
-                return "Olivine";
-            case "ore.mix.apatite":
-                return "Apatite";
-            case "ore.mix.galena":
-                return "Galena";
-            case "ore.mix.lapis":
-                return "Lapis";
-            case "ore.mix.beryllium":
-                return "Beryllium";
-            case "ore.mix.uranium":
-                return "Uranium";
-            case "ore.mix.oilsand":
-                return "Oilsands";
-            case "ore.mix.neutronium":
-                return "Neutronium";
-            case "ore.mix.aquaignis":
-                return "Aqua and Ignis";
-            case "ore.mix.terraaer":
-                return "Terra and Aer";
-            case "ore.mix.perditioordo":
-                return "Perdito and Ordo";
-            case "ore.mix.coppertin":
-                return "Vermiculite";
-            case "ore.mix.titaniumchrome":
-                return "Ilmenite";
-            case "ore.mix.mineralsand":
-                return "Mineralsand";
-            case "ore.mix.garnettin":
-                return "Garnettin";
-            case "ore.mix.kaolinitezeolite":
-                return "Kaolinite";
-            case "ore.mix.mica":
-                return "Mica";
-            case "ore.mix.dolomite":
-                return "Dolomite";
-            case "ore.mix.platinumchrome":
-                return "Palladium";
-            case "ore.mix.iridiummytryl":
-                return "Iridium";
-            case "ore.mix.osmium":
-                return "Osmium";
-            case "ore.mix.saltpeterelectrotine":
-                return "Electrotine";
-            case "ore.mix.desh":
-                return "Desh";
-            case "ore.mix.draconium":
-                return "Draconium";
-            case "ore.mix.quantium":
-                return "Quantum";
-            case "ore.mix.callistoice":
-                return "Callisto Ice";
-            case "ore.mix.mytryl":
-                return "Mithril";
-            case "ore.mix.ledox":
-                return "Ledox";
-            case "ore.mix.oriharukon":
-                return "Oriharukon";
-            case "ore.mix.blackplutonium":
-                return "Black Plutonium";
-            case "ore.mix.infusedgold":
-                return "Infused Gold";
-            case "ore.mix.niobium":
-                return "Niobium";
-            case "ore.mix.tungstenirons":
-                return "Tungsten";
-            case "ore.mix.uraniumgtnh":
-                return "Thorium";
-            case "ore.mix.vanadiumgold":
-                return "Vanadium";
-            case "ore.mix.netherstar":
-                return "NetherStar";
-            case "ore.mix.garnet":
-                return "Garnet";
-            case "ore.mix.rareearth":
-                return "Rare Earths";
-            case "ore.mix.richnuclear":
-                return "Plutonium";
-            case "ore.mix.heavypentele":
-                return "Arsenic";
-            case "ore.mix.europa":
-                return "Magnesite";
-            case "ore.mix.europacore":
-                return "Chrome";
-            case "ore.mix.secondlanthanid":
-                return "Samarium";
-            case "ore.mix.quartzspace":
-                return "Quartz";
-            case "ore.mix.rutile":
-                return "Rutile";
-            case "ore.mix.tfgalena":
-                return "Cryolite";
-            case "ore.mix.luvtantalite":
-                return "Pyrolusit";
-            case "ore.mix.ross128.Thorianit":
-                return "Thorianit";
-            case "ore.mix.ross128.carbon":
-                return "Graphite";
-            case "ore.mix.ross128.bismuth":
-                return "Bismuth";
-            case "ore.mix.ross128.TurmalinAlkali":
-                return "Olenit";
-            case "ore.mix.ross128.Roquesit":
-                return "Roquesit";
-            case "ore.mix.ross128.Tungstate":
-                return "Scheelite";
-            case "ore.mix.ross128.CopperSulfits":
-                return "Djurleit";
-            case "ore.mix.ross128.Forsterit":
-                return "Forsterit";
-            case "ore.mix.ross128.Hedenbergit":
-                return "Hedenbergit";
-            case "ore.mix.ross128.RedZircon":
-                return "Red Zircon";
-            case "ore.mix.ross128ba.tib":
-                return "Tiberium";
-            case "ore.mix.ross128ba.Tungstate":
-                return "Scheelite";
-            case "ore.mix.ross128ba.bart":
-                return "BArTiMaEuSNeK";
-            case "ore.mix.ross128ba.TurmalinAlkali":
-                return "Olenit";
-            case "ore.mix.ross128ba.Amethyst":
-                return "Amethyst";
-            case "ore.mix.ross128ba.CopperSulfits":
-                return "Djurleit";
-            case "ore.mix.ross128ba.RedZircon":
-                return "Red Zircon";
-            case "ore.mix.ross128ba.Fluorspar":
-                return "Fluorspa";
-            default:
-                return veinType.name;
-        }
+        return switch (veinType.name) {
+            case "ore.mix.naquadah" -> "Naquadah";
+            case "ore.mix.lignite" -> "Lignite";
+            case "ore.mix.coal" -> "Coal";
+            case "ore.mix.magnetite" -> "Magnetite";
+            case "ore.mix.gold" -> "Gold";
+            case "ore.mix.iron" -> "Iron";
+            case "ore.mix.cassiterite" -> "Cassiterite";
+            case "ore.mix.tetrahedrite" -> "Tetrahedrite";
+            case "ore.mix.netherquartz" -> "Nether Quartz";
+            case "ore.mix.sulfur" -> "Sulfur";
+            case "ore.mix.copper" -> "Copper";
+            case "ore.mix.bauxite" -> "Bauxite";
+            case "ore.mix.salts" -> "Salts";
+            case "ore.mix.redstone" -> "Redstone";
+            case "ore.mix.soapstone" -> "Soapstone";
+            case "ore.mix.nickel" -> "Nickel";
+            case "ore.mix.platinum" -> "Platinum";
+            case "ore.mix.pitchblende" -> "Pitchblende";
+            case "ore.mix.monazite" -> "Monazite";
+            case "ore.mix.molybdenum" -> "Molybdenum";
+            case "ore.mix.tungstate" -> "Tungstate";
+            case "ore.mix.sapphire" -> "Sapphire";
+            case "ore.mix.manganese" -> "Manganese";
+            case "ore.mix.quartz" -> "Quartz";
+            case "ore.mix.diamond" -> "Diamond";
+            case "ore.mix.olivine" -> "Olivine";
+            case "ore.mix.apatite" -> "Apatite";
+            case "ore.mix.galena" -> "Galena";
+            case "ore.mix.lapis" -> "Lapis";
+            case "ore.mix.beryllium" -> "Beryllium";
+            case "ore.mix.uranium" -> "Uranium";
+            case "ore.mix.oilsand" -> "Oilsands";
+            case "ore.mix.neutronium" -> "Neutronium";
+            case "ore.mix.aquaignis" -> "Aqua and Ignis";
+            case "ore.mix.terraaer" -> "Terra and Aer";
+            case "ore.mix.perditioordo" -> "Perdito and Ordo";
+            case "ore.mix.coppertin" -> "Vermiculite";
+            case "ore.mix.titaniumchrome" -> "Ilmenite";
+            case "ore.mix.mineralsand" -> "Mineralsand";
+            case "ore.mix.garnettin" -> "Garnettin";
+            case "ore.mix.kaolinitezeolite" -> "Kaolinite";
+            case "ore.mix.mica" -> "Mica";
+            case "ore.mix.dolomite" -> "Dolomite";
+            case "ore.mix.platinumchrome" -> "Palladium";
+            case "ore.mix.iridiummytryl" -> "Iridium";
+            case "ore.mix.osmium" -> "Osmium";
+            case "ore.mix.saltpeterelectrotine" -> "Electrotine";
+            case "ore.mix.desh" -> "Desh";
+            case "ore.mix.draconium" -> "Draconium";
+            case "ore.mix.quantium" -> "Quantum";
+            case "ore.mix.callistoice" -> "Callisto Ice";
+            case "ore.mix.mytryl" -> "Mithril";
+            case "ore.mix.ledox" -> "Ledox";
+            case "ore.mix.oriharukon" -> "Oriharukon";
+            case "ore.mix.blackplutonium" -> "Black Plutonium";
+            case "ore.mix.infusedgold" -> "Infused Gold";
+            case "ore.mix.niobium" -> "Niobium";
+            case "ore.mix.tungstenirons" -> "Tungsten";
+            case "ore.mix.uraniumgtnh" -> "Thorium";
+            case "ore.mix.vanadiumgold" -> "Vanadium";
+            case "ore.mix.netherstar" -> "NetherStar";
+            case "ore.mix.garnet" -> "Garnet";
+            case "ore.mix.rareearth" -> "Rare Earths";
+            case "ore.mix.richnuclear" -> "Plutonium";
+            case "ore.mix.heavypentele" -> "Arsenic";
+            case "ore.mix.europa" -> "Magnesite";
+            case "ore.mix.europacore" -> "Chrome";
+            case "ore.mix.secondlanthanid" -> "Samarium";
+            case "ore.mix.quartzspace" -> "Quartz";
+            case "ore.mix.rutile" -> "Rutile";
+            case "ore.mix.tfgalena" -> "Cryolite";
+            case "ore.mix.luvtantalite" -> "Pyrolusit";
+            case "ore.mix.ross128.Thorianit" -> "Thorianit";
+            case "ore.mix.ross128.carbon" -> "Graphite";
+            case "ore.mix.ross128.bismuth" -> "Bismuth";
+            case "ore.mix.ross128.TurmalinAlkali" -> "Olenit";
+            case "ore.mix.ross128.Roquesit" -> "Roquesit";
+            case "ore.mix.ross128.Tungstate" -> "Scheelite";
+            case "ore.mix.ross128.CopperSulfits" -> "Djurleit";
+            case "ore.mix.ross128.Forsterit" -> "Forsterit";
+            case "ore.mix.ross128.Hedenbergit" -> "Hedenbergit";
+            case "ore.mix.ross128.RedZircon" -> "Red Zircon";
+            case "ore.mix.ross128ba.tib" -> "Tiberium";
+            case "ore.mix.ross128ba.Tungstate" -> "Scheelite";
+            case "ore.mix.ross128ba.bart" -> "BArTiMaEuSNeK";
+            case "ore.mix.ross128ba.TurmalinAlkali" -> "Olenit";
+            case "ore.mix.ross128ba.Amethyst" -> "Amethyst";
+            case "ore.mix.ross128ba.CopperSulfits" -> "Djurleit";
+            case "ore.mix.ross128ba.RedZircon" -> "Red Zircon";
+            case "ore.mix.ross128ba.Fluorspar" -> "Fluorspa";
+            default -> veinType.name;
+        };
     }
 }
