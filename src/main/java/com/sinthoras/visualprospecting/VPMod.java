@@ -1,6 +1,7 @@
 package com.sinthoras.visualprospecting;
 
 import com.sinthoras.visualprospecting.hooks.HooksShared;
+import com.sinthoras.visualprospecting.integration.gregtech.VeinDatabase;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
@@ -12,6 +13,7 @@ import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+import gregtech.crossmod.visualprospecting.GT_VisualProspecting_Database;
 
 @Mod(
         modid = Tags.MODID,
@@ -44,6 +46,8 @@ public class VPMod {
     // postInit "Handle interaction with other mods, complete your setup based on this."
     public void fmlLifeCycle(FMLPostInitializationEvent event) {
         VP.debug("postInit()");
+        VP.debug("Registering with the GT5U ore vein database");
+        GT_VisualProspecting_Database.registerDatabase(new VeinDatabase());
         proxy.fmlLifeCycleEvent(event);
     }
 
