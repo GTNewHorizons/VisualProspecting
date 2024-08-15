@@ -8,13 +8,9 @@ import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 public class UndergroundFluidLocation implements ILocationProvider {
 
     private final UndergroundFluidPosition undergroundFluidPosition;
-    private final int minProduction;
-    private final int maxProduction;
 
     public UndergroundFluidLocation(UndergroundFluidPosition undergroundFluidPosition) {
         this.undergroundFluidPosition = undergroundFluidPosition;
-        minProduction = undergroundFluidPosition.getMinProduction();
-        maxProduction = undergroundFluidPosition.getMaxProduction();
     }
 
     @Override
@@ -33,11 +29,11 @@ public class UndergroundFluidLocation implements ILocationProvider {
     }
 
     public int getMinProduction() {
-        return minProduction;
+        return undergroundFluidPosition.getMinProduction();
     }
 
     public int getMaxProduction() {
-        return maxProduction;
+        return undergroundFluidPosition.getMaxProduction();
     }
 
     public Fluid getFluid() {
