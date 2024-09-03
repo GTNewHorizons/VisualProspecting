@@ -19,8 +19,8 @@ import com.sinthoras.visualprospecting.database.ServerCache;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import gregtech.common.blocks.GT_Block_Ores_Abstract;
-import gregtech.common.blocks.GT_TileEntity_Ores;
+import gregtech.common.blocks.BlockOresAbstract;
+import gregtech.common.blocks.TileEntityOres;
 import io.netty.buffer.ByteBuf;
 
 public class ProspectingRequest implements IMessage {
@@ -93,10 +93,10 @@ public class ProspectingRequest implements IMessage {
                     && timestamp - lastRequest >= Config.minDelayBetweenVeinRequests
                     && isChunkLoaded) {
                 final Block block = world.getBlock(message.blockX, message.blockY, message.blockZ);
-                if (block instanceof GT_Block_Ores_Abstract) {
+                if (block instanceof BlockOresAbstract) {
                     final TileEntity tileEntity = world.getTileEntity(message.blockX, message.blockY, message.blockZ);
-                    if (tileEntity instanceof GT_TileEntity_Ores) {
-                        final short metaData = ((GT_TileEntity_Ores) tileEntity).mMetaData;
+                    if (tileEntity instanceof TileEntityOres) {
+                        final short metaData = ((TileEntityOres) tileEntity).mMetaData;
                         if (isSmallOreId(metaData) == false
                                 && oreIdToMaterialId(metaData) == message.foundOreMetaData) {
                             lastRequestPerPlayer.put(uuid, timestamp);
