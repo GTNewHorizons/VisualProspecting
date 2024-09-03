@@ -20,7 +20,7 @@ import com.sinthoras.visualprospecting.task.SnapshotDownloadTask;
 import com.sinthoras.visualprospecting.task.SnapshotUploadTask;
 import com.sinthoras.visualprospecting.task.TaskManager;
 
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 
 public class ProspectorsLog extends Item {
 
@@ -29,7 +29,7 @@ public class ProspectorsLog extends Item {
     public ProspectorsLog() {
         maxStackSize = 1;
         setUnlocalizedName("visualprospecting.prospectorslog");
-        setCreativeTab(GregTech_API.TAB_GREGTECH);
+        setCreativeTab(GregTechAPI.TAB_GREGTECH);
         setTextureName(Tags.MODID + ":prospectorslog");
     }
 

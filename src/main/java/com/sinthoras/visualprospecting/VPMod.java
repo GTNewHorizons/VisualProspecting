@@ -13,7 +13,7 @@ import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
-import gregtech.crossmod.visualprospecting.GT_VisualProspecting_Database;
+import gregtech.crossmod.visualprospecting.VisualProspectingDatabase;
 
 @Mod(
         modid = Tags.MODID,
@@ -47,7 +47,7 @@ public class VPMod {
     public void fmlLifeCycle(FMLPostInitializationEvent event) {
         VP.debug("postInit()");
         VP.debug("Registering with the GT5U ore vein database");
-        GT_VisualProspecting_Database.registerDatabase(new VeinDatabase());
+        VisualProspectingDatabase.registerDatabase(new VeinDatabase());
         proxy.fmlLifeCycleEvent(event);
     }
 

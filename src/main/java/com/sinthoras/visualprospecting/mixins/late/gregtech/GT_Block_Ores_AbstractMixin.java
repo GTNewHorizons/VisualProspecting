@@ -7,11 +7,11 @@ import org.spongepowered.asm.mixin.Mixin;
 
 import com.sinthoras.visualprospecting.database.ClientCache;
 
-import gregtech.api.items.GT_Generic_Block;
-import gregtech.common.blocks.GT_Block_Ores_Abstract;
+import gregtech.api.items.GTGenericBlock;
+import gregtech.common.blocks.BlockOresAbstract;
 
-@Mixin(value = GT_Block_Ores_Abstract.class, remap = false)
-public class GT_Block_Ores_AbstractMixin extends GT_Generic_Block {
+@Mixin(value = BlockOresAbstract.class, remap = false)
+public class GT_Block_Ores_AbstractMixin extends GTGenericBlock {
 
     protected GT_Block_Ores_AbstractMixin() {
         super(null, null, null);

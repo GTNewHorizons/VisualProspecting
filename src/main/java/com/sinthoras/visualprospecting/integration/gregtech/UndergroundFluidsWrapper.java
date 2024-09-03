@@ -1,9 +1,9 @@
 package com.sinthoras.visualprospecting.integration.gregtech;
 
 import static gregtech.api.objects.XSTR.XSTR_INSTANCE;
-import static gregtech.common.GT_Proxy.*;
-import static gregtech.common.GT_Proxy.GTOIL;
-import static gregtech.common.GT_UndergroundOil.undergroundOil;
+import static gregtech.common.GTProxy.*;
+import static gregtech.common.GTProxy.GTOIL;
+import static gregtech.common.UndergroundOil.undergroundOil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +13,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
-import gregtech.GT_Mod;
-import gregtech.api.objects.GT_UO_Dimension;
-import gregtech.api.objects.GT_UO_Fluid;
+import gregtech.GTMod;
+import gregtech.api.objects.GTUODimension;
+import gregtech.api.objects.GTUOFluid;
 import gregtech.api.objects.XSTR;
-import gregtech.common.GT_UndergroundOil;
+import gregtech.common.UndergroundOil;
 
 public class UndergroundFluidsWrapper {
 
@@ -27,7 +27,7 @@ public class UndergroundFluidsWrapper {
     static {
         boolean foundMethod;
         try {
-            GT_UndergroundOil.class.getDeclaredMethod("undergroundOil", World.class, int.class, int.class, float.class);
+            UndergroundOil.class.getDeclaredMethod("undergroundOil", World.class, int.class, int.class, float.class);
             foundMethod = true;
         } catch (NoSuchMethodException e) {
             foundMethod = false;
@@ -49,7 +49,7 @@ public class UndergroundFluidsWrapper {
     private static FluidStack vanillaProspectFluid(World world, int chunkX, int chunkZ) {
         final ChunkCoordIntPair chunkCoordinate = new ChunkCoordIntPair(chunkX, chunkZ);
         int dimensionId = world.provider.dimensionId;
-        GT_UO_Dimension dimension = GT_Mod.gregtechproxy.mUndergroundOil.GetDimension(dimensionId);
+        GTUODimension dimension = GTMod.gregtechproxy.mUndergroundOil.GetDimension(dimensionId);
         if (dimension == null) {
             return null;
         }
@@ -67,7 +67,7 @@ public class UndergroundFluidsWrapper {
 
         final XSTR tRandom = new XSTR(world.getSeed() + dimensionId * 2L + (chunkX >> 3) + 8267L * (chunkZ >> 3));
 
-        GT_UO_Fluid uoFluid = dimension.getRandomFluid(tRandom);
+        GTUOFluid uoFluid = dimension.getRandomFluid(tRandom);
 
         FluidStack fluidInChunk;
 
@@ -92,11 +92,11 @@ public class UndergroundFluidsWrapper {
             tInts[GTOILFLUID] = fluidInChunk.getFluidID();
         }
 
-        if (fluidInChunk.amount <= GT_UndergroundOil.DIVIDER) {
+        if (fluidInChunk.amount <= UndergroundOil.DIVIDER) {
             fluidInChunk.amount = 0; // return informative stack
             tInts[GTOIL] = 0; // so in next access it will stop way above
         } else {
-            fluidInChunk.amount = fluidInChunk.amount / GT_UndergroundOil.DIVIDER; // give moderate extraction speed
+            fluidInChunk.amount = fluidInChunk.amount / UndergroundOil.DIVIDER; // give moderate extraction speed
         }
 
         chunkData.put(chunkCoordinate, tInts); // update hash map
