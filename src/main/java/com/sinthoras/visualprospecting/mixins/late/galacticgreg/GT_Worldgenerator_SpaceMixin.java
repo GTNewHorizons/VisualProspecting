@@ -12,20 +12,20 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ServerCache;
 
-import bloodasp.galacticgreg.GT_Worldgenerator_Space;
-import gregtech.api.world.GT_Worldgen;
+import galacticgreg.WorldGeneratorSpace;
+import gregtech.api.world.GTWorldgen;
 
-@Mixin(GT_Worldgenerator_Space.class)
+@Mixin(WorldGeneratorSpace.class)
 public class GT_Worldgenerator_SpaceMixin {
 
     @Redirect(
             method = "Generate_OreVeins",
             at = @At(
                     value = "INVOKE",
-                    target = "Lgregtech/api/world/GT_Worldgen;executeWorldgen(Lnet/minecraft/world/World;Ljava/util/Random;Ljava/lang/String;IIILnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/chunk/IChunkProvider;)Z"),
+                    target = "Lgregtech/api/world/GTWorldgen;executeWorldgen(Lnet/minecraft/world/World;Ljava/util/Random;Ljava/lang/String;IIILnet/minecraft/world/chunk/IChunkProvider;Lnet/minecraft/world/chunk/IChunkProvider;)Z"),
             remap = false,
             require = 1)
-    private boolean visualprospecting$onOreVeinGenerated(GT_Worldgen worldGen, World world, Random random, String biome,
+    private boolean visualprospecting$onOreVeinGenerated(GTWorldgen worldGen, World world, Random random, String biome,
             int dimensionType, int blockX, int blockZ, IChunkProvider chunkGenerator, IChunkProvider chunkProvider) {
         final boolean oreVeinPlaced = worldGen.executeWorldgen(
                 world,

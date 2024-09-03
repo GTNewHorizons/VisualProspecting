@@ -1,7 +1,7 @@
 package com.sinthoras.visualprospecting.mixins.late.gregtech;
 
-import static gregtech.api.util.GT_Utility.ItemNBT.getNBT;
-import static gregtech.api.util.GT_Utility.ItemNBT.setNBT;
+import static gregtech.api.util.GTUtility.ItemNBT.getNBT;
+import static gregtech.api.util.GTUtility.ItemNBT.setNBT;
 
 import java.util.List;
 
@@ -25,13 +25,13 @@ import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import gregtech.api.enums.ItemList;
 import gregtech.api.enums.Materials;
 import gregtech.api.interfaces.tileentity.IGregTechTileEntity;
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_AdvSeismicProspector;
+import gregtech.api.metatileentity.implementations.MTEBasicMachine;
+import gregtech.api.util.GTUtility;
+import gregtech.common.tileentities.machines.basic.MTEAdvSeismicProspector;
 import ic2.core.Ic2Items;
 
-@Mixin(value = GT_MetaTileEntity_AdvSeismicProspector.class, remap = false)
-public abstract class GT_MetaTileEntity_AdvSeismicProspectorMixin extends GT_MetaTileEntity_BasicMachine {
+@Mixin(value = MTEAdvSeismicProspector.class, remap = false)
+public abstract class GT_MetaTileEntity_AdvSeismicProspectorMixin extends MTEBasicMachine {
 
     @Shadow(remap = false)
     boolean ready = false;
@@ -53,10 +53,10 @@ public abstract class GT_MetaTileEntity_AdvSeismicProspectorMixin extends GT_Met
         if (aBaseMetaTileEntity.isServerSide()) {
             ItemStack aStack = aPlayer.getCurrentEquippedItem();
 
-            if (!ready && (GT_Utility.consumeItems(aPlayer, aStack, Item.getItemFromBlock(Blocks.tnt), 16)
-                    || GT_Utility.consumeItems(aPlayer, aStack, Ic2Items.industrialTnt.getItem(), 8)
-                    || GT_Utility.consumeItems(aPlayer, aStack, Materials.Glyceryl, 4)
-                    || GT_Utility.consumeItems(aPlayer, aStack, ItemList.Block_Powderbarrel.getItem(), 2))) {
+            if (!ready && (GTUtility.consumeItems(aPlayer, aStack, Item.getItemFromBlock(Blocks.tnt), 16)
+                    || GTUtility.consumeItems(aPlayer, aStack, Ic2Items.industrialTnt.getItem(), 8)
+                    || GTUtility.consumeItems(aPlayer, aStack, Materials.Glyceryl, 4)
+                    || GTUtility.consumeItems(aPlayer, aStack, ItemList.Block_Powderbarrel.getItem(), 2))) {
 
                 this.ready = true;
                 this.mMaxProgresstime = (aPlayer.capabilities.isCreativeMode ? 20 : 800);

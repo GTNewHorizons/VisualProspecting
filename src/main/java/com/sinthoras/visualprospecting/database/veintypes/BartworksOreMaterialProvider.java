@@ -1,11 +1,10 @@
 package com.sinthoras.visualprospecting.database.veintypes;
 
-import static com.github.bartimaeusnek.bartworks.util.BW_ColorUtil.getColorFromRGBArray;
+import static bartworks.util.BWColorUtil.getColorFromRGBArray;
 
 import net.minecraft.util.IIcon;
 
-import com.github.bartimaeusnek.bartworks.system.material.Werkstoff;
-
+import bartworks.system.material.Werkstoff;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.OrePrefixes;
