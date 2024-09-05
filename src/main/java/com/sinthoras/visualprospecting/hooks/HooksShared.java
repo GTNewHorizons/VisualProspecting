@@ -33,7 +33,7 @@ import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 
 public class HooksShared {
 
@@ -79,7 +79,7 @@ public class HooksShared {
 
     // postInit "Handle interaction with other mods, complete your setup based on this."
     public void fmlLifeCycleEvent(FMLPostInitializationEvent event) {
-        GregTech_API.sAfterGTPostload.add(new VeinTypeCaching());
+        GregTechAPI.sAfterGTPostload.add(new VeinTypeCaching());
     }
 
     public void fmlLifeCycleEvent(FMLServerAboutToStartEvent event) {}

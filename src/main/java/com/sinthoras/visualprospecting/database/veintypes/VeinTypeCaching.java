@@ -15,18 +15,18 @@ import java.util.regex.Pattern;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 
-import com.github.bartimaeusnek.bartworks.system.material.Werkstoff;
-import com.github.bartimaeusnek.bartworks.system.oregen.BW_OreLayer;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 
+import bartworks.system.material.Werkstoff;
+import bartworks.system.oregen.BWOreLayer;
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.SearchField;
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
-import gregtech.common.GT_Worldgen_GT_Ore_Layer;
+import gregtech.common.WorldgenGTOreLayer;
 
 public class VeinTypeCaching implements Runnable {
 
@@ -47,7 +47,7 @@ public class VeinTypeCaching implements Runnable {
         largeVeinOres = new HashSet<>();
         veinTypes.add(VeinType.NO_VEIN);
 
-        for (GT_Worldgen_GT_Ore_Layer vein : GT_Worldgen_GT_Ore_Layer.sList) {
+        for (WorldgenGTOreLayer vein : WorldgenGTOreLayer.sList) {
             if (vein.mWorldGenName.equals(Tags.ORE_MIX_NONE_NAME)) {
                 break;
             }
@@ -69,7 +69,7 @@ public class VeinTypeCaching implements Runnable {
         }
 
         if (isBartworksInstalled()) {
-            for (BW_OreLayer vein : BW_OreLayer.sList) {
+            for (BWOreLayer vein : BWOreLayer.sList) {
                 final IOreMaterialProvider oreMaterialProvider = (vein.bwOres & 0b1000) == 0
                         ? new GregTechOreMaterialProvider(getGregTechMaterial((short) vein.mPrimaryMeta))
                         : new BartworksOreMaterialProvider(Werkstoff.werkstoffHashMap.get((short) vein.mPrimaryMeta));
@@ -126,7 +126,7 @@ public class VeinTypeCaching implements Runnable {
     }
 
     private Materials getGregTechMaterial(short metaId) {
-        final Materials material = GregTech_API.sGeneratedMaterials[metaId];
+        final Materials material = GregTechAPI.sGeneratedMaterials[metaId];
         if (material == null) {
             // Some materials are not registered in dev when their usage mod is not available.
             return Materials.getAll().stream().filter(m -> m.mMetaItemSubID == metaId).findAny().get();

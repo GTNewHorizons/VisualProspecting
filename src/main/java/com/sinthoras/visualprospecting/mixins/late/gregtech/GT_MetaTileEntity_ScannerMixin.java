@@ -1,6 +1,6 @@
 package com.sinthoras.visualprospecting.mixins.late.gregtech;
 
-import static gregtech.api.util.GT_Utility.ItemNBT.setNBT;
+import static gregtech.api.util.GTUtility.ItemNBT.setNBT;
 
 import java.util.List;
 
@@ -19,12 +19,12 @@ import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 
-import gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicMachine;
-import gregtech.api.util.GT_Utility;
-import gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_Scanner;
+import gregtech.api.metatileentity.implementations.MTEBasicMachine;
+import gregtech.api.util.GTUtility;
+import gregtech.common.tileentities.machines.basic.MTEScanner;
 
-@Mixin(value = GT_MetaTileEntity_Scanner.class, remap = false)
-public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_BasicMachine {
+@Mixin(value = MTEScanner.class, remap = false)
+public abstract class GT_MetaTileEntity_ScannerMixin extends MTEBasicMachine {
 
     public GT_MetaTileEntity_ScannerMixin() {
         super(0, "", "", 0, 0, "", 0, 0);
@@ -34,7 +34,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
             method = "checkRecipe",
             at = @At(
                     value = "INVOKE",
-                    target = "Lgregtech/api/util/GT_Utility$ItemNBT;convertProspectionData(Lnet/minecraft/item/ItemStack;)V"),
+                    target = "Lgregtech/api/util/GTUtility$ItemNBT;convertProspectionData(Lnet/minecraft/item/ItemStack;)V"),
             remap = false,
             require = 1,
             cancellable = true)
@@ -90,7 +90,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
             }
 
             if (compound.hasKey(Tags.PROSPECTION_FLUIDS)) {
-                GT_Utility.ItemNBT.fillBookWithList(
+                GTUtility.ItemNBT.fillBookWithList(
                         bookPages,
                         "Fluids%s\n\n",
                         "\n",
@@ -154,7 +154,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends GT_MetaTileEntity_B
 
             // Mimic original behaviour
             itemStack.stackSize -= 1;
-            mOutputItems[0] = GT_Utility.copyAmount(1L, itemStack);
+            mOutputItems[0] = GTUtility.copyAmount(1L, itemStack);
             calculateOverclockedNess(30, 1000);
             // In case recipe is too OP for that machine
             if (mMaxProgresstime == Integer.MAX_VALUE - 1 && mEUt == Integer.MAX_VALUE - 1) {

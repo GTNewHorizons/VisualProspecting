@@ -10,7 +10,7 @@ import net.minecraft.util.EnumChatFormatting;
 
 import com.sinthoras.visualprospecting.Tags;
 
-import gregtech.api.GregTech_API;
+import gregtech.api.GregTechAPI;
 
 public class VeinType {
 
@@ -83,7 +83,7 @@ public class VeinType {
     }
 
     public List<String> getOreMaterialNames() {
-        return oresAsSet.stream().map(metaData -> GregTech_API.sGeneratedMaterials[metaData]).filter(Objects::nonNull)
+        return oresAsSet.stream().map(metaData -> GregTechAPI.sGeneratedMaterials[metaData]).filter(Objects::nonNull)
                 .map(material -> EnumChatFormatting.GRAY + material.mLocalizedName).collect(Collectors.toList());
     }
 
