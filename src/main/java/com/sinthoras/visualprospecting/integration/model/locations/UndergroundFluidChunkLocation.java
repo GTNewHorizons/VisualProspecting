@@ -4,26 +4,25 @@ import net.minecraftforge.fluids.Fluid;
 
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.sinthoras.visualprospecting.Utils;
+import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 
 public class UndergroundFluidChunkLocation implements ILocationProvider {
 
     private final int blockX;
     private final int blockZ;
     private final int dimensionId;
-    private final Fluid fluid;
-    private final int fluidAmount;
-    private final int maxAmountInField;
-    private final int minAmountInField;
+    private final int offsetX;
+    private final int offsetZ;
+    private final UndergroundFluidPosition undergroundFluid;
 
-    public UndergroundFluidChunkLocation(int chunkX, int chunkZ, int dimensionId, Fluid fluid, int fluidAmount,
-            int minAmountInField, int maxAmountInField) {
-        blockX = Utils.coordChunkToBlock(chunkX);
-        blockZ = Utils.coordChunkToBlock(chunkZ);
+    public UndergroundFluidChunkLocation(int chunkX, int chunkZ, int dimensionId, UndergroundFluidPosition fluid,
+            int offsetX, int offsetZ) {
+        blockX = Utils.coordChunkToBlock(chunkX + offsetX);
+        blockZ = Utils.coordChunkToBlock(chunkZ + offsetZ);
         this.dimensionId = dimensionId;
-        this.fluid = fluid;
-        this.fluidAmount = fluidAmount;
-        this.maxAmountInField = maxAmountInField;
-        this.minAmountInField = minAmountInField;
+        this.offsetX = offsetX;
+        this.offsetZ = offsetZ;
+        this.undergroundFluid = fluid;
     }
 
     public double getBlockX() {
@@ -39,25 +38,25 @@ public class UndergroundFluidChunkLocation implements ILocationProvider {
     }
 
     public String getFluidAmountFormatted() {
-        if (fluidAmount >= 1000) {
-            return (fluidAmount / 1000) + "kL";
+        if (getFluidAmount() >= 1000) {
+            return (getFluidAmount() / 1000) + "kL";
         }
-        return fluidAmount + "L";
+        return getFluidAmount() + "L";
     }
 
     public int getFluidAmount() {
-        return fluidAmount;
+        return undergroundFluid.chunks[offsetX][offsetZ];
     }
 
     public Fluid getFluid() {
-        return fluid;
+        return undergroundFluid.fluid;
     }
 
     public int getMaxAmountInField() {
-        return maxAmountInField;
+        return undergroundFluid.getMaxProduction();
     }
 
     public int getMinAmountInField() {
-        return minAmountInField;
+        return undergroundFluid.getMinProduction();
     }
 }
