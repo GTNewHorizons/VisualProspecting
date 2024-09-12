@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.ByteBuffer;
@@ -16,41 +17,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.Nullable;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.launchwrapper.Launch;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.sinthoras.visualprospecting.hooks.HooksClient;
 
 import cpw.mods.fml.common.Loader;
 import gregtech.common.GTWorldgenerator;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class Utils {
-
-    public static boolean isDevelopmentEnvironment() {
-        return (boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment");
-    }
-
-    public static boolean isBartworksInstalled() {
-        return Loader.isModLoaded("bartworks");
-    }
 
     public static boolean isNEIInstalled() {
         return Loader.isModLoaded("NotEnoughItems");
-    }
-
-    public static boolean isJourneyMapInstalled() {
-        return Loader.isModLoaded("journeymap");
-    }
-
-    public static boolean isXaerosWorldMapInstalled() {
-        return Loader.isModLoaded("XaeroWorldMap");
-    }
-
-    public static boolean isXaerosMinimapInstalled() {
-        return Loader.isModLoaded("XaeroMinimap");
     }
 
     public static boolean isNavigatorInstalled() {
@@ -66,7 +55,7 @@ public class Utils {
     }
 
     public static long chunkCoordsToKey(int chunkX, int chunkZ) {
-        return (((long) chunkX) << 32) | (chunkZ & 0xffffffffL);
+        return CoordinatePacker.pack(chunkX, 0, chunkZ);
     }
 
     public static int mapToCenterOreChunkCoord(final int chunkCoord) {
@@ -85,10 +74,6 @@ public class Utils {
 
     public static int mapToCornerUndergroundFluidChunkCoord(final int chunkCoord) {
         return chunkCoord & 0xFFFFFFF8;
-    }
-
-    public static double journeyMapScaleToLinear(final int jzoom) {
-        return Math.pow(2, jzoom);
     }
 
     public static boolean isSmallOreId(short metaData) {
@@ -117,37 +102,16 @@ public class Utils {
 
     public static void deleteDirectoryRecursively(final File targetDirectory) {
         try {
-            Files.walk(targetDirectory.toPath()).sorted(Comparator.reverseOrder()).map(Path::toFile)
-                    .forEach(File::delete);
+            try (Stream<Path> files = Files.walk(targetDirectory.toPath())) {
+                files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+            }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public static ByteBuffer readFileToBuffer(File file) {
-        if (file.exists() == false) {
-            return null;
-        }
-        try {
-            final FileInputStream inputStream = new FileInputStream(file);
-            final FileChannel inputChannel = inputStream.getChannel();
-            final ByteBuffer buffer = ByteBuffer.allocate((int) inputChannel.size());
-
-            inputChannel.read(buffer);
-            buffer.flip();
-
-            inputChannel.close();
-            inputStream.close();
-
-            return buffer;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
     public static Map<String, Short> readFileToMap(File file) {
-        if (file.exists() == false) {
+        if (!file.exists()) {
             return new HashMap<>();
         }
         try {
@@ -176,24 +140,52 @@ public class Utils {
         }
     }
 
-    public static void appendToFile(File file, ByteBuffer byteBuffer) {
-        try {
-            if (file.exists() == false) {
-                file.createNewFile();
-            }
-            final FileOutputStream outputStream = new FileOutputStream(file, true);
-            final FileChannel outputChannel = outputStream.getChannel();
-
-            outputChannel.write(byteBuffer);
-
-            outputChannel.close();
-            outputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static void writeNBT(File file, NBTTagCompound tag) {
+        try (FileOutputStream stream = new FileOutputStream(newFile(file))) {
+            CompressedStreamTools.writeCompressed(tag, stream);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
-    public static Map<Integer, ByteBuffer> getDIMFiles(File directory) {
+    public static File newFile(File file) {
+        if (!file.exists()) {
+            try {
+                File parent = file.getParentFile();
+                if (!parent.exists()) {
+                    parent.mkdirs();
+                }
+                file.createNewFile();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return file;
+    }
+
+    @Nullable
+    public static NBTTagCompound readNBT(@NotNull File file) {
+        if (!file.exists() || !file.isFile()) {
+            return null;
+        }
+
+        try (InputStream stream = new FileInputStream(file)) {
+            return CompressedStreamTools.readCompressed(stream);
+        } catch (Exception ex) {
+            try {
+                return CompressedStreamTools.read(file);
+            } catch (Exception ex1) {
+                return null;
+            }
+        }
+    }
+
+    public static Map<Integer, ByteBuffer> getLegacyDimFiles(File directory) {
+        if (!directory.exists()) {
+            return new HashMap<>();
+        }
+
         try {
             final List<Integer> dimensionIds = Files.walk(directory.toPath(), 1).filter(Files::isRegularFile)
                     .filter(path -> path.getFileName().toString().startsWith("DIM"))
@@ -211,6 +203,28 @@ public class Utils {
         } catch (IOException e) {
             e.printStackTrace();
             return new HashMap<>();
+        }
+    }
+
+    private static ByteBuffer readFileToBuffer(File file) {
+        if (!file.exists()) {
+            return null;
+        }
+        try {
+            final FileInputStream inputStream = new FileInputStream(file);
+            final FileChannel inputChannel = inputStream.getChannel();
+            final ByteBuffer buffer = ByteBuffer.allocate((int) inputChannel.size());
+
+            inputChannel.read(buffer);
+            buffer.flip();
+
+            inputChannel.close();
+            inputStream.close();
+
+            return buffer;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

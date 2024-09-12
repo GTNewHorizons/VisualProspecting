@@ -99,46 +99,42 @@ public class ClientCache extends WorldCache {
                 updatedUndergroundFluids++;
             }
         }
+
+        IChatComponent undergroundFluidsNotification = null;
         if (newUndergroundFluids > 0 && updatedUndergroundFluids > 0) {
-            final IChatComponent undergroundFluidsNotification = new ChatComponentTranslation(
+            undergroundFluidsNotification = new ChatComponentTranslation(
                     "visualprospecting.undergroundfluid.prospected.newandupdated",
                     newUndergroundFluids,
                     updatedUndergroundFluids);
-            undergroundFluidsNotification.getChatStyle().setItalic(true);
-            undergroundFluidsNotification.getChatStyle().setColor(EnumChatFormatting.GRAY);
-            Minecraft.getMinecraft().thePlayer.addChatMessage(undergroundFluidsNotification);
         } else {
             if (newUndergroundFluids > 0) {
-                final IChatComponent undergroundFluidsNotification = new ChatComponentTranslation(
+                undergroundFluidsNotification = new ChatComponentTranslation(
                         "visualprospecting.undergroundfluid.prospected.onlynew",
                         newUndergroundFluids);
-                undergroundFluidsNotification.getChatStyle().setItalic(true);
-                undergroundFluidsNotification.getChatStyle().setColor(EnumChatFormatting.GRAY);
-                Minecraft.getMinecraft().thePlayer.addChatMessage(undergroundFluidsNotification);
             }
             if (updatedUndergroundFluids > 0) {
-                final IChatComponent undergroundFluidsNotification = new ChatComponentTranslation(
+                undergroundFluidsNotification = new ChatComponentTranslation(
                         "visualprospecting.undergroundfluid.prospected.onlyupdated",
                         updatedUndergroundFluids);
-                undergroundFluidsNotification.getChatStyle().setItalic(true);
-                undergroundFluidsNotification.getChatStyle().setColor(EnumChatFormatting.GRAY);
-                Minecraft.getMinecraft().thePlayer.addChatMessage(undergroundFluidsNotification);
             }
         }
+
+        if (undergroundFluidsNotification == null) return;
+        undergroundFluidsNotification.getChatStyle().setItalic(true).setColor(EnumChatFormatting.GRAY);
+        Minecraft.getMinecraft().thePlayer.addChatMessage(undergroundFluidsNotification);
     }
 
     public void onOreInteracted(World world, int blockX, int blockY, int blockZ, EntityPlayer entityPlayer) {
         if (world.isRemote && Config.enableProspecting && Minecraft.getMinecraft().thePlayer == entityPlayer) {
             final TileEntity tTileEntity = world.getTileEntity(blockX, blockY, blockZ);
-            if (tTileEntity instanceof TileEntityOres) {
-                final short oreMetaData = ((TileEntityOres) tTileEntity).mMetaData;
-                if (Utils.isSmallOreId(oreMetaData) == false && oreMetaData != 0) {
+            if (tTileEntity instanceof TileEntityOres ore) {
+                final short oreMetaData = ore.mMetaData;
+                if (!Utils.isSmallOreId(oreMetaData) && oreMetaData != 0) {
                     final int chunkX = Utils.coordBlockToChunk(blockX);
                     final int chunkZ = Utils.coordBlockToChunk(blockZ);
                     final OreVeinPosition oreVeinPosition = getOreVein(entityPlayer.dimension, chunkX, chunkZ);
                     final short materialId = Utils.oreIdToMaterialId(oreMetaData);
-                    if (oreVeinPosition.veinType.containsOre(materialId) == false
-                            && ProspectingRequest.canSendRequest()) {
+                    if (!oreVeinPosition.veinType.containsOre(materialId) && ProspectingRequest.canSendRequest()) {
                         VP.network.sendToServer(
                                 new ProspectingRequest(entityPlayer.dimension, blockX, blockY, blockZ, materialId));
                     }
@@ -148,10 +144,9 @@ public class ClientCache extends WorldCache {
     }
 
     public void resetPlayerProgression() {
-        Utils.deleteDirectoryRecursively(oreVeinCacheDirectory);
-        Utils.deleteDirectoryRecursively(undergroundFluidCacheDirectory);
-        oreVeinCacheDirectory.mkdirs();
-        undergroundFluidCacheDirectory.mkdirs();
+        Utils.deleteDirectoryRecursively(worldCache);
+        // noinspection ResultOfMethodCallIgnored
+        worldCache.mkdirs();
         reset();
     }
 

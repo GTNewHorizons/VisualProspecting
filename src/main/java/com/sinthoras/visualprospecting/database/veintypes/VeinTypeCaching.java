@@ -5,11 +5,9 @@ import static com.sinthoras.visualprospecting.Utils.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
 import net.minecraft.client.resources.I18n;
@@ -27,14 +25,18 @@ import codechicken.nei.SearchField;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
 import gregtech.common.WorldgenGTOreLayer;
+import it.unimi.dsi.fastutil.objects.Object2ShortMap;
+import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
+import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
+import it.unimi.dsi.fastutil.shorts.ShortSet;
 
 public class VeinTypeCaching implements Runnable {
 
-    private static BiMap<Short, VeinType> veinTypeLookupTableForIds = HashBiMap.create();
-    private static Map<String, VeinType> veinTypeLookupTableForNames = new HashMap<>();
-    private static Map<String, Short> veinTypeStorageInfo;
+    private static final BiMap<Short, VeinType> veinTypeLookupTableForIds = HashBiMap.create();
+    private static final Map<String, VeinType> veinTypeLookupTableForNames = new HashMap<>();
+    private static final Object2ShortMap<String> veinTypeStorageInfo = new Object2ShortOpenHashMap<>();
     public static List<VeinType> veinTypes;
-    public static Set<Short> largeVeinOres;
+    public static ShortSet largeVeinOres;
     private static int longesOreName = 0;
 
     // BartWorks initializes veins in FML preInit
@@ -44,7 +46,7 @@ public class VeinTypeCaching implements Runnable {
     // Therefore, this method must be called after GregTech postInit
     public void run() {
         veinTypes = new ArrayList<>();
-        largeVeinOres = new HashSet<>();
+        largeVeinOres = new ShortOpenHashSet();
         veinTypes.add(VeinType.NO_VEIN);
 
         for (WorldgenGTOreLayer vein : WorldgenGTOreLayer.sList) {
@@ -68,47 +70,35 @@ public class VeinTypeCaching implements Runnable {
                             Math.min(255, vein.mMaxY - 6)));
         }
 
-        if (isBartworksInstalled()) {
-            for (BWOreLayer vein : BWOreLayer.sList) {
-                final IOreMaterialProvider oreMaterialProvider = (vein.bwOres & 0b1000) == 0
-                        ? new GregTechOreMaterialProvider(getGregTechMaterial((short) vein.mPrimaryMeta))
-                        : new BartworksOreMaterialProvider(Werkstoff.werkstoffHashMap.get((short) vein.mPrimaryMeta));
-
-                veinTypes.add(
-                        new VeinType(
-                                vein.mWorldGenName,
-                                oreMaterialProvider,
-                                vein.mSize,
-                                (short) vein.mPrimaryMeta,
-                                (short) vein.mSecondaryMeta,
-                                (short) vein.mBetweenMeta,
-                                (short) vein.mSporadicMeta,
-                                Math.max(0, vein.mMinY),
-                                Math.min(255, vein.mMaxY)));
-            }
+        for (BWOreLayer vein : BWOreLayer.sList) {
+            final IOreMaterialProvider oreMaterialProvider = (vein.bwOres & 0b1000) == 0
+                    ? new GregTechOreMaterialProvider(getGregTechMaterial((short) vein.mPrimaryMeta))
+                    : new BartworksOreMaterialProvider(Werkstoff.werkstoffHashMap.get((short) vein.mPrimaryMeta));
+            veinTypes.add(
+                    new VeinType(
+                            vein.mWorldGenName,
+                            oreMaterialProvider,
+                            vein.mSize,
+                            (short) vein.mPrimaryMeta,
+                            (short) vein.mSecondaryMeta,
+                            (short) vein.mBetweenMeta,
+                            (short) vein.mSporadicMeta,
+                            Math.max(0, vein.mMinY),
+                            Math.min(255, vein.mMaxY)));
         }
 
         // Assign veinTypeIds for efficient storage
         loadVeinTypeStorageInfo();
 
-        final Optional<Short> maxVeinTypeIdOptional = veinTypeStorageInfo.values().stream().max(Short::compare);
-        short maxVeinTypeId = maxVeinTypeIdOptional.isPresent() ? maxVeinTypeIdOptional.get() : 0;
+        final OptionalInt maxVeinTypeIdOptional = veinTypeStorageInfo.values().intStream().max();
+        short maxVeinTypeId = (short) (maxVeinTypeIdOptional.orElse(0));
 
         for (VeinType veinType : veinTypes) {
-            if (veinTypeStorageInfo.containsKey(veinType.name)) {
-                veinType.veinId = veinTypeStorageInfo.get(veinType.name);
-            } else {
-                maxVeinTypeId++;
-                veinType.veinId = maxVeinTypeId;
-                veinTypeStorageInfo.put(veinType.name, veinType.veinId);
-            }
-            // Build LUT (id <-> object)
+            veinType.veinId = veinTypeStorageInfo.getOrDefault(veinType.name, ++maxVeinTypeId);
+            veinTypeStorageInfo.putIfAbsent(veinType.name, veinType.veinId);
             veinTypeLookupTableForIds.put(veinType.veinId, veinType);
-
-            // Build LUT (name -> object)
             veinTypeLookupTableForNames.put(veinType.name, veinType);
 
-            // Build large vein LUT
             if (veinType.canOverlapIntoNeighborOreChunk()) {
                 largeVeinOres.add(veinType.primaryOreMeta);
                 largeVeinOres.add(veinType.secondaryOreMeta);
@@ -119,9 +109,7 @@ public class VeinTypeCaching implements Runnable {
         saveVeinTypeStorageInfo();
 
         for (VeinType veinType : veinTypes) {
-            if (veinType.name.length() > longesOreName) {
-                longesOreName = veinType.name.length();
-            }
+            longesOreName = Math.max(longesOreName, veinType.name.length());
         }
     }
 
@@ -152,12 +140,13 @@ public class VeinTypeCaching implements Runnable {
 
     private static File getVeinTypeStorageInfoFile() {
         final File directory = Utils.getSubDirectory(Tags.VISUALPROSPECTING_DIR);
+        // noinspection ResultOfMethodCallIgnored
         directory.mkdirs();
         return new File(directory, "veintypesLUT");
     }
 
     private static void loadVeinTypeStorageInfo() {
-        veinTypeStorageInfo = Utils.readFileToMap(getVeinTypeStorageInfoFile());
+        veinTypeStorageInfo.putAll(Utils.readFileToMap(getVeinTypeStorageInfoFile()));
     }
 
     private static void saveVeinTypeStorageInfo() {
@@ -171,18 +160,17 @@ public class VeinTypeCaching implements Runnable {
             final Pattern filterPattern = SearchField.getPattern(searchString);
 
             for (VeinType veinType : veinTypes) {
-                if (veinType != VeinType.NO_VEIN) {
-                    if (isSearchActive && !searchString.equals("")) {
-                        List<String> searchableStrings = veinType.getOreMaterialNames();
-                        searchableStrings.add(I18n.format(veinType.name));
-                        final boolean match = searchableStrings.stream()
-                                .map(EnumChatFormatting::getTextWithoutFormattingCodes).map(String::toLowerCase)
-                                .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
+                if (veinType == VeinType.NO_VEIN) continue;
+                if (isSearchActive && !searchString.isEmpty()) {
+                    List<String> searchableStrings = veinType.getOreMaterialNames();
+                    searchableStrings.add(I18n.format(veinType.name));
+                    final boolean match = searchableStrings.stream()
+                            .map(EnumChatFormatting::getTextWithoutFormattingCodes).map(String::toLowerCase)
+                            .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
 
-                        veinType.setNEISearchHeighlight(match);
-                    } else {
-                        veinType.setNEISearchHeighlight(true);
-                    }
+                    veinType.setNEISearchHeighlight(match);
+                } else {
+                    veinType.setNEISearchHeighlight(true);
                 }
             }
         }

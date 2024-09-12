@@ -82,8 +82,8 @@ public class ProspectionSharing implements IMessage {
 
     public static class ServerHandler implements IMessageHandler<ProspectionSharing, IMessage> {
 
-        private static Map<EntityPlayerMP, List<OreVeinPosition>> oreVeins = new HashMap<>();
-        private static Map<EntityPlayerMP, List<UndergroundFluidPosition>> undergroundFluids = new HashMap<>();
+        private static final Map<EntityPlayerMP, List<OreVeinPosition>> oreVeins = new HashMap<>();
+        private static final Map<EntityPlayerMP, List<UndergroundFluidPosition>> undergroundFluids = new HashMap<>();
 
         @Override
         public IMessage onMessage(ProspectionSharing message, MessageContext ctx) {
@@ -98,7 +98,7 @@ public class ProspectionSharing implements IMessage {
                 oreVeins.put(player, new ArrayList<>());
                 undergroundFluids.put(player, new ArrayList<>());
             }
-            if (oreVeins.containsKey(player) == false || undergroundFluids.containsKey(player) == false) {
+            if (!oreVeins.containsKey(player) || !undergroundFluids.containsKey(player)) {
                 return null;
             }
             oreVeins.get(player).addAll(message.oreVeins);

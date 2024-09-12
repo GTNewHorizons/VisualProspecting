@@ -1,9 +1,7 @@
 package com.sinthoras.visualprospecting.database.veintypes;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import net.minecraft.util.EnumChatFormatting;
@@ -11,6 +9,8 @@ import net.minecraft.util.EnumChatFormatting;
 import com.sinthoras.visualprospecting.Tags;
 
 import gregtech.api.GregTechAPI;
+import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
+import it.unimi.dsi.fastutil.shorts.ShortSet;
 
 public class VeinType {
 
@@ -26,7 +26,7 @@ public class VeinType {
     public final short sporadicOreMeta;
     public final int minBlockY;
     public final int maxBlockY;
-    public final Set<Short> oresAsSet;
+    public final ShortSet oresAsSet;
     private boolean isHighlighted = true;
 
     // Available after VisualProspecting post GT initialization
@@ -52,18 +52,18 @@ public class VeinType {
         this.sporadicOreMeta = sporadicOreMeta;
         this.minBlockY = minBlockY;
         this.maxBlockY = maxBlockY;
-        oresAsSet = new HashSet<>();
+        oresAsSet = new ShortOpenHashSet();
         oresAsSet.add(primaryOreMeta);
         oresAsSet.add(secondaryOreMeta);
         oresAsSet.add(inBetweenOreMeta);
         oresAsSet.add(sporadicOreMeta);
     }
 
-    public boolean matches(Set<Short> foundOres) {
+    public boolean matches(ShortSet foundOres) {
         return foundOres.containsAll(oresAsSet);
     }
 
-    public boolean matchesWithSpecificPrimaryOrSecondary(Set<Short> foundOres, short specificMeta) {
+    public boolean matchesWithSpecificPrimaryOrSecondary(ShortSet foundOres, short specificMeta) {
         return (primaryOreMeta == specificMeta || secondaryOreMeta == specificMeta) && foundOres.containsAll(oresAsSet);
     }
 
@@ -83,12 +83,13 @@ public class VeinType {
     }
 
     public List<String> getOreMaterialNames() {
-        return oresAsSet.stream().map(metaData -> GregTechAPI.sGeneratedMaterials[metaData]).filter(Objects::nonNull)
-                .map(material -> EnumChatFormatting.GRAY + material.mLocalizedName).collect(Collectors.toList());
+        return oresAsSet.intStream().mapToObj(metaData -> GregTechAPI.sGeneratedMaterials[metaData])
+                .filter(Objects::nonNull).map(material -> EnumChatFormatting.GRAY + material.mLocalizedName)
+                .collect(Collectors.toList());
     }
 
-    public Set<Short> getOresAtLayer(int layerBlockY) {
-        final Set<Short> result = new HashSet<>();
+    public ShortSet getOresAtLayer(int layerBlockY) {
+        final ShortSet result = new ShortOpenHashSet();
         switch (layerBlockY) {
             case 0:
             case 1:

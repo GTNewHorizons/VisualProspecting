@@ -24,7 +24,7 @@ public class SnapshotUploadTask implements ITask {
     @Override
     public boolean process() {
         final long timestamp = System.currentTimeMillis();
-        if (timestamp - lastUpload > 1000 / Config.uploadPacketsPerSecond && listsEmpty() == false) {
+        if (timestamp - lastUpload > 1000 / Config.uploadPacketsPerSecond && !listsEmpty()) {
             lastUpload = timestamp;
             final ProspectionSharing packet = new ProspectionSharing();
 
