@@ -35,7 +35,7 @@ public class ProspectorsLog extends Item {
 
     @Override
     public ItemStack onItemRightClick(ItemStack item, World world, EntityPlayer player) {
-        if (isFilledLog(item) == false) {
+        if (!isFilledLog(item)) {
             final NBTTagCompound compound = new NBTTagCompound();
             compound.setString(Tags.PROSPECTORSLOG_AUTHOR, player.getDisplayName());
             compound.setString(Tags.PROSPECTORSLOG_AUTHOR_ID, player.getPersistentID().toString());
@@ -59,10 +59,10 @@ public class ProspectorsLog extends Item {
                     player.addChatMessage(notification);
                 }
             }
-        } else if (world.isRemote == false) {
+        } else if (!world.isRemote) {
             final NBTTagCompound compound = item.getTagCompound();
             final String authorUuid = compound.getString(Tags.PROSPECTORSLOG_AUTHOR_ID);
-            if (authorUuid.equals(player.getPersistentID().toString()) == false) {
+            if (!authorUuid.equals(player.getPersistentID().toString())) {
                 final int random = VP.randomGeneration
                         .nextInt(TransferCache.instance.isClientDataAvailable(authorUuid) ? 1000 : 5);
                 if (random < 5) {

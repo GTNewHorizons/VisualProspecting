@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.sinthoras.visualprospecting.ServerTranslations;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
@@ -78,7 +77,7 @@ public abstract class GT_MetaTileEntity_ScannerMixin extends MTEBasicMachine {
                         if (veinId < foundOreVeins.size()) {
                             final OreVeinPosition oreVein = foundOreVeins.get(veinId);
                             pageString.append(oreVein.getBlockX()).append(",").append(oreVein.getBlockZ()).append(" - ")
-                                    .append(ServerTranslations.getEnglishLocalization(oreVein.veinType)).append("\n");
+                                    .append(oreVein.veinType.getPrimaryOreName()).append("\n");
                         }
                     }
                     String pageCounter = numberOfPages > 1 ? String.format(" %d/%d", pageNumber + 1, numberOfPages)

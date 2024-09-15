@@ -1,16 +1,13 @@
 package com.sinthoras.visualprospecting.database.veintypes;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import net.minecraft.util.EnumChatFormatting;
 
 import com.sinthoras.visualprospecting.Tags;
 
-import gregtech.api.GregTechAPI;
+import it.unimi.dsi.fastutil.shorts.ShortCollection;
+import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
+import it.unimi.dsi.fastutil.shorts.ShortSet;
 
 public class VeinType {
 
@@ -26,8 +23,10 @@ public class VeinType {
     public final short sporadicOreMeta;
     public final int minBlockY;
     public final int maxBlockY;
-    public final Set<Short> oresAsSet;
+    public final ShortSet oresAsSet = new ShortOpenHashSet();
+    private final List<String> containedOres = new ArrayList<>();
     private boolean isHighlighted = true;
+    private String primaryOreName = "";
 
     // Available after VisualProspecting post GT initialization
     public static final VeinType NO_VEIN = new VeinType(
@@ -46,24 +45,23 @@ public class VeinType {
         this.name = name;
         this.oreMaterialProvider = oreMaterialProvider;
         this.blockSize = blockSize;
-        this.primaryOreMeta = primaryOreMeta;
-        this.secondaryOreMeta = secondaryOreMeta;
-        this.inBetweenOreMeta = inBetweenOreMeta;
-        this.sporadicOreMeta = sporadicOreMeta;
         this.minBlockY = minBlockY;
         this.maxBlockY = maxBlockY;
-        oresAsSet = new HashSet<>();
-        oresAsSet.add(primaryOreMeta);
-        oresAsSet.add(secondaryOreMeta);
-        oresAsSet.add(inBetweenOreMeta);
-        oresAsSet.add(sporadicOreMeta);
+        oresAsSet.add(this.primaryOreMeta = primaryOreMeta);
+        oresAsSet.add(this.secondaryOreMeta = secondaryOreMeta);
+        oresAsSet.add(this.inBetweenOreMeta = inBetweenOreMeta);
+        oresAsSet.add(this.sporadicOreMeta = sporadicOreMeta);
+        if (oreMaterialProvider != null) {
+            containedOres.addAll(oreMaterialProvider.getContainedOres(oresAsSet));
+            primaryOreName = oreMaterialProvider.getLocalizedName();
+        }
     }
 
-    public boolean matches(Set<Short> foundOres) {
+    public boolean matches(ShortCollection foundOres) {
         return foundOres.containsAll(oresAsSet);
     }
 
-    public boolean matchesWithSpecificPrimaryOrSecondary(Set<Short> foundOres, short specificMeta) {
+    public boolean matchesWithSpecificPrimaryOrSecondary(ShortCollection foundOres, short specificMeta) {
         return (primaryOreMeta == specificMeta || secondaryOreMeta == specificMeta) && foundOres.containsAll(oresAsSet);
     }
 
@@ -83,12 +81,15 @@ public class VeinType {
     }
 
     public List<String> getOreMaterialNames() {
-        return oresAsSet.stream().map(metaData -> GregTechAPI.sGeneratedMaterials[metaData]).filter(Objects::nonNull)
-                .map(material -> EnumChatFormatting.GRAY + material.mLocalizedName).collect(Collectors.toList());
+        return containedOres;
     }
 
-    public Set<Short> getOresAtLayer(int layerBlockY) {
-        final Set<Short> result = new HashSet<>();
+    public String getPrimaryOreName() {
+        return primaryOreName;
+    }
+
+    public ShortSet getOresAtLayer(int layerBlockY) {
+        final ShortSet result = new ShortOpenHashSet();
         switch (layerBlockY) {
             case 0:
             case 1:

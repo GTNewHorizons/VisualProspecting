@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChunkCoordinates;
 
 import com.sinthoras.visualprospecting.Tags;
@@ -17,25 +18,50 @@ public abstract class WorldCache {
 
     protected final Map<Integer, DimensionCache> dimensions = new HashMap<>();
     private boolean needsSaving = false;
-    protected File oreVeinCacheDirectory;
-    protected File undergroundFluidCacheDirectory;
+    protected File worldCache;
     private boolean isLoaded = false;
 
     protected abstract File getStorageDirectory();
 
     public boolean loadVeinCache(String worldId) {
-        if (isLoaded) {
-            return true;
-        }
+        if (isLoaded) return true;
         isLoaded = true;
-        final File worldCacheDirectory = new File(getStorageDirectory(), worldId);
-        oreVeinCacheDirectory = new File(worldCacheDirectory, Tags.OREVEIN_DIR);
-        undergroundFluidCacheDirectory = new File(worldCacheDirectory, Tags.UNDERGROUNDFLUID_DIR);
-        oreVeinCacheDirectory.mkdirs();
-        undergroundFluidCacheDirectory.mkdirs();
-        final Map<Integer, ByteBuffer> oreVeinDimensionBuffers = Utils.getDIMFiles(oreVeinCacheDirectory);
+        worldCache = new File(getStorageDirectory(), worldId);
+
+        if (loadLegacyVeinCache(worldCache)) return true;
+
+        final File[] dimensionFiles = worldCache.listFiles();
+        if (dimensionFiles == null) return false;
+
+        for (File dimensionFile : dimensionFiles) {
+            final String fileName = dimensionFile.getName();
+            if (!dimensionFile.isFile() || !fileName.endsWith(".dat")) {
+                continue;
+            }
+
+            final NBTTagCompound dimCompound = Utils.readNBT(dimensionFile);
+            if (dimCompound == null) continue;
+
+            final int dimensionId = dimCompound.getInteger("dim");
+            final DimensionCache dimension = new DimensionCache(dimensionId);
+            dimension.loadFromNbt(dimCompound);
+            dimensions.put(dimensionId, dimension);
+        }
+
+        return true;
+    }
+
+    private boolean loadLegacyVeinCache(File worldCacheDirectory) {
+        File oreVeinCacheDirectory = new File(worldCacheDirectory, Tags.OREVEIN_DIR);
+        File undergroundFluidCacheDirectory = new File(worldCacheDirectory, Tags.UNDERGROUNDFLUID_DIR);
+
+        if (!oreVeinCacheDirectory.exists() && !undergroundFluidCacheDirectory.exists()) {
+            return false;
+        }
+
+        final Map<Integer, ByteBuffer> oreVeinDimensionBuffers = Utils.getLegacyDimFiles(oreVeinCacheDirectory);
         final Map<Integer, ByteBuffer> undergroundFluidDimensionBuffers = Utils
-                .getDIMFiles(undergroundFluidCacheDirectory);
+                .getLegacyDimFiles(undergroundFluidCacheDirectory);
         final Set<Integer> dimensionsIds = new HashSet<>();
         dimensionsIds.addAll(oreVeinDimensionBuffers.keySet());
         dimensionsIds.addAll(undergroundFluidDimensionBuffers.keySet());
@@ -49,29 +75,28 @@ public abstract class WorldCache {
             if (dimension == null) {
                 dimension = new DimensionCache(dimensionId);
             }
-            dimension.loadCache(
+            dimension.loadLegacy(
                     oreVeinDimensionBuffers.get(dimensionId),
                     undergroundFluidDimensionBuffers.get(dimensionId));
+            dimension.markDirty();
             dimensions.put(dimensionId, dimension);
         }
+
+        Utils.deleteDirectoryRecursively(oreVeinCacheDirectory);
+        Utils.deleteDirectoryRecursively(undergroundFluidCacheDirectory);
+        needsSaving = true;
+        saveVeinCache();
         return true;
     }
 
     public void saveVeinCache() {
         if (needsSaving) {
             for (DimensionCache dimension : dimensions.values()) {
-                final ByteBuffer oreVeinBuffer = dimension.saveOreChunks();
-                if (oreVeinBuffer != null) {
-                    Utils.appendToFile(
-                            new File(oreVeinCacheDirectory.toPath() + "/DIM" + dimension.dimensionId),
-                            oreVeinBuffer);
+                if (!dimension.isDirty()) {
+                    continue;
                 }
-                final ByteBuffer undergroundFluidBuffer = dimension.saveUndergroundFluids();
-                if (undergroundFluidBuffer != null) {
-                    Utils.appendToFile(
-                            new File(undergroundFluidCacheDirectory.toPath() + "/DIM" + dimension.dimensionId),
-                            undergroundFluidBuffer);
-                }
+                File dimFile = new File(worldCache.toPath() + "/DIM" + dimension.dimensionId + ".dat");
+                Utils.writeNBT(dimFile, dimension.saveToNbt());
             }
             needsSaving = false;
         }
