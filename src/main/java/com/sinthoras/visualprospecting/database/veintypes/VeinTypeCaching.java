@@ -3,7 +3,6 @@ package com.sinthoras.visualprospecting.database.veintypes;
 import static com.sinthoras.visualprospecting.Utils.*;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +26,19 @@ import gregtech.api.enums.Materials;
 import gregtech.common.WorldgenGTOreLayer;
 import it.unimi.dsi.fastutil.objects.Object2ShortMap;
 import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
-import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
-import it.unimi.dsi.fastutil.shorts.ShortSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 
 public class VeinTypeCaching implements Runnable {
 
     private static final BiMap<Short, VeinType> veinTypeLookupTableForIds = HashBiMap.create();
     private static final Map<String, VeinType> veinTypeLookupTableForNames = new HashMap<>();
     private static final Object2ShortMap<String> veinTypeStorageInfo = new Object2ShortOpenHashMap<>();
-    public static List<VeinType> veinTypes;
-    public static ShortSet largeVeinOres;
+    private static final Short2ObjectMap<ObjectSet<VeinType>> primaryMetaToVeinType = new Short2ObjectOpenHashMap<>();
+    public static ObjectSet<VeinType> veinTypes;
     private static int longesOreName = 0;
 
     // BartWorks initializes veins in FML preInit
@@ -45,8 +47,7 @@ public class VeinTypeCaching implements Runnable {
     // GregTech initializes veins in a thread in FML postInit
     // Therefore, this method must be called after GregTech postInit
     public void run() {
-        veinTypes = new ArrayList<>();
-        largeVeinOres = new ShortOpenHashSet();
+        veinTypes = new ObjectOpenHashSet<>();
         veinTypes.add(VeinType.NO_VEIN);
 
         for (WorldgenGTOreLayer vein : WorldgenGTOreLayer.sList) {
@@ -54,7 +55,6 @@ public class VeinTypeCaching implements Runnable {
                 break;
             }
             final Materials material = getGregTechMaterial(vein.mPrimaryMeta);
-
             veinTypes.add(
                     new VeinType(
                             vein.mWorldGenName,
@@ -98,13 +98,8 @@ public class VeinTypeCaching implements Runnable {
             veinTypeStorageInfo.putIfAbsent(veinType.name, veinType.veinId);
             veinTypeLookupTableForIds.put(veinType.veinId, veinType);
             veinTypeLookupTableForNames.put(veinType.name, veinType);
-
-            if (veinType.canOverlapIntoNeighborOreChunk()) {
-                largeVeinOres.add(veinType.primaryOreMeta);
-                largeVeinOres.add(veinType.secondaryOreMeta);
-                largeVeinOres.add(veinType.inBetweenOreMeta);
-                largeVeinOres.add(veinType.sporadicOreMeta);
-            }
+            primaryMetaToVeinType.computeIfAbsent(veinType.primaryOreMeta, k -> new ObjectOpenHashSet<>())
+                    .add(veinType);
         }
         saveVeinTypeStorageInfo();
 
@@ -143,6 +138,11 @@ public class VeinTypeCaching implements Runnable {
         // noinspection ResultOfMethodCallIgnored
         directory.mkdirs();
         return new File(directory, "veintypesLUT");
+    }
+
+    public static ObjectSet<VeinType> getVeinTypesForPrimaryMeta(short primaryMeta) {
+
+        return primaryMetaToVeinType.getOrDefault(primaryMeta, ObjectSets.emptySet());
     }
 
     private static void loadVeinTypeStorageInfo() {

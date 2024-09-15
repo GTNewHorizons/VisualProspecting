@@ -30,6 +30,7 @@ public class DimensionAnalysis {
     }
 
     public void processMinecraftWorld(Collection<File> regionFiles) {
+        if (regionFiles.isEmpty()) return;
         final Map<Long, Integer> veinBlockY = new ConcurrentHashMap<>();
         final long dimensionSizeMB = regionFiles.stream().mapToLong(File::length).sum() >> 20;
 

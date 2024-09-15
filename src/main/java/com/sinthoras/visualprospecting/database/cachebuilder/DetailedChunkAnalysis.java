@@ -166,14 +166,14 @@ public class DetailedChunkAnalysis {
         }
 
         if (matchedVeins.size() == 1) {
-            return matchedVeins.stream().findAny().get();
+            return matchedVeins.iterator().next();
         } else if (matchedVeins.size() >= 2) {
             matchedVeins.removeIf(
                     veinType -> IntStream.range(veinType.minBlockY, veinType.maxBlockY)
                             .noneMatch(blockY -> isOreVeinGeneratedAtHeight(veinType, blockY)));
 
             if (matchedVeins.size() == 1) {
-                return matchedVeins.stream().findAny().get();
+                return matchedVeins.iterator().next();
             }
         }
         return VeinType.NO_VEIN;

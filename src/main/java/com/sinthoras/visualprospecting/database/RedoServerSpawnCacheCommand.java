@@ -77,9 +77,7 @@ public class RedoServerSpawnCacheCommand extends CommandBase {
     public boolean canCommandSenderUseCommand(ICommandSender sender) {
 
         // Only SP owner, or OP are allowed
-        if (sender instanceof EntityPlayerMP) {
-
-            EntityPlayerMP player = (EntityPlayerMP) sender;
+        if (sender instanceof EntityPlayerMP player) {
             if (Objects.equals(player.mcServer.getServerOwner(), sender.getCommandSenderName())) {
                 return true;
             }
