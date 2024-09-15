@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.sinthoras.visualprospecting.ServerTranslations;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
@@ -104,13 +103,12 @@ public abstract class GT_MetaTileEntity_AdvSeismicProspectorMixin extends MTEBas
                             final int offsetUndergroundFluidZ = (Utils.mapToCornerUndergroundFluidChunkCoord(
                                     undergroundFluidPosition.chunkZ) - minUndergroundFluidZ) >> 3;
                             final int undergroundFluidBookId = offsetUndergroundFluidX + offsetUndergroundFluidZ * 3;
-                            fluidStrings[undergroundFluidBookId] = "" + undergroundFluidBookId
-                                    + ": "
+                            fluidStrings[undergroundFluidBookId] = undergroundFluidBookId + ": "
                                     + undergroundFluidPosition.getMinProduction()
                                     + "-"
                                     + undergroundFluidPosition.getMaxProduction()
                                     + " "
-                                    + ServerTranslations.getEnglishLocalization(undergroundFluidPosition.fluid);
+                                    + undergroundFluidPosition.fluid.getLocalizedName();
                         }
                         compound.setString(Tags.PROSPECTION_FLUIDS, String.join("|", fluidStrings));
 

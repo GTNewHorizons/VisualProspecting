@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import net.minecraft.world.ChunkCoordIntPair;
 
-import com.sinthoras.visualprospecting.ServerTranslations;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
@@ -23,7 +22,7 @@ public class VeinDatabase implements IDatabase {
             // capture which language the original cover attaching player is using, maybe. (I think this requires
             // reflection, of course. Why should things be easy?) Even then, it wouldn't help in a multiplayer scenario
             // with users having different locales.
-            return Optional.of(ServerTranslations.getEnglishLocalization(oreVein.veinType));
+            return Optional.of(oreVein.veinType.getPrimaryOreName());
         } else {
             return Optional.empty();
         }

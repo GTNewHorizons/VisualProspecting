@@ -31,7 +31,7 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
 
     public OreVeinLocation(OreVeinPosition oreVeinPosition) {
         this.oreVeinPosition = oreVeinPosition;
-        name = EnumChatFormatting.WHITE + I18n.format(oreVeinPosition.veinType.name);
+        name = EnumChatFormatting.WHITE + oreVeinPosition.veinType.getPrimaryOreName();
         materialNames = oreVeinPosition.veinType.getOreMaterialNames().stream()
                 .map(materialName -> EnumChatFormatting.GRAY + materialName).collect(Collectors.toList());
     }
