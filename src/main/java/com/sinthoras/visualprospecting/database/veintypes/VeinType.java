@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.sinthoras.visualprospecting.Tags;
 
+import gregtech.common.OreMixBuilder;
 import it.unimi.dsi.fastutil.shorts.ShortCollection;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
@@ -27,6 +28,7 @@ public class VeinType {
     private final List<String> containedOres = new ArrayList<>();
     private boolean isHighlighted = true;
     private String primaryOreName = "";
+    private final List<String> allowedDims = new ArrayList<>();
 
     // Available after VisualProspecting post GT initialization
     public static final VeinType NO_VEIN = new VeinType(
@@ -38,10 +40,12 @@ public class VeinType {
             (short) -1,
             (short) -1,
             0,
-            0);
+            0,
+            "");
 
     public VeinType(String name, IOreMaterialProvider oreMaterialProvider, int blockSize, short primaryOreMeta,
-            short secondaryOreMeta, short inBetweenOreMeta, short sporadicOreMeta, int minBlockY, int maxBlockY) {
+            short secondaryOreMeta, short inBetweenOreMeta, short sporadicOreMeta, int minBlockY, int maxBlockY,
+            String dimName) {
         this.name = name;
         this.oreMaterialProvider = oreMaterialProvider;
         this.blockSize = blockSize;
@@ -51,18 +55,39 @@ public class VeinType {
         oresAsSet.add(this.secondaryOreMeta = secondaryOreMeta);
         oresAsSet.add(this.inBetweenOreMeta = inBetweenOreMeta);
         oresAsSet.add(this.sporadicOreMeta = sporadicOreMeta);
+        allowedDims.add(dimName);
         if (oreMaterialProvider != null) {
             containedOres.addAll(oreMaterialProvider.getContainedOres(oresAsSet));
             primaryOreName = oreMaterialProvider.getLocalizedName();
         }
     }
 
-    public boolean matches(ShortCollection foundOres) {
-        return foundOres.containsAll(oresAsSet);
+    public VeinType(OreMixBuilder oreMix) {
+        name = oreMix.oreMixName;
+        oreMaterialProvider = new GregTechOreMaterialProvider(oreMix.primary);
+        blockSize = oreMix.size;
+        oresAsSet.add(primaryOreMeta = (short) oreMix.primary.mMetaItemSubID);
+        oresAsSet.add(secondaryOreMeta = (short) oreMix.secondary.mMetaItemSubID);
+        oresAsSet.add(inBetweenOreMeta = (short) oreMix.between.mMetaItemSubID);
+        oresAsSet.add(sporadicOreMeta = (short) oreMix.sporadic.mMetaItemSubID);
+        minBlockY = Math.max(0, oreMix.minY - 6);
+        maxBlockY = Math.min(255, oreMix.maxY - 6);
+        containedOres.addAll(oreMaterialProvider.getContainedOres(oresAsSet));
+        primaryOreName = oreMaterialProvider.getLocalizedName();
+        allowedDims.addAll(oreMix.dimsEnabled.keySet());
     }
 
-    public boolean matchesWithSpecificPrimaryOrSecondary(ShortCollection foundOres, short specificMeta) {
-        return (primaryOreMeta == specificMeta || secondaryOreMeta == specificMeta) && foundOres.containsAll(oresAsSet);
+    public boolean containsAllFoundOres(ShortCollection foundOres, String dimName, short specificMeta) {
+        return (primaryOreMeta == specificMeta || secondaryOreMeta == specificMeta)
+                && (dimName.isEmpty() || allowedDims.contains(dimName))
+                && oresAsSet.containsAll(foundOres);
+    }
+
+    public boolean matchesWithSpecificPrimaryOrSecondary(ShortCollection foundOres, String dimName,
+            short specificMeta) {
+        return (primaryOreMeta == specificMeta || secondaryOreMeta == specificMeta)
+                && (dimName.isEmpty() || allowedDims.contains(dimName))
+                && foundOres.containsAll(oresAsSet);
     }
 
     public boolean canOverlapIntoNeighborOreChunk() {

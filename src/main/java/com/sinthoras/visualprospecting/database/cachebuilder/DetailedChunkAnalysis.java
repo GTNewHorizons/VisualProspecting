@@ -28,21 +28,23 @@ public class DetailedChunkAnalysis {
     public final int chunkZ;
     // For each height we count how often a ore (short) has occured
     private final Short2IntMap[] oresPerY = new Short2IntOpenHashMap[VP.minecraftWorldHeight];
+    private final String dimName;
 
-    public DetailedChunkAnalysis(int dimensionId, int chunkX, int chunkZ) {
+    public DetailedChunkAnalysis(int dimensionId, String dimName, int chunkX, int chunkZ) {
         this.dimensionId = dimensionId;
         this.chunkX = chunkX;
         this.chunkZ = chunkZ;
+        this.dimName = dimName;
     }
 
     public void processMinecraftChunk(final NBTTagList tileEntities) {
         if (tileEntities == null || tileEntities.tagCount() == 0) return;
         for (int i = 0; i < tileEntities.tagCount(); i++) {
             final NBTTagCompound tile = tileEntities.getCompoundTagAt(i);
-            if (tile == null || !tile.hasKey("id")) continue;
-            final String tagId = tile.getString("id");
+            if (tile == null || !tile.hasKey("m")) continue;
 
-            if (!tagId.equals("GT_TileEntity_Ores")) {
+            String id = tile.getString("id");
+            if (!"GT_TileEntity_Ores".equals(id) && !"bw.blockoresTE".equals(id)) {
                 continue;
             }
 
@@ -54,10 +56,6 @@ public class DetailedChunkAnalysis {
 
             if (oresPerY[blockY] == null) {
                 oresPerY[blockY] = new Short2IntOpenHashMap();
-            }
-
-            if (!oresPerY[blockY].containsKey(meta)) {
-                oresPerY[blockY].put(meta, 0);
             }
 
             oresPerY[blockY].put(meta, oresPerY[blockY].get(meta) + 1);
@@ -159,7 +157,7 @@ public class DetailedChunkAnalysis {
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).map(Map.Entry::getKey).findFirst();
         if (dominantOre.isPresent()) {
             for (VeinType veinType : VeinTypeCaching.veinTypes) {
-                if (veinType.matchesWithSpecificPrimaryOrSecondary(allOres.keySet(), dominantOre.get())) {
+                if (veinType.matchesWithSpecificPrimaryOrSecondary(allOres.keySet(), dimName, dominantOre.get())) {
                     matchedVeins.add(veinType);
                 }
             }

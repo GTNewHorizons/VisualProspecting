@@ -9,6 +9,9 @@ import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.world.WorldProvider;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
@@ -19,9 +22,11 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 public class DimensionAnalysis {
 
     public final int dimensionId;
+    public final String dimensionName;
 
     public DimensionAnalysis(int dimensionId) {
         this.dimensionId = dimensionId;
+        this.dimensionName = getDimensionName();
     }
 
     private interface IChunkHandler {
@@ -42,7 +47,7 @@ public class DimensionAnalysis {
 
             regionFiles.parallelStream().forEach(regionFile -> {
                 executeForEachGeneratedOreChunk(regionFile, (root, chunkX, chunkZ) -> {
-                    final ChunkAnalysis chunk = new ChunkAnalysis();
+                    final ChunkAnalysis chunk = new ChunkAnalysis(dimensionName);
                     chunk.processMinecraftChunk(root);
 
                     if (chunk.matchesSingleVein()) {
@@ -52,6 +57,7 @@ public class DimensionAnalysis {
                     } else {
                         final DetailedChunkAnalysis detailedChunk = new DetailedChunkAnalysis(
                                 dimensionId,
+                                dimensionName,
                                 chunkX,
                                 chunkZ);
                         detailedChunk.processMinecraftChunk(root);
@@ -71,7 +77,7 @@ public class DimensionAnalysis {
 
             regionFiles.parallelStream().forEach(regionFile -> {
                 executeForEachGeneratedOreChunk(regionFile, (root, chunkX, chunkZ) -> {
-                    final ChunkAnalysis chunk = new ChunkAnalysis();
+                    final ChunkAnalysis chunk = new ChunkAnalysis(dimensionName);
                     chunk.processMinecraftChunk(root);
 
                     if (chunk.matchesSingleVein()) {
@@ -87,6 +93,7 @@ public class DimensionAnalysis {
                     if (ServerCache.instance.getOreVein(dimensionId, chunkX, chunkZ).veinType == VeinType.NO_VEIN) {
                         final DetailedChunkAnalysis detailedChunk = new DetailedChunkAnalysis(
                                 dimensionId,
+                                dimensionName,
                                 chunkX,
                                 chunkZ);
                         detailedChunk.processMinecraftChunk(root);
@@ -133,5 +140,11 @@ public class DimensionAnalysis {
         } catch (DataFormatException | IOException e) {
             AnalysisProgressTracker.notifyCorruptFile(regionFile);
         }
+    }
+    private String getDimensionName() {
+        WorldServer world = DimensionManager.getWorld(dimensionId);
+        if (world == null) return "";
+        WorldProvider provider = world.provider;
+        return provider == null ? "" : provider.getDimensionName();
     }
 }
