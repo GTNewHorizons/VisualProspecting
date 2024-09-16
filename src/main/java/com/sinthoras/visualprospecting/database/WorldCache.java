@@ -12,7 +12,6 @@ import net.minecraft.util.ChunkCoordinates;
 
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
-import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 
 public abstract class WorldCache {
 
@@ -169,7 +168,7 @@ public abstract class WorldCache {
     public OreVeinPosition getOreVein(int dimensionId, int chunkX, int chunkZ) {
         DimensionCache dimension = dimensions.get(dimensionId);
         if (dimension == null) {
-            return new OreVeinPosition(dimensionId, chunkX, chunkZ, VeinType.NO_VEIN, true);
+            return OreVeinPosition.EMPTY_VEIN;
         }
         return dimension.getOreVein(chunkX, chunkZ);
     }
@@ -186,7 +185,7 @@ public abstract class WorldCache {
     public UndergroundFluidPosition getUndergroundFluid(int dimensionId, int chunkX, int chunkZ) {
         DimensionCache dimension = dimensions.get(dimensionId);
         if (dimension == null) {
-            return UndergroundFluidPosition.getNotProspected(dimensionId, chunkX, chunkZ);
+            return UndergroundFluidPosition.NOT_PROSPECTED;
         }
         return dimension.getUndergroundFluid(chunkX, chunkZ);
     }

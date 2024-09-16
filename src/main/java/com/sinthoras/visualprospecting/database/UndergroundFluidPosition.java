@@ -11,16 +11,13 @@ public class UndergroundFluidPosition {
 
     public static final int BYTES = (3 + 1 + VP.undergroundFluidSizeChunkX * VP.undergroundFluidSizeChunkZ)
             * Integer.BYTES;
+    public static final UndergroundFluidPosition NOT_PROSPECTED = new UndergroundFluidPosition(0, 0, 0, null, null);
 
     public final int dimensionId;
     public final int chunkX;
     public final int chunkZ;
     public final Fluid fluid;
     public final int[][] chunks;
-
-    public static UndergroundFluidPosition getNotProspected(int dimensionId, int chunkX, int chunkZ) {
-        return new UndergroundFluidPosition(dimensionId, chunkX, chunkZ, null, null);
-    }
 
     public UndergroundFluidPosition(int dimensionId, int chunkX, int chunkZ, Fluid fluid, int[][] chunks) {
         this.dimensionId = dimensionId;

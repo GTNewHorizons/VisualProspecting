@@ -203,13 +203,12 @@ public class DimensionCache {
 
     public OreVeinPosition getOreVein(int chunkX, int chunkZ) {
         final long key = getOreVeinKey(chunkX, chunkZ);
-        return oreChunks.getOrDefault(key, new OreVeinPosition(dimensionId, chunkX, chunkZ, VeinType.NO_VEIN, true));
+        return oreChunks.getOrDefault(key, OreVeinPosition.EMPTY_VEIN);
     }
 
     public UndergroundFluidPosition getUndergroundFluid(int chunkX, int chunkZ) {
         final long key = getUndergroundFluidKey(chunkX, chunkZ);
-        return undergroundFluids
-                .getOrDefault(key, UndergroundFluidPosition.getNotProspected(dimensionId, chunkX, chunkZ));
+        return undergroundFluids.getOrDefault(key, UndergroundFluidPosition.NOT_PROSPECTED);
     }
 
     public Collection<OreVeinPosition> getAllOreVeins() {
