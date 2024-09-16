@@ -64,7 +64,7 @@ public class ChunkAnalysis {
         if (oreCounts.isEmpty()) return true;
         if (oreCounts.size() > 4) return false;
         VeinTypeCaching.veinTypes.stream()
-                .filter(vein -> vein.containsAllFoundOres(oreCounts.keySet(), dimName, primaryMeta))
+                .filter(vein -> vein.containsAllFoundOres(oreCounts.keySet(), dimName, primaryMeta, minVeinBlockY))
                 .forEach(matchedVeins::add);
         return matchedVeins.size() <= 1;
     }

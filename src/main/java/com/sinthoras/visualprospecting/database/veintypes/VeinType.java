@@ -77,8 +77,8 @@ public class VeinType {
         allowedDims.addAll(oreMix.dimsEnabled.keySet());
     }
 
-    public boolean containsAllFoundOres(ShortCollection foundOres, String dimName, short specificMeta) {
-        return (primaryOreMeta == specificMeta || secondaryOreMeta == specificMeta)
+    public boolean containsAllFoundOres(ShortCollection foundOres, String dimName, short specificMeta, int minY) {
+        return minY >= minBlockY && (primaryOreMeta == specificMeta || secondaryOreMeta == specificMeta)
                 && (dimName.isEmpty() || allowedDims.contains(dimName))
                 && oresAsSet.containsAll(foundOres);
     }
