@@ -6,7 +6,6 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
@@ -39,7 +38,7 @@ public class ClientCache extends WorldCache {
         final String location = "(" + (oreVeinPosition.getBlockX() + 8) + "," + (oreVeinPosition.getBlockZ() + 8) + ")";
         final IChatComponent veinNotification = new ChatComponentTranslation(
                 "visualprospecting.vein.prospected",
-                I18n.format(oreVeinPosition.veinType.name),
+                oreVeinPosition.veinType.getPrimaryOreName(),
                 location);
         veinNotification.getChatStyle().setItalic(true);
         veinNotification.getChatStyle().setColor(EnumChatFormatting.GRAY);

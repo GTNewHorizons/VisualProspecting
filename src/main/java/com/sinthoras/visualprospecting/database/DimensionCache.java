@@ -18,8 +18,6 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.LongSet;
 
 public class DimensionCache {
 
@@ -31,8 +29,6 @@ public class DimensionCache {
 
     private final Long2ObjectMap<OreVeinPosition> oreChunks = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<UndergroundFluidPosition> undergroundFluids = new Long2ObjectOpenHashMap<>();
-    private final LongSet changedOrNewOreChunks = new LongOpenHashSet();
-    private final LongSet changedOrNewUndergroundFluids = new LongOpenHashSet();
     public final int dimensionId;
     private boolean isDirty = false;
 
@@ -51,32 +47,30 @@ public class DimensionCache {
 
     private NBTTagCompound saveOres() {
         NBTTagCompound compound = new NBTTagCompound();
-        for (long key : changedOrNewOreChunks) {
-            OreVeinPosition oreVeinPosition = oreChunks.get(key);
+        for (OreVeinPosition vein : oreChunks.values()) {
             NBTTagCompound veinCompound = new NBTTagCompound();
-            veinCompound.setInteger("chunkX", oreVeinPosition.chunkX);
-            veinCompound.setInteger("chunkZ", oreVeinPosition.chunkZ);
-            veinCompound.setShort("veinTypeId", VeinTypeCaching.getVeinTypeId(oreVeinPosition.veinType));
-            veinCompound.setBoolean("depleted", oreVeinPosition.isDepleted());
-            compound.setTag(String.valueOf(key), veinCompound);
+            veinCompound.setInteger("chunkX", vein.chunkX);
+            veinCompound.setInteger("chunkZ", vein.chunkZ);
+            veinCompound.setShort("veinTypeId", vein.veinType.veinId);
+            veinCompound.setBoolean("depleted", vein.isDepleted());
+            compound.setTag(String.valueOf(getOreVeinKey(vein.chunkX, vein.chunkZ)), veinCompound);
         }
         return compound;
     }
 
     private NBTTagCompound saveFluids() {
         NBTTagCompound compound = new NBTTagCompound();
-        for (long key : changedOrNewUndergroundFluids) {
-            UndergroundFluidPosition undergroundFluidPosition = undergroundFluids.get(key);
+        for (UndergroundFluidPosition fluid : undergroundFluids.values()) {
             NBTTagCompound fluidCompound = new NBTTagCompound();
-            fluidCompound.setInteger("chunkX", undergroundFluidPosition.chunkX);
-            fluidCompound.setInteger("chunkZ", undergroundFluidPosition.chunkZ);
-            fluidCompound.setString("fluidName", undergroundFluidPosition.fluid.getName());
+            fluidCompound.setInteger("chunkX", fluid.chunkX);
+            fluidCompound.setInteger("chunkZ", fluid.chunkZ);
+            fluidCompound.setString("fluidName", fluid.fluid.getName());
             NBTTagList chunkList = new NBTTagList();
             for (int i = 0; i < VP.undergroundFluidSizeChunkX; i++) {
-                chunkList.appendTag(new NBTTagIntArray(undergroundFluidPosition.chunks[i]));
+                chunkList.appendTag(new NBTTagIntArray(fluid.chunks[i]));
             }
             fluidCompound.setTag("chunks", chunkList);
-            compound.setTag(String.valueOf(key), fluidCompound);
+            compound.setTag(String.valueOf(getUndergroundFluid(fluid.chunkX, fluid.chunkZ)), fluidCompound);
         }
         return compound;
     }
@@ -125,7 +119,6 @@ public class DimensionCache {
                 oreChunks.put(
                         getOreVeinKey(chunkX, chunkZ),
                         new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType, depleted));
-                changedOrNewOreChunks.add(getOreVeinKey(chunkX, chunkZ));
             }
         }
         if (undergroundFluidsBuffer != null) {
@@ -153,7 +146,6 @@ public class DimensionCache {
                     undergroundFluids.put(
                             getUndergroundFluidKey(chunkX, chunkZ),
                             new UndergroundFluidPosition(dimensionId, chunkX, chunkZ, fluid, chunks));
-                    changedOrNewUndergroundFluids.add(getUndergroundFluidKey(chunkX, chunkZ));
                 }
             }
         }
@@ -174,7 +166,6 @@ public class DimensionCache {
         final OreVeinPosition oreVeinPosition = oreChunks.get(key);
         if (oreVeinPosition != null) {
             oreVeinPosition.toggleDepleted();
-            changedOrNewOreChunks.add(key);
             markDirty();
         }
     }
@@ -184,13 +175,11 @@ public class DimensionCache {
         final OreVeinPosition storedOreVeinPosition = oreChunks.get(key);
         if (storedOreVeinPosition == null) {
             oreChunks.put(key, oreVeinPosition);
-            changedOrNewOreChunks.add(key);
             markDirty();
             return UpdateResult.New;
         }
         if (storedOreVeinPosition.veinType != oreVeinPosition.veinType) {
             oreChunks.put(key, oreVeinPosition.joinDepletedState(storedOreVeinPosition));
-            changedOrNewOreChunks.add(key);
             markDirty();
             return UpdateResult.New;
         }
@@ -201,12 +190,10 @@ public class DimensionCache {
         final long key = getUndergroundFluidKey(undergroundFluid.chunkX, undergroundFluid.chunkZ);
         final UndergroundFluidPosition storedUndergroundFluid = undergroundFluids.get(key);
         if (storedUndergroundFluid == null) {
-            changedOrNewUndergroundFluids.add(key);
             undergroundFluids.put(key, undergroundFluid);
             markDirty();
             return UpdateResult.New;
         } else if (!storedUndergroundFluid.equals(undergroundFluid)) {
-            changedOrNewUndergroundFluids.add(key);
             undergroundFluids.put(key, undergroundFluid);
             markDirty();
             return UpdateResult.Updated;

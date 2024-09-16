@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 
 import com.google.common.collect.BiMap;
@@ -163,7 +162,7 @@ public class VeinTypeCaching implements Runnable {
                 if (veinType == VeinType.NO_VEIN) continue;
                 if (isSearchActive && !searchString.isEmpty()) {
                     List<String> searchableStrings = veinType.getOreMaterialNames();
-                    searchableStrings.add(I18n.format(veinType.name));
+                    searchableStrings.add(veinType.getPrimaryOreName());
                     final boolean match = searchableStrings.stream()
                             .map(EnumChatFormatting::getTextWithoutFormattingCodes).map(String::toLowerCase)
                             .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());

@@ -43,7 +43,7 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
                 65,
                 oreVeinPosition.getBlockZ(),
                 oreVeinPosition.dimensionId,
-                I18n.format("visualprospecting.tracked", I18n.format(oreVeinPosition.veinType.name)),
+                I18n.format("visualprospecting.tracked", oreVeinPosition.veinType.getPrimaryOreName()),
                 getColor());
     }
 
