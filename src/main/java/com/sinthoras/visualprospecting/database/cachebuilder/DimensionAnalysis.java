@@ -141,6 +141,7 @@ public class DimensionAnalysis {
             AnalysisProgressTracker.notifyCorruptFile(regionFile);
         }
     }
+
     private String getDimensionName() {
         WorldServer world = DimensionManager.getWorld(dimensionId);
         if (world == null) return "";
