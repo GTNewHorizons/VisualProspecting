@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 
 import cpw.mods.fml.relauncher.Side;
@@ -49,6 +48,6 @@ public class GregTechOreMaterialProvider implements IOreMaterialProvider {
     @Override
     public List<String> getContainedOres(ShortCollection ores) {
         return ores.intStream().mapToObj(metaData -> GregTechAPI.sGeneratedMaterials[metaData]).filter(Objects::nonNull)
-                .map(material -> EnumChatFormatting.GRAY + material.mLocalizedName).collect(Collectors.toList());
+                .map(material -> material.mLocalizedName).collect(Collectors.toList());
     }
 }

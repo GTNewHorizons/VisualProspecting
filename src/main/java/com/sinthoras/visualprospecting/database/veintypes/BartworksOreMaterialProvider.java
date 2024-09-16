@@ -5,7 +5,6 @@ import static bartworks.util.BWColorUtil.getColorFromRGBArray;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 
 import bartworks.system.material.Werkstoff;
@@ -53,9 +52,9 @@ public class BartworksOreMaterialProvider implements IOreMaterialProvider {
         for (short meta : ores) {
             Werkstoff werkstoff = Werkstoff.werkstoffHashMap.get(meta);
             if (werkstoff == null) {
-                oreNames.add(EnumChatFormatting.GRAY + GregTechAPI.sGeneratedMaterials[meta].mLocalizedName);
+                oreNames.add(GregTechAPI.sGeneratedMaterials[meta].mLocalizedName);
             } else {
-                oreNames.add(EnumChatFormatting.GRAY + werkstoff.getLocalizedName());
+                oreNames.add(werkstoff.getLocalizedName());
 
             }
         }

@@ -23,7 +23,6 @@ import codechicken.nei.SearchField;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OreMixes;
-import gregtech.common.OreMixBuilder;
 import it.unimi.dsi.fastutil.objects.Object2ShortMap;
 import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -46,9 +45,7 @@ public class VeinTypeCaching implements Runnable {
         veinTypes.add(VeinType.NO_VEIN);
 
         for (OreMixes mix : OreMixes.values()) {
-            OreMixBuilder builder = mix.oreMixBuilder;
-            VeinType vein = new VeinType(builder);
-            veinTypes.add(vein);
+            veinTypes.add(new VeinType(mix.oreMixBuilder));
         }
 
         for (BWOreLayer vein : BWOreLayer.sList) {
