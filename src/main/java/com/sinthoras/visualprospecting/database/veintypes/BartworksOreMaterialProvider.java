@@ -2,9 +2,8 @@ package com.sinthoras.visualprospecting.database.veintypes;
 
 import static bartworks.util.BWColorUtil.getColorFromRGBArray;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
@@ -12,6 +11,7 @@ import net.minecraft.util.IIcon;
 import bartworks.system.material.Werkstoff;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.GregTechAPI;
 import gregtech.api.enums.OrePrefixes;
 import it.unimi.dsi.fastutil.shorts.ShortCollection;
 
@@ -49,8 +49,16 @@ public class BartworksOreMaterialProvider implements IOreMaterialProvider {
 
     @Override
     public List<String> getContainedOres(ShortCollection ores) {
-        return ores.intStream().mapToObj(metaData -> Werkstoff.werkstoffHashMap.get((short) metaData))
-                .filter(Objects::nonNull).map(material -> EnumChatFormatting.GRAY + material.getLocalizedName())
-                .collect(Collectors.toList());
+        List<String> oreNames = new ArrayList<>();
+        for (short meta : ores) {
+            Werkstoff werkstoff = Werkstoff.werkstoffHashMap.get(meta);
+            if (werkstoff == null) {
+                oreNames.add(EnumChatFormatting.GRAY + GregTechAPI.sGeneratedMaterials[meta].mLocalizedName);
+            } else {
+                oreNames.add(EnumChatFormatting.GRAY + werkstoff.getLocalizedName());
+
+            }
+        }
+        return oreNames;
     }
 }
