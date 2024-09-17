@@ -6,6 +6,7 @@ import java.util.List;
 import com.sinthoras.visualprospecting.Tags;
 
 import gregtech.common.OreMixBuilder;
+import it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import it.unimi.dsi.fastutil.shorts.ShortCollection;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
@@ -24,7 +25,7 @@ public class VeinType {
     public final short sporadicOreMeta;
     public final int minBlockY;
     public final int maxBlockY;
-    public final ShortSet oresAsSet = new ShortOpenHashSet();
+    public final ShortSet oresAsSet = new ShortArraySet();
     private final List<String> containedOres = new ArrayList<>();
     private boolean isHighlighted = true;
     private String primaryOreName = "";
