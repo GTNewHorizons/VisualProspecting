@@ -118,12 +118,14 @@ public class DetailedChunkAnalysis {
         // but that case is rare and therefore, neglected
         for (int neighborId = 0; neighborId < neighbors.length; neighborId++) {
             final OreVeinPosition neighbor = neighbors[neighborId];
+            if (neighbor.veinType == VeinType.NO_VEIN) continue;
+
             final boolean atCoordinateAxis = Math.abs(neighbor.chunkX - chunkX) < 3
                     || Math.abs(neighbor.chunkZ - chunkZ) < 3;
             final boolean canOverlap = atCoordinateAxis
                     ? neighbor.veinType.canOverlapIntoNeighborOreChunkAtCoordinateAxis()
                     : neighbor.veinType.canOverlapIntoNeighborOreChunk();
-            if (neighbor.veinType != VeinType.NO_VEIN && canOverlap) {
+            if (canOverlap) {
                 final int veinBlockY = neighborVeinBlockY[neighborId];
                 for (int layerBlockY = 0; layerBlockY < VeinType.veinHeight; layerBlockY++) {
                     final int blockY = veinBlockY + layerBlockY;
@@ -153,13 +155,15 @@ public class DetailedChunkAnalysis {
             }
         }
 
+        if (allOres.isEmpty()) return VeinType.NO_VEIN;
+
         final Optional<Short> dominantOre = allOres.short2IntEntrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).map(Map.Entry::getKey).findFirst();
-        if (dominantOre.isPresent()) {
-            for (VeinType veinType : VeinTypeCaching.veinTypes) {
-                if (veinType.matchesWithSpecificPrimaryOrSecondary(allOres.keySet(), dimName, dominantOre.get())) {
-                    matchedVeins.add(veinType);
-                }
+        if (!dominantOre.isPresent()) return VeinType.NO_VEIN;
+
+        for (VeinType veinType : VeinTypeCaching.veinTypes) {
+            if (veinType.matchesWithSpecificPrimaryOrSecondary(allOres.keySet(), dimName, dominantOre.get())) {
+                matchedVeins.add(veinType);
             }
         }
 
