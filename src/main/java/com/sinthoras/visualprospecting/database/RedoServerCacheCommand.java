@@ -1,6 +1,8 @@
 package com.sinthoras.visualprospecting.database;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.zip.DataFormatException;
 
@@ -27,6 +29,11 @@ public class RedoServerCacheCommand extends CommandBase {
     @Override
     public String getCommandUsage(ICommandSender sender) {
         return StatCollector.translateToLocal("visualprospecting.redoservercache.command");
+    }
+
+    @Override
+    public List<String> getCommandAliases() {
+        return Collections.singletonList("vp_recache");
     }
 
     @Override
