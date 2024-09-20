@@ -127,14 +127,13 @@ public class VeinTypeCaching implements Runnable {
                 if (veinType == VeinType.NO_VEIN) continue;
                 if (isSearchActive && !searchString.isEmpty()) {
                     List<String> searchableStrings = veinType.getOreMaterialNames();
-                    searchableStrings.add(veinType.getPrimaryOreName());
                     final boolean match = searchableStrings.stream()
                             .map(EnumChatFormatting::getTextWithoutFormattingCodes).map(String::toLowerCase)
                             .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
 
-                    veinType.setNEISearchHeighlight(match);
+                    veinType.setNEISearchHighlight(match);
                 } else {
-                    veinType.setNEISearchHeighlight(true);
+                    veinType.setNEISearchHighlight(true);
                 }
             }
         }

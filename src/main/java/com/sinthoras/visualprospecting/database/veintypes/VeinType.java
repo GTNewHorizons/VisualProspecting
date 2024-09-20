@@ -3,6 +3,9 @@ package com.sinthoras.visualprospecting.database.veintypes;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+import com.google.common.collect.ImmutableList;
 import com.sinthoras.visualprospecting.Tags;
 
 import gregtech.common.OreMixBuilder;
@@ -11,6 +14,7 @@ import it.unimi.dsi.fastutil.shorts.ShortCollection;
 import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 
+@ParametersAreNonnullByDefault
 public class VeinType {
 
     public static final int veinHeight = 9;
@@ -25,16 +29,14 @@ public class VeinType {
     public final short sporadicOreMeta;
     public final int minBlockY;
     public final int maxBlockY;
-    public final ShortSet oresAsSet = new ShortArraySet();
-    private final List<String> containedOres = new ArrayList<>();
-    private boolean isHighlighted = true;
-    private String primaryOreName = "";
+    private final ShortSet oresAsSet = new ShortArraySet();
     private final List<String> allowedDims = new ArrayList<>();
+    private boolean isHighlighted = true;
 
     // Available after VisualProspecting post GT initialization
     public static final VeinType NO_VEIN = new VeinType(
             Tags.ORE_MIX_NONE_NAME,
-            null,
+            new GregTechOreMaterialProvider(),
             0,
             (short) -1,
             (short) -1,
@@ -57,10 +59,6 @@ public class VeinType {
         oresAsSet.add(this.inBetweenOreMeta = inBetweenOreMeta);
         oresAsSet.add(this.sporadicOreMeta = sporadicOreMeta);
         allowedDims.add(dimName);
-        if (oreMaterialProvider != null) {
-            containedOres.addAll(oreMaterialProvider.getContainedOres(oresAsSet));
-            primaryOreName = oreMaterialProvider.getLocalizedName();
-        }
     }
 
     public VeinType(OreMixBuilder oreMix) {
@@ -73,8 +71,6 @@ public class VeinType {
         oresAsSet.add(sporadicOreMeta = (short) oreMix.sporadic.mMetaItemSubID);
         minBlockY = Math.max(0, oreMix.minY - 6);
         maxBlockY = Math.min(255, oreMix.maxY - 6);
-        containedOres.addAll(oreMaterialProvider.getContainedOres(oresAsSet));
-        primaryOreName = oreMaterialProvider.getLocalizedName();
         allowedDims.addAll(oreMix.dimsEnabled.keySet());
     }
 
@@ -106,12 +102,12 @@ public class VeinType {
                 || sporadicOreMeta == oreMetaData;
     }
 
-    public List<String> getOreMaterialNames() {
-        return containedOres;
+    public ImmutableList<String> getOreMaterialNames() {
+        return oreMaterialProvider.getContainedOres(oresAsSet);
     }
 
     public String getPrimaryOreName() {
-        return primaryOreName;
+        return oreMaterialProvider.getLocalizedName();
     }
 
     public ShortSet getOresAtLayer(int layerBlockY) {
@@ -152,7 +148,7 @@ public class VeinType {
         return isHighlighted;
     }
 
-    public void setNEISearchHeighlight(boolean isHighlighted) {
+    public void setNEISearchHighlight(boolean isHighlighted) {
         this.isHighlighted = isHighlighted;
     }
 }
