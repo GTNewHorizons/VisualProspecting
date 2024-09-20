@@ -6,6 +6,7 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 public class OreVeinPosition {
 
     public static final int MAX_BYTES = 3 * Integer.BYTES + Short.BYTES;
+    public static final OreVeinPosition EMPTY_VEIN = new OreVeinPosition(0, 0, 0, VeinType.NO_VEIN, true);
 
     public final int dimensionId;
     public final int chunkX;

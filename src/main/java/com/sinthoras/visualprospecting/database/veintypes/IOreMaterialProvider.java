@@ -1,8 +1,8 @@
 package com.sinthoras.visualprospecting.database.veintypes;
 
-import java.util.List;
-
 import net.minecraft.util.IIcon;
+
+import com.google.common.collect.ImmutableList;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -17,5 +17,5 @@ public interface IOreMaterialProvider {
 
     String getLocalizedName();
 
-    List<String> getContainedOres(ShortCollection ores);
+    ImmutableList<String> getContainedOres(ShortCollection ores);
 }

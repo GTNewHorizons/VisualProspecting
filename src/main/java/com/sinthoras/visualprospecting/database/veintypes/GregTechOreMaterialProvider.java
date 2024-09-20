@@ -1,11 +1,11 @@
 package com.sinthoras.visualprospecting.database.veintypes;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
-import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
+
+import com.google.common.collect.ImmutableList;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -20,11 +20,19 @@ public class GregTechOreMaterialProvider implements IOreMaterialProvider {
     private final int primaryOreColor;
     private IIcon primaryOreIcon;
     private final String primaryOreName;
+    private ImmutableList<String> containedOres;
 
     public GregTechOreMaterialProvider(Materials material) {
         this.material = material;
         this.primaryOreColor = (material.mRGBa[0] << 16) | (material.mRGBa[1]) << 8 | material.mRGBa[2];
         this.primaryOreName = material.mLocalizedName;
+    }
+
+    GregTechOreMaterialProvider() {
+        material = Materials._NULL;
+        primaryOreColor = 0;
+        primaryOreName = "";
+        containedOres = ImmutableList.of();
     }
 
     @Override
@@ -47,8 +55,16 @@ public class GregTechOreMaterialProvider implements IOreMaterialProvider {
     }
 
     @Override
-    public List<String> getContainedOres(ShortCollection ores) {
-        return ores.intStream().mapToObj(metaData -> GregTechAPI.sGeneratedMaterials[metaData]).filter(Objects::nonNull)
-                .map(material -> EnumChatFormatting.GRAY + material.mLocalizedName).collect(Collectors.toList());
+    public ImmutableList<String> getContainedOres(ShortCollection ores) {
+        if (containedOres == null) {
+            List<String> temp = new ArrayList<>();
+            for (short meta : ores) {
+                Materials material = GregTechAPI.sGeneratedMaterials[meta];
+                if (material == null) continue;
+                temp.add(material.mLocalizedName);
+            }
+            containedOres = ImmutableList.copyOf(temp);
+        }
+        return containedOres;
     }
 }

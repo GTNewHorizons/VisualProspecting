@@ -9,11 +9,8 @@ import java.util.Map;
 import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 
@@ -23,23 +20,20 @@ import codechicken.nei.NEIClientConfig;
 import codechicken.nei.SearchField;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
-import gregtech.common.WorldgenGTOreLayer;
+import gregtech.api.enums.OreMixes;
 import it.unimi.dsi.fastutil.objects.Object2ShortMap;
 import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.objects.ObjectSets;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 
 public class VeinTypeCaching implements Runnable {
 
-    private static final BiMap<Short, VeinType> veinTypeLookupTableForIds = HashBiMap.create();
+    private static final Short2ObjectMap<VeinType> veinTypeLookupTableForIds = new Short2ObjectOpenHashMap<>();
     private static final Map<String, VeinType> veinTypeLookupTableForNames = new HashMap<>();
     private static final Object2ShortMap<String> veinTypeStorageInfo = new Object2ShortOpenHashMap<>();
-    private static final Short2ObjectMap<ObjectSet<VeinType>> primaryMetaToVeinType = new Short2ObjectOpenHashMap<>();
     public static ObjectSet<VeinType> veinTypes;
-    private static int longesOreName = 0;
 
     // BartWorks initializes veins in FML preInit
     // GalacticGreg initializes veins in FML postInit, but only copies all base game veins to make them available on all
@@ -50,24 +44,8 @@ public class VeinTypeCaching implements Runnable {
         veinTypes = new ObjectOpenHashSet<>();
         veinTypes.add(VeinType.NO_VEIN);
 
-        for (WorldgenGTOreLayer vein : WorldgenGTOreLayer.sList) {
-            if (vein.mWorldGenName.equals(Tags.ORE_MIX_NONE_NAME)) {
-                break;
-            }
-            final Materials material = getGregTechMaterial(vein.mPrimaryMeta);
-            veinTypes.add(
-                    new VeinType(
-                            vein.mWorldGenName,
-                            new GregTechOreMaterialProvider(material),
-                            vein.mSize,
-                            vein.mPrimaryMeta,
-                            vein.mSecondaryMeta,
-                            vein.mBetweenMeta,
-                            vein.mSporadicMeta,
-                            Math.max(0, vein.mMinY - 6), // GregTech ore veins start at layer -1 and the blockY RNG adds
-                                                         // another -5
-                            // offset
-                            Math.min(255, vein.mMaxY - 6)));
+        for (OreMixes mix : OreMixes.values()) {
+            veinTypes.add(new VeinType(mix.oreMixBuilder));
         }
 
         for (BWOreLayer vein : BWOreLayer.sList) {
@@ -84,7 +62,8 @@ public class VeinTypeCaching implements Runnable {
                             (short) vein.mBetweenMeta,
                             (short) vein.mSporadicMeta,
                             Math.max(0, vein.mMinY),
-                            Math.min(255, vein.mMaxY)));
+                            Math.min(255, vein.mMaxY),
+                            vein.getDimName()));
         }
 
         // Assign veinTypeIds for efficient storage
@@ -98,31 +77,18 @@ public class VeinTypeCaching implements Runnable {
             veinTypeStorageInfo.putIfAbsent(veinType.name, veinType.veinId);
             veinTypeLookupTableForIds.put(veinType.veinId, veinType);
             veinTypeLookupTableForNames.put(veinType.name, veinType);
-            primaryMetaToVeinType.computeIfAbsent(veinType.primaryOreMeta, k -> new ObjectOpenHashSet<>())
-                    .add(veinType);
         }
         saveVeinTypeStorageInfo();
-
-        for (VeinType veinType : veinTypes) {
-            longesOreName = Math.max(longesOreName, veinType.name.length());
-        }
     }
 
     private Materials getGregTechMaterial(short metaId) {
         final Materials material = GregTechAPI.sGeneratedMaterials[metaId];
         if (material == null) {
             // Some materials are not registered in dev when their usage mod is not available.
-            return Materials.getAll().stream().filter(m -> m.mMetaItemSubID == metaId).findAny().get();
+            return Materials.getAll().stream().filter(m -> m.mMetaItemSubID == metaId).findAny()
+                    .orElse(Materials._NULL);
         }
         return material;
-    }
-
-    public static int getLongesOreNameLength() {
-        return longesOreName;
-    }
-
-    public static short getVeinTypeId(VeinType veinType) {
-        return veinTypeLookupTableForIds.inverse().get(veinType);
     }
 
     public static VeinType getVeinType(short veinTypeId) {
@@ -138,11 +104,6 @@ public class VeinTypeCaching implements Runnable {
         // noinspection ResultOfMethodCallIgnored
         directory.mkdirs();
         return new File(directory, "veintypesLUT");
-    }
-
-    public static ObjectSet<VeinType> getVeinTypesForPrimaryMeta(short primaryMeta) {
-
-        return primaryMetaToVeinType.getOrDefault(primaryMeta, ObjectSets.emptySet());
     }
 
     private static void loadVeinTypeStorageInfo() {
@@ -163,14 +124,13 @@ public class VeinTypeCaching implements Runnable {
                 if (veinType == VeinType.NO_VEIN) continue;
                 if (isSearchActive && !searchString.isEmpty()) {
                     List<String> searchableStrings = veinType.getOreMaterialNames();
-                    searchableStrings.add(I18n.format(veinType.name));
                     final boolean match = searchableStrings.stream()
                             .map(EnumChatFormatting::getTextWithoutFormattingCodes).map(String::toLowerCase)
                             .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
 
-                    veinType.setNEISearchHeighlight(match);
+                    veinType.setNEISearchHighlight(match);
                 } else {
-                    veinType.setNEISearchHeighlight(true);
+                    veinType.setNEISearchHighlight(true);
                 }
             }
         }

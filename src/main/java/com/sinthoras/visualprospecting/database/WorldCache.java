@@ -12,7 +12,6 @@ import net.minecraft.util.ChunkCoordinates;
 
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
-import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 
 public abstract class WorldCache {
 
@@ -31,8 +30,9 @@ public abstract class WorldCache {
         if (loadLegacyVeinCache(worldCache)) return true;
 
         final File[] dimensionFiles = worldCache.listFiles();
-        if (dimensionFiles == null) return false;
+        if (dimensionFiles == null || dimensionFiles.length == 0) return false;
 
+        boolean loadedAny = false;
         for (File dimensionFile : dimensionFiles) {
             final String fileName = dimensionFile.getName();
             if (!dimensionFile.isFile() || !fileName.endsWith(".dat")) {
@@ -46,9 +46,10 @@ public abstract class WorldCache {
             final DimensionCache dimension = new DimensionCache(dimensionId);
             dimension.loadFromNbt(dimCompound);
             dimensions.put(dimensionId, dimension);
+            loadedAny = true;
         }
 
-        return true;
+        return loadedAny;
     }
 
     private boolean loadLegacyVeinCache(File worldCacheDirectory) {
@@ -167,7 +168,7 @@ public abstract class WorldCache {
     public OreVeinPosition getOreVein(int dimensionId, int chunkX, int chunkZ) {
         DimensionCache dimension = dimensions.get(dimensionId);
         if (dimension == null) {
-            return new OreVeinPosition(dimensionId, chunkX, chunkZ, VeinType.NO_VEIN, true);
+            return OreVeinPosition.EMPTY_VEIN;
         }
         return dimension.getOreVein(chunkX, chunkZ);
     }
@@ -184,7 +185,7 @@ public abstract class WorldCache {
     public UndergroundFluidPosition getUndergroundFluid(int dimensionId, int chunkX, int chunkZ) {
         DimensionCache dimension = dimensions.get(dimensionId);
         if (dimension == null) {
-            return UndergroundFluidPosition.getNotProspected(dimensionId, chunkX, chunkZ);
+            return UndergroundFluidPosition.NOT_PROSPECTED;
         }
         return dimension.getUndergroundFluid(chunkX, chunkZ);
     }

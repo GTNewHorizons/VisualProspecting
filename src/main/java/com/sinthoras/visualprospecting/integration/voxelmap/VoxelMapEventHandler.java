@@ -5,7 +5,6 @@ import java.util.TreeSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 
 import com.gtnewhorizons.navigator.api.voxelmap.VoxelMapWaypointManager;
 import com.sinthoras.visualprospecting.Config;
@@ -30,7 +29,7 @@ public class VoxelMapEventHandler {
         TreeSet<Integer> dim = new TreeSet<>();
         dim.add(pos.dimensionId);
         VoxelMapWaypointManager.addVoxelMapWaypoint(
-                StatCollector.translateToLocal(pos.veinType.name), // name
+                pos.veinType.getPrimaryOreName(), // name
                 pos.getBlockX(), // X
                 pos.getBlockZ(), // Z
                 getY(), // Y

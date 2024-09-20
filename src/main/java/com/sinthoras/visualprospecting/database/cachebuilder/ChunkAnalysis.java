@@ -21,7 +21,12 @@ public class ChunkAnalysis {
     private final ObjectSet<VeinType> matchedVeins = new ObjectOpenHashSet<>();
     private final Short2IntMap oreCounts = new Short2IntArrayMap();
     private int minVeinBlockY = VP.minecraftWorldHeight;
-    private short primaryMeta, secondaryMeta;
+    private short primaryMeta;
+    private final String dimName;
+
+    public ChunkAnalysis(String dimName) {
+        this.dimName = dimName;
+    }
 
     public void processMinecraftChunk(final NBTTagList tileEntities) {
         if (tileEntities == null || tileEntities.tagCount() == 0) return;
@@ -29,7 +34,8 @@ public class ChunkAnalysis {
             final NBTTagCompound tile = tileEntities.getCompoundTagAt(i);
             if (tile == null || !tile.hasKey("m")) continue;
 
-            if (!"GT_TileEntity_Ores".equals(tile.getString("id"))) {
+            String id = tile.getString("id");
+            if (!"GT_TileEntity_Ores".equals(id) && !"bw.blockoresTE".equals(id)) {
                 continue;
             }
 
@@ -46,35 +52,20 @@ public class ChunkAnalysis {
         }
 
         if (oreCounts.size() == 1) {
-            primaryMeta = secondaryMeta = oreCounts.keySet().iterator().nextShort();
+            primaryMeta = oreCounts.keySet().iterator().nextShort();
         } else if (oreCounts.size() > 1) {
             ShortList metaCounts = new ShortArrayList(oreCounts.keySet());
             metaCounts.sort((a, b) -> Integer.compare(oreCounts.get(b), oreCounts.get(a)));
             primaryMeta = metaCounts.getShort(0);
-            secondaryMeta = metaCounts.getShort(1);
         }
     }
 
     public boolean matchesSingleVein() {
         if (oreCounts.isEmpty()) return true;
         if (oreCounts.size() > 4) return false;
-        ObjectSet<VeinType> veins = VeinTypeCaching.getVeinTypesForPrimaryMeta(primaryMeta);
-        if (veins.isEmpty()) return trySecondaryMeta();
-
-        veins.stream().filter(veinType -> veinType.matches(oreCounts.keySet())).forEach(matchedVeins::add);
-
-        if (matchedVeins.size() != 1) {
-            matchedVeins.clear();
-            return trySecondaryMeta();
-        }
-
-        return true;
-    }
-
-    private boolean trySecondaryMeta() {
-        if (secondaryMeta == primaryMeta) return false;
-        VeinTypeCaching.getVeinTypesForPrimaryMeta(secondaryMeta).stream()
-                .filter(veinType -> veinType.matches(oreCounts.keySet())).forEach(matchedVeins::add);
+        VeinTypeCaching.veinTypes.stream()
+                .filter(vein -> vein.containsAllFoundOres(oreCounts.keySet(), dimName, primaryMeta, minVeinBlockY))
+                .forEach(matchedVeins::add);
         return matchedVeins.size() <= 1;
     }
 
