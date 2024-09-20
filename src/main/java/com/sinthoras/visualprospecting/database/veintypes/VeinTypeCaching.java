@@ -11,8 +11,6 @@ import java.util.regex.Pattern;
 
 import net.minecraft.util.EnumChatFormatting;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 
@@ -27,10 +25,12 @@ import it.unimi.dsi.fastutil.objects.Object2ShortMap;
 import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 
 public class VeinTypeCaching implements Runnable {
 
-    private static final BiMap<Short, VeinType> veinTypeLookupTableForIds = HashBiMap.create();
+    private static final Short2ObjectMap<VeinType> veinTypeLookupTableForIds = new Short2ObjectOpenHashMap<>();
     private static final Map<String, VeinType> veinTypeLookupTableForNames = new HashMap<>();
     private static final Object2ShortMap<String> veinTypeStorageInfo = new Object2ShortOpenHashMap<>();
     public static ObjectSet<VeinType> veinTypes;
@@ -85,13 +85,10 @@ public class VeinTypeCaching implements Runnable {
         final Materials material = GregTechAPI.sGeneratedMaterials[metaId];
         if (material == null) {
             // Some materials are not registered in dev when their usage mod is not available.
-            return Materials.getAll().stream().filter(m -> m.mMetaItemSubID == metaId).findAny().get();
+            return Materials.getAll().stream().filter(m -> m.mMetaItemSubID == metaId).findAny()
+                    .orElse(Materials._NULL);
         }
         return material;
-    }
-
-    public static short getVeinTypeId(VeinType veinType) {
-        return veinTypeLookupTableForIds.inverse().get(veinType);
     }
 
     public static VeinType getVeinType(short veinTypeId) {
