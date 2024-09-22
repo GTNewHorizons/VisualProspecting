@@ -11,6 +11,7 @@ import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
+import cpw.mods.fml.common.network.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 
 public final class VPByteBufUtils {
@@ -19,18 +20,18 @@ public final class VPByteBufUtils {
         buf.writeInt(oreVeinPosition.dimensionId);
         buf.writeInt(oreVeinPosition.chunkX);
         buf.writeInt(oreVeinPosition.chunkZ);
-        buf.writeShort(oreVeinPosition.veinType.veinId);
         buf.writeBoolean(oreVeinPosition.isDepleted());
+        ByteBufUtils.writeUTF8String(buf, oreVeinPosition.veinType.name);
     }
 
     public static OreVeinPosition ReadOreVeinPosition(ByteBuf buf) {
         final int dimId = buf.readInt();
         final int chunkX = buf.readInt();
         final int chunkZ = buf.readInt();
-        final short veinId = buf.readShort();
         final boolean isDepleted = buf.readBoolean();
+        final String veinName = ByteBufUtils.readUTF8String(buf);
 
-        return new OreVeinPosition(dimId, chunkX, chunkZ, VeinTypeCaching.getVeinType(veinId), isDepleted);
+        return new OreVeinPosition(dimId, chunkX, chunkZ, VeinTypeCaching.getVeinType(veinName), isDepleted);
     }
 
     public static void WriteUndergroundFluidPosition(ByteBuf buf, UndergroundFluidPosition undergroundFluidPosition) {
