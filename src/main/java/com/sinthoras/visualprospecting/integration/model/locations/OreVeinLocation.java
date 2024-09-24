@@ -118,4 +118,8 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
     public IIcon getIconFromPrimaryOre() {
         return oreVeinPosition.veinType.oreMaterialProvider.getIcon();
     }
+
+    public short getPrimaryOreMeta() {
+        return oreVeinPosition.veinType.primaryOreMeta;
+    }
 }

@@ -3,7 +3,9 @@ package com.sinthoras.visualprospecting.integration.model.render;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
@@ -13,8 +15,12 @@ import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 
+import codechicken.nei.api.ShortcutInputHandler;
+import gregtech.api.GregTechAPI;
+
 public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation> {
 
+    private static final ResourceLocation clickSound = new ResourceLocation("gui.button.press");
     private static final ResourceLocation depletedTextureLocation = new ResourceLocation(
             Tags.MODID,
             "textures/depleted.png");
@@ -90,4 +96,23 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
         location.toggleOreVein();
     }
 
+    @Override
+    public boolean onKeyPressed(int keyCode) {
+
+        if (super.onKeyPressed(keyCode)) {
+            return true;
+        }
+
+        final var itemStack = new ItemStack(GregTechAPI.sBlockOres1, 1, location.getPrimaryOreMeta());
+        if (ShortcutInputHandler.handleKeyEvent(itemStack)) {
+            playClickSound();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void playClickSound() {
+        Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(clickSound, 1.0F));
+    }
 }
