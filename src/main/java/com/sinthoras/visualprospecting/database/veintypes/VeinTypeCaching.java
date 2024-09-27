@@ -71,8 +71,8 @@ public class VeinTypeCaching implements Runnable {
                             (short) vein.mSecondaryMeta,
                             (short) vein.mBetweenMeta,
                             (short) vein.mSporadicMeta,
-                            Math.max(0, vein.mMinY),
-                            Math.min(255, vein.mMaxY),
+                            vein.mMinY,
+                            vein.mMaxY,
                             vein.getDimName()));
         }
 
