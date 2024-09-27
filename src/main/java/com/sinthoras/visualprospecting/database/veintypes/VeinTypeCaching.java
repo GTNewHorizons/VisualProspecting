@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.database.veintypes;
 import static com.sinthoras.visualprospecting.Utils.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -123,7 +124,8 @@ public class VeinTypeCaching implements Runnable {
             for (VeinType veinType : veinTypes) {
                 if (veinType == VeinType.NO_VEIN) continue;
                 if (isSearchActive && !searchString.isEmpty()) {
-                    List<String> searchableStrings = veinType.getOreMaterialNames();
+                    List<String> searchableStrings = new ArrayList<>(veinType.getOreMaterialNames());
+                    searchableStrings.add(veinType.getVeinName());
                     final boolean match = searchableStrings.stream()
                             .map(EnumChatFormatting::getTextWithoutFormattingCodes).map(String::toLowerCase)
                             .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
