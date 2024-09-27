@@ -2,7 +2,6 @@ package com.sinthoras.visualprospecting.database;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -13,9 +12,12 @@ import net.minecraft.util.ChunkCoordinates;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+
 public abstract class WorldCache {
 
-    protected final Map<Integer, DimensionCache> dimensions = new HashMap<>();
+    protected final Int2ObjectMap<DimensionCache> dimensions = new Int2ObjectOpenHashMap<>();
     private boolean needsSaving = false;
     protected File worldCache;
     private boolean isLoaded = false;
@@ -43,9 +45,8 @@ public abstract class WorldCache {
             if (dimCompound == null) continue;
 
             final int dimensionId = dimCompound.getInteger("dim");
-            final DimensionCache dimension = new DimensionCache(dimensionId);
+            final DimensionCache dimension = dimensions.computeIfAbsent(dimensionId, DimensionCache::new);
             dimension.loadFromNbt(dimCompound);
-            dimensions.put(dimensionId, dimension);
             loadedAny = true;
         }
 
@@ -93,10 +94,8 @@ public abstract class WorldCache {
     public void saveVeinCache() {
         if (needsSaving) {
             for (DimensionCache dimension : dimensions.values()) {
-                if (!dimension.isDirty()) {
-                    continue;
-                }
-                File dimFile = new File(worldCache.toPath() + "/DIM" + dimension.dimensionId + ".dat");
+                if (!dimension.isDirty()) continue;
+                File dimFile = new File(worldCache, "DIM" + dimension.dimensionId + ".dat");
                 Utils.writeNBT(dimFile, dimension.saveToNbt());
             }
             needsSaving = false;
@@ -149,11 +148,7 @@ public abstract class WorldCache {
     }
 
     protected DimensionCache.UpdateResult putOreVein(final OreVeinPosition oreVeinPosition) {
-        DimensionCache dimension = dimensions.get(oreVeinPosition.dimensionId);
-        if (dimension == null) {
-            dimension = new DimensionCache(oreVeinPosition.dimensionId);
-            dimensions.put(oreVeinPosition.dimensionId, dimension);
-        }
+        DimensionCache dimension = dimensions.computeIfAbsent(oreVeinPosition.dimensionId, DimensionCache::new);
         return updateSaveFlag(dimension.putOreVein(oreVeinPosition));
     }
 
@@ -174,11 +169,7 @@ public abstract class WorldCache {
     }
 
     protected DimensionCache.UpdateResult putUndergroundFluids(final UndergroundFluidPosition undergroundFluid) {
-        DimensionCache dimension = dimensions.get(undergroundFluid.dimensionId);
-        if (dimension == null) {
-            dimension = new DimensionCache(undergroundFluid.dimensionId);
-            dimensions.put(undergroundFluid.dimensionId, dimension);
-        }
+        DimensionCache dimension = dimensions.computeIfAbsent(undergroundFluid.dimensionId, DimensionCache::new);
         return updateSaveFlag(dimension.putUndergroundFluid(undergroundFluid));
     }
 
