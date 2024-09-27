@@ -3,13 +3,17 @@ package com.sinthoras.visualprospecting.database.veintypes;
 import static com.sinthoras.visualprospecting.Utils.*;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
 import net.minecraft.util.EnumChatFormatting;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
@@ -49,9 +53,15 @@ public class VeinTypeCaching implements Runnable {
         }
 
         for (BWOreLayer vein : BWOreLayer.sList) {
-            final IOreMaterialProvider oreMaterialProvider = (vein.bwOres & 0b1000) == 0
-                    ? new GregTechOreMaterialProvider(getGregTechMaterial((short) vein.mPrimaryMeta))
-                    : new BartworksOreMaterialProvider(Werkstoff.werkstoffHashMap.get((short) vein.mPrimaryMeta));
+            final IOreMaterialProvider oreMaterialProvider;
+            if (containsBartworksOres(vein.bwOres)) {
+                oreMaterialProvider = getRepresentativeProvider(
+                        vein.mWorldGenName,
+                        new int[] { vein.mPrimaryMeta, vein.mSecondaryMeta, vein.mBetweenMeta, vein.mSporadicMeta });
+            } else {
+                oreMaterialProvider = new GregTechOreMaterialProvider(
+                        GregTechAPI.sGeneratedMaterials[(short) vein.mPrimaryMeta]);
+            }
             veinTypes.add(
                     new VeinType(
                             vein.mWorldGenName,
@@ -79,16 +89,6 @@ public class VeinTypeCaching implements Runnable {
             veinTypeLookupTableForNames.put(veinType.name, veinType);
         }
         saveVeinTypeStorageInfo();
-    }
-
-    private Materials getGregTechMaterial(short metaId) {
-        final Materials material = GregTechAPI.sGeneratedMaterials[metaId];
-        if (material == null) {
-            // Some materials are not registered in dev when their usage mod is not available.
-            return Materials.getAll().stream().filter(m -> m.mMetaItemSubID == metaId).findAny()
-                    .orElse(Materials._NULL);
-        }
-        return material;
     }
 
     public static VeinType getVeinType(short veinTypeId) {
@@ -134,5 +134,28 @@ public class VeinTypeCaching implements Runnable {
                 }
             }
         }
+    }
+
+    private static boolean containsBartworksOres(byte bwOres) {
+        return (bwOres & 0b1111) != 0;
+    }
+
+    private static IOreMaterialProvider getRepresentativeProvider(String veinName, int[] ores) {
+        for (int meta : ores) {
+            Werkstoff werkstoff = Werkstoff.werkstoffHashMap.get((short) meta);
+            if (werkstoff == null) continue;
+            String defaultName = werkstoff.getDefaultName();
+            // also try lobbing a few characters off the end of the vein name because bart
+            if (StringUtils.endsWithIgnoreCase(veinName, defaultName)
+                    || StringUtils.containsIgnoreCase(veinName, defaultName.substring(0, defaultName.length() - 2))) {
+                return new BartworksOreMaterialProvider(werkstoff);
+            }
+        }
+
+        Werkstoff primaryMaterial = Arrays.stream(ores).mapToObj(meta -> Werkstoff.werkstoffHashMap.get((short) meta))
+                .filter(Objects::nonNull).findFirst().orElse(null);
+
+        return primaryMaterial == null ? new GregTechOreMaterialProvider(Materials._NULL)
+                : new BartworksOreMaterialProvider(primaryMaterial);
     }
 }

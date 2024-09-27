@@ -8,6 +8,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.google.common.collect.ImmutableList;
 import com.sinthoras.visualprospecting.Tags;
 
+import gregtech.api.enums.Materials;
 import gregtech.common.OreMixBuilder;
 import it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import it.unimi.dsi.fastutil.shorts.ShortCollection;
@@ -32,11 +33,12 @@ public class VeinType {
     private final ShortSet oresAsSet = new ShortArraySet();
     private final List<String> allowedDims = new ArrayList<>();
     private boolean isHighlighted = true;
+    private final String localizedName;
 
     // Available after VisualProspecting post GT initialization
     public static final VeinType NO_VEIN = new VeinType(
             Tags.ORE_MIX_NONE_NAME,
-            new GregTechOreMaterialProvider(),
+            new GregTechOreMaterialProvider(Materials._NULL),
             0,
             (short) -1,
             (short) -1,
@@ -52,18 +54,20 @@ public class VeinType {
         this.name = name;
         this.oreMaterialProvider = oreMaterialProvider;
         this.blockSize = blockSize;
-        this.minBlockY = minBlockY;
-        this.maxBlockY = maxBlockY;
+        this.minBlockY = Math.max(0, minBlockY);
+        this.maxBlockY = Math.min(255, maxBlockY);
         oresAsSet.add(this.primaryOreMeta = primaryOreMeta);
         oresAsSet.add(this.secondaryOreMeta = secondaryOreMeta);
         oresAsSet.add(this.inBetweenOreMeta = inBetweenOreMeta);
         oresAsSet.add(this.sporadicOreMeta = sporadicOreMeta);
+        localizedName = oreMaterialProvider.getLocalizedName();
         allowedDims.add(dimName);
     }
 
     public VeinType(OreMixBuilder oreMix) {
         name = oreMix.oreMixName;
-        oreMaterialProvider = new GregTechOreMaterialProvider(oreMix.primary);
+        oreMaterialProvider = new GregTechOreMaterialProvider(oreMix.representative);
+        localizedName = oreMix.localizedName;
         blockSize = oreMix.size;
         oresAsSet.add(primaryOreMeta = (short) oreMix.primary.mMetaItemSubID);
         oresAsSet.add(secondaryOreMeta = (short) oreMix.secondary.mMetaItemSubID);
@@ -106,8 +110,8 @@ public class VeinType {
         return oreMaterialProvider.getContainedOres(oresAsSet);
     }
 
-    public String getPrimaryOreName() {
-        return oreMaterialProvider.getLocalizedName();
+    public String getVeinName() {
+        return localizedName;
     }
 
     public ShortSet getOresAtLayer(int layerBlockY) {
