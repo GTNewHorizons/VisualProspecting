@@ -12,7 +12,7 @@ public class VP {
     public static SimpleNetworkWrapper network;
     public static final Random randomGeneration = new Random();
 
-    private static Logger LOG = LogManager.getLogger(Tags.MODID);
+    public static final Logger LOG = LogManager.getLogger(Tags.MODID);
     public static final int gregTechSmallOreMinimumMeta = 16000;
     public static final int minecraftWorldHeight = 256;
     public static final int chunksPerRegionFileX = 32;

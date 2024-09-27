@@ -1,9 +1,11 @@
 package com.sinthoras.visualprospecting.hooks;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.zip.DataFormatException;
 
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.sinthoras.visualprospecting.Config;
@@ -36,6 +38,8 @@ import cpw.mods.fml.relauncher.Side;
 import gregtech.api.GregTechAPI;
 
 public class HooksShared {
+
+    private static boolean newWorld = false;
 
     // preInit "Run before anything else. Read your config, create blocks, items,
     // etc, and register them with the GameRegistry."
@@ -82,28 +86,31 @@ public class HooksShared {
         GregTechAPI.sAfterGTPostload.add(new VeinTypeCaching());
     }
 
-    public void fmlLifeCycleEvent(FMLServerAboutToStartEvent event) {}
+    public void fmlLifeCycleEvent(FMLServerAboutToStartEvent event) {
+        File worldDir = DimensionManager.getCurrentSaveRootDirectory();
+        if (worldDir != null) {
+            File regionFolder = new File(worldDir, "region");
+            newWorld = !regionFolder.exists();
+        }
+    }
 
     // register server commands in this event handler
     public void fmlLifeCycleEvent(FMLServerStartingEvent event) {
 
         // Get the server and load the ID handler
-        final MinecraftServer minecraftServer = event.getServer();
-        WorldIdHandler.load(minecraftServer.worldServers[0]);
+        WorldServer world = DimensionManager.getWorld(0);
+        WorldIdHandler.load(world);
 
         // Attempt to load the vein cache. If unable or forcing a recache...
-        if (!ServerCache.instance.loadVeinCache(WorldIdHandler.getWorldId()) || Config.recacheVeins) {
+        boolean loaded = ServerCache.instance.loadVeinCache(WorldIdHandler.getWorldId());
+        if (!newWorld && (!loaded || Config.recacheVeins)) {
 
             // Reanalyze the world and reload it into memory.
             try {
-                WorldAnalysis world = new WorldAnalysis(
-                        minecraftServer.getEntityWorld().getSaveHandler().getWorldDirectory());
-                world.cacheVeins();
+                WorldAnalysis worldAnalysis = new WorldAnalysis(world.getSaveHandler().getWorldDirectory());
+                worldAnalysis.cacheVeins();
             } catch (IOException | DataFormatException e) {
-
-                // Oops
-                VP.info("Could not load world save files to build vein cache!");
-                e.printStackTrace();
+                VP.LOG.info("Could not load world save files to build vein cache!", e);
             }
         }
 
