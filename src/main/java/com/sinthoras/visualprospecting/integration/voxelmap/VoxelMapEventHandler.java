@@ -29,7 +29,7 @@ public class VoxelMapEventHandler {
         TreeSet<Integer> dim = new TreeSet<>();
         dim.add(pos.dimensionId);
         VoxelMapWaypointManager.addVoxelMapWaypoint(
-                pos.veinType.getPrimaryOreName(), // name
+                pos.veinType.getVeinName(), // name
                 pos.getBlockX(), // X
                 pos.getBlockZ(), // Z
                 getY(), // Y

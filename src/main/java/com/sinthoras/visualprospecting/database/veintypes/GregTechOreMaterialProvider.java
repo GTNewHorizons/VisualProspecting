@@ -28,13 +28,6 @@ public class GregTechOreMaterialProvider implements IOreMaterialProvider {
         this.primaryOreName = material.mLocalizedName;
     }
 
-    GregTechOreMaterialProvider() {
-        material = Materials._NULL;
-        primaryOreColor = 0;
-        primaryOreName = "";
-        containedOres = ImmutableList.of();
-    }
-
     @Override
     @SideOnly(Side.CLIENT)
     public IIcon getIcon() {
@@ -59,6 +52,7 @@ public class GregTechOreMaterialProvider implements IOreMaterialProvider {
         if (containedOres == null) {
             List<String> temp = new ArrayList<>();
             for (short meta : ores) {
+                if (meta < 0) break;
                 Materials material = GregTechAPI.sGeneratedMaterials[meta];
                 if (material == null) continue;
                 temp.add(material.mLocalizedName);

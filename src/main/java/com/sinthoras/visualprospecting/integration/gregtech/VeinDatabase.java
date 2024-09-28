@@ -22,7 +22,7 @@ public class VeinDatabase implements IDatabase {
             // capture which language the original cover attaching player is using, maybe. (I think this requires
             // reflection, of course. Why should things be easy?) Even then, it wouldn't help in a multiplayer scenario
             // with users having different locales.
-            return Optional.of(oreVein.veinType.getPrimaryOreName());
+            return Optional.of(oreVein.veinType.getVeinName());
         } else {
             return Optional.empty();
         }
