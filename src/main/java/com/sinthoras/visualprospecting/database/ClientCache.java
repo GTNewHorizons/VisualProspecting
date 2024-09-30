@@ -29,9 +29,19 @@ public class ClientCache extends WorldCache {
 
     protected File getStorageDirectory() {
         final EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
-        return new File(
-                Utils.getSubDirectory(Tags.CLIENT_DIR),
+        File oldCacheDir = new File(
+                Tags.CLIENT_DIR,
                 player.getDisplayName() + "_" + player.getPersistentID().toString());
+        File newCacheDir = new File(Tags.CLIENT_DIR, player.getPersistentID().toString());
+        if (oldCacheDir.exists()) {
+            if (oldCacheDir.renameTo(newCacheDir)) {
+                return newCacheDir;
+            }
+            // Something went wrong, just return the old cache directory
+            return oldCacheDir;
+        }
+
+        return newCacheDir;
     }
 
     private void notifyNewOreVein(OreVeinPosition oreVeinPosition) {
