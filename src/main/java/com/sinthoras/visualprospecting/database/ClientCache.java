@@ -1,6 +1,7 @@
 package com.sinthoras.visualprospecting.database;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+
+import org.apache.commons.io.FileUtils;
 
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
@@ -29,9 +32,15 @@ public class ClientCache extends WorldCache {
 
     protected File getStorageDirectory() {
         final EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
-        return new File(
-                Utils.getSubDirectory(Tags.CLIENT_DIR),
+        File oldCacheDir = new File(
+                Tags.CLIENT_DIR,
                 player.getDisplayName() + "_" + player.getPersistentID().toString());
+        File newCacheDir = new File(Tags.CLIENT_DIR, player.getPersistentID().toString());
+        if (oldCacheDir.exists()) {
+            convertOldCache(oldCacheDir, newCacheDir);
+        }
+
+        return newCacheDir;
     }
 
     private void notifyNewOreVein(OreVeinPosition oreVeinPosition) {
@@ -163,5 +172,22 @@ public class ClientCache extends WorldCache {
             allUndergroundFluids.addAll(dimension.getAllUndergroundFluids());
         }
         return allUndergroundFluids;
+    }
+
+    private static void convertOldCache(File oldCache, File newCache) {
+        if (!oldCache.exists()) return;
+        File[] files = oldCache.listFiles();
+        if (files != null && files.length > 0 && newCache.exists()) {
+            for (File file : files) {
+                if (!file.isDirectory()) continue;
+                try {
+                    FileUtils.copyDirectoryToDirectory(file, newCache);
+                } catch (IOException ignored) {}
+            }
+            Utils.deleteDirectoryRecursively(oldCache);
+        } else {
+            // noinspection ResultOfMethodCallIgnored
+            oldCache.renameTo(newCache);
+        }
     }
 }
