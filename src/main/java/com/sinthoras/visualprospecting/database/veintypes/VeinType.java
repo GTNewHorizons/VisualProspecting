@@ -21,7 +21,6 @@ public class VeinType {
     public static final int veinHeight = 9;
 
     public final String name;
-    public short veinId;
     public final IOreMaterialProvider oreMaterialProvider;
     public final int blockSize;
     public final short primaryOreMeta;

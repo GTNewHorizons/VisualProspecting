@@ -1,8 +1,15 @@
 package com.sinthoras.visualprospecting.database;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collection;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,6 +18,9 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
@@ -18,6 +28,9 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectMaps;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 
 public class DimensionCache {
 
@@ -27,10 +40,13 @@ public class DimensionCache {
         New
     }
 
+    private static final File oldIdFile = new File(Tags.VISUALPROSPECTING_DIR, "veintypesLUT");
+    private static Short2ObjectMap<String> idConversionMap;
     private final Long2ObjectMap<OreVeinPosition> oreChunks = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectMap<UndergroundFluidPosition> undergroundFluids = new Long2ObjectOpenHashMap<>();
     public final int dimensionId;
     private boolean isDirty = false;
+    private boolean preventSaving = false;
 
     public DimensionCache(int dimensionId) {
         this.dimensionId = dimensionId;
@@ -51,7 +67,7 @@ public class DimensionCache {
             NBTTagCompound veinCompound = new NBTTagCompound();
             veinCompound.setInteger("chunkX", vein.chunkX);
             veinCompound.setInteger("chunkZ", vein.chunkZ);
-            veinCompound.setShort("veinTypeId", vein.veinType.veinId);
+            veinCompound.setString("veinTypeName", vein.veinType.name);
             veinCompound.setBoolean("depleted", vein.isDepleted());
             compound.setTag(String.valueOf(getOreVeinKey(vein.chunkX, vein.chunkZ)), veinCompound);
         }
@@ -82,9 +98,16 @@ public class DimensionCache {
             NBTTagCompound veinCompound = (NBTTagCompound) base;
             int chunkX = veinCompound.getInteger("chunkX");
             int chunkZ = veinCompound.getInteger("chunkZ");
-            short veinTypeId = veinCompound.getShort("veinTypeId");
             boolean depleted = veinCompound.getBoolean("depleted");
-            VeinType veinType = VeinTypeCaching.getVeinType(veinTypeId);
+            VeinType veinType;
+            if (veinCompound.hasKey("veinTypeId")) {
+                veinType = getVeinFromId(veinCompound.getShort("veinTypeId"));
+                if (veinType == null) return;
+                markDirty();
+            } else {
+                veinType = VeinTypeCaching.getVeinType(veinCompound.getString("veinTypeName"));
+            }
+
             oreChunks.put(
                     getOreVeinKey(chunkX, chunkZ),
                     new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType, depleted));
@@ -115,7 +138,9 @@ public class DimensionCache {
                 final int chunkZ = oreChunksBuffer.getInt();
                 final short veinTypeId = oreChunksBuffer.getShort();
                 final boolean depleted = (veinTypeId & 0x8000) > 0;
-                final VeinType veinType = VeinTypeCaching.getVeinType((short) (veinTypeId & 0x7FFF));
+                final VeinType veinType = getVeinFromId(veinTypeId);
+                if (veinType == null) return;
+
                 oreChunks.put(
                         getOreVeinKey(chunkX, chunkZ),
                         new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType, depleted));
@@ -220,7 +245,7 @@ public class DimensionCache {
     }
 
     public boolean isDirty() {
-        return isDirty;
+        return isDirty && !preventSaving;
     }
 
     public void markDirty() {
@@ -244,5 +269,44 @@ public class DimensionCache {
             final boolean withinZ = val.chunkZ >= startChunkZ && val.chunkZ <= endChunkZ;
             return withinX && withinZ;
         });
+    }
+
+    private @Nullable VeinType getVeinFromId(short veinTypeId) {
+        final String veinTypeName = getIdConversionMap().get((short) (veinTypeId & 0x7FFF));
+        if (veinTypeName == null) {
+            preventSaving = true;
+            VP.LOG.warn(
+                    "Not loading ores in dimension {}. Couldn't find vein type for id {}, file {} may be missing.",
+                    dimensionId,
+                    veinTypeId,
+                    oldIdFile.getAbsolutePath());
+            return null;
+        }
+        return VeinTypeCaching.getVeinType(veinTypeName);
+    }
+
+    private static Short2ObjectMap<String> getIdConversionMap() {
+        if (idConversionMap != null) {
+            return idConversionMap;
+        }
+
+        if (!oldIdFile.exists()) {
+            return Short2ObjectMaps.emptyMap();
+        }
+        try {
+            final Gson gson = new Gson();
+            final Reader reader = Files.newBufferedReader(oldIdFile.toPath());
+            final Map<String, Short> map = gson.fromJson(reader, new TypeToken<Map<String, Short>>() {}.getType());
+            reader.close();
+            Short2ObjectMap<String> result = new Short2ObjectOpenHashMap<>();
+            result.put((short) 0, Tags.ORE_MIX_NONE_NAME);
+            for (Map.Entry<String, Short> entry : map.entrySet()) {
+                result.put(entry.getValue().shortValue(), entry.getKey());
+            }
+            return idConversionMap = result;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Short2ObjectMaps.emptyMap();
+        }
     }
 }

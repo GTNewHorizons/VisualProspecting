@@ -18,7 +18,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 public abstract class WorldCache {
 
     protected final Int2ObjectMap<DimensionCache> dimensions = new Int2ObjectOpenHashMap<>();
-    private boolean needsSaving = false;
     protected File worldCache;
     private boolean isLoaded = false;
 
@@ -86,25 +85,20 @@ public abstract class WorldCache {
 
         Utils.deleteDirectoryRecursively(oreVeinCacheDirectory);
         Utils.deleteDirectoryRecursively(undergroundFluidCacheDirectory);
-        needsSaving = true;
         saveVeinCache();
         return true;
     }
 
     public void saveVeinCache() {
-        if (needsSaving) {
-            for (DimensionCache dimension : dimensions.values()) {
-                if (!dimension.isDirty()) continue;
-                File dimFile = new File(worldCache, "DIM" + dimension.dimensionId + ".dat");
-                Utils.writeNBT(dimFile, dimension.saveToNbt());
-            }
-            needsSaving = false;
+        for (DimensionCache dimension : dimensions.values()) {
+            if (!dimension.isDirty()) continue;
+            File dimFile = new File(worldCache, "DIM" + dimension.dimensionId + ".dat");
+            Utils.writeNBT(dimFile, dimension.saveToNbt());
         }
     }
 
     public void reset() {
         dimensions.clear();
-        needsSaving = false;
         isLoaded = false;
     }
 
@@ -123,7 +117,6 @@ public abstract class WorldCache {
         DimensionCache dim = dimensions.get(dimID);
         if (dim != null) {
             dim.clearOreVeins(startX, startZ, endX, endZ);
-            needsSaving = true;
             isLoaded = false;
         }
     }
@@ -142,14 +135,9 @@ public abstract class WorldCache {
         resetSome(dimID, startX, startZ, endX, endZ);
     }
 
-    private DimensionCache.UpdateResult updateSaveFlag(DimensionCache.UpdateResult updateResult) {
-        needsSaving |= updateResult != DimensionCache.UpdateResult.AlreadyKnown;
-        return updateResult;
-    }
-
     protected DimensionCache.UpdateResult putOreVein(final OreVeinPosition oreVeinPosition) {
         DimensionCache dimension = dimensions.computeIfAbsent(oreVeinPosition.dimensionId, DimensionCache::new);
-        return updateSaveFlag(dimension.putOreVein(oreVeinPosition));
+        return dimension.putOreVein(oreVeinPosition);
     }
 
     protected void toggleOreVein(int dimensionId, int chunkX, int chunkZ) {
@@ -157,7 +145,6 @@ public abstract class WorldCache {
         if (dimension != null) {
             dimension.toggleOreVein(chunkX, chunkZ);
         }
-        needsSaving = true;
     }
 
     public OreVeinPosition getOreVein(int dimensionId, int chunkX, int chunkZ) {
@@ -170,7 +157,7 @@ public abstract class WorldCache {
 
     protected DimensionCache.UpdateResult putUndergroundFluids(final UndergroundFluidPosition undergroundFluid) {
         DimensionCache dimension = dimensions.computeIfAbsent(undergroundFluid.dimensionId, DimensionCache::new);
-        return updateSaveFlag(dimension.putUndergroundFluid(undergroundFluid));
+        return dimension.putUndergroundFluid(undergroundFluid);
     }
 
     public UndergroundFluidPosition getUndergroundFluid(int dimensionId, int chunkX, int chunkZ) {

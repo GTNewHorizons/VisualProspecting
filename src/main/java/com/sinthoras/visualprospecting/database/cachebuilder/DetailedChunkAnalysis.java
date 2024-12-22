@@ -161,7 +161,7 @@ public class DetailedChunkAnalysis {
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).map(Map.Entry::getKey).findFirst();
         if (!dominantOre.isPresent()) return VeinType.NO_VEIN;
 
-        for (VeinType veinType : VeinTypeCaching.veinTypes) {
+        for (VeinType veinType : VeinTypeCaching.getVeinTypes()) {
             if (veinType.matchesWithSpecificPrimaryOrSecondary(allOres.keySet(), dimName, dominantOre.get())) {
                 matchedVeins.add(veinType);
             }

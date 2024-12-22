@@ -2,22 +2,19 @@ package com.sinthoras.visualprospecting.database.veintypes;
 
 import static com.sinthoras.visualprospecting.Utils.*;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.OptionalInt;
 import java.util.regex.Pattern;
 
 import net.minecraft.util.EnumChatFormatting;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import com.sinthoras.visualprospecting.Tags;
-import com.sinthoras.visualprospecting.Utils;
 
 import bartworks.system.material.Werkstoff;
 import bartworks.system.oregen.BWOreLayer;
@@ -26,31 +23,18 @@ import codechicken.nei.SearchField;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OreMixes;
-import it.unimi.dsi.fastutil.objects.Object2ShortMap;
-import it.unimi.dsi.fastutil.objects.Object2ShortOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-public class VeinTypeCaching implements Runnable {
+public class VeinTypeCaching {
 
-    private static final Short2ObjectMap<VeinType> veinTypeLookupTableForIds = new Short2ObjectOpenHashMap<>();
-    private static final Map<String, VeinType> veinTypeLookupTableForNames = new HashMap<>();
-    private static final Object2ShortMap<String> veinTypeStorageInfo = new Object2ShortOpenHashMap<>();
-    public static ObjectSet<VeinType> veinTypes;
+    private static final Object2ObjectMap<String, VeinType> veinTypes = new Object2ObjectOpenHashMap<>();
 
-    // BartWorks initializes veins in FML preInit
-    // GalacticGreg initializes veins in FML postInit, but only copies all base game veins to make them available on all
-    // planets
-    // GregTech initializes veins in a thread in FML postInit
-    // Therefore, this method must be called after GregTech postInit
-    public void run() {
-        veinTypes = new ObjectOpenHashSet<>();
-        veinTypes.add(VeinType.NO_VEIN);
+    public static void init() {
+        veinTypes.put(Tags.ORE_MIX_NONE_NAME, VeinType.NO_VEIN);
 
         for (OreMixes mix : OreMixes.values()) {
-            veinTypes.add(new VeinType(mix.oreMixBuilder));
+            veinTypes.put(mix.oreMixBuilder.oreMixName, new VeinType(mix.oreMixBuilder));
         }
 
         for (BWOreLayer vein : BWOreLayer.sList) {
@@ -63,7 +47,8 @@ public class VeinTypeCaching implements Runnable {
                 oreMaterialProvider = new GregTechOreMaterialProvider(
                         GregTechAPI.sGeneratedMaterials[(short) vein.mPrimaryMeta]);
             }
-            veinTypes.add(
+            veinTypes.put(
+                    vein.mWorldGenName,
                     new VeinType(
                             vein.mWorldGenName,
                             oreMaterialProvider,
@@ -76,43 +61,14 @@ public class VeinTypeCaching implements Runnable {
                             vein.mMaxY,
                             vein.getDimName()));
         }
-
-        // Assign veinTypeIds for efficient storage
-        loadVeinTypeStorageInfo();
-
-        final OptionalInt maxVeinTypeIdOptional = veinTypeStorageInfo.values().intStream().max();
-        short maxVeinTypeId = (short) (maxVeinTypeIdOptional.orElse(0));
-
-        for (VeinType veinType : veinTypes) {
-            veinType.veinId = veinTypeStorageInfo.getOrDefault(veinType.name, ++maxVeinTypeId);
-            veinTypeStorageInfo.putIfAbsent(veinType.name, veinType.veinId);
-            veinTypeLookupTableForIds.put(veinType.veinId, veinType);
-            veinTypeLookupTableForNames.put(veinType.name, veinType);
-        }
-        saveVeinTypeStorageInfo();
     }
 
-    public static VeinType getVeinType(short veinTypeId) {
-        return veinTypeLookupTableForIds.getOrDefault(veinTypeId, VeinType.NO_VEIN);
+    public static @NotNull VeinType getVeinType(String veinTypeName) {
+        return veinTypes.getOrDefault(veinTypeName, VeinType.NO_VEIN);
     }
 
-    public static VeinType getVeinType(String veinTypeName) {
-        return veinTypeLookupTableForNames.getOrDefault(veinTypeName, VeinType.NO_VEIN);
-    }
-
-    private static File getVeinTypeStorageInfoFile() {
-        final File directory = Utils.getSubDirectory(Tags.VISUALPROSPECTING_DIR);
-        // noinspection ResultOfMethodCallIgnored
-        directory.mkdirs();
-        return new File(directory, "veintypesLUT");
-    }
-
-    private static void loadVeinTypeStorageInfo() {
-        veinTypeStorageInfo.putAll(Utils.readFileToMap(getVeinTypeStorageInfoFile()));
-    }
-
-    private static void saveVeinTypeStorageInfo() {
-        Utils.writeMapToFile(getVeinTypeStorageInfoFile(), veinTypeStorageInfo);
+    public static Collection<VeinType> getVeinTypes() {
+        return veinTypes.values();
     }
 
     public static void recalculateNEISearch() {
@@ -121,7 +77,7 @@ public class VeinTypeCaching implements Runnable {
             final String searchString = NEIClientConfig.getSearchExpression().toLowerCase();
             final Pattern filterPattern = SearchField.getPattern(searchString);
 
-            for (VeinType veinType : veinTypes) {
+            for (VeinType veinType : veinTypes.values()) {
                 if (veinType == VeinType.NO_VEIN) continue;
                 if (isSearchActive && !searchString.isEmpty()) {
                     List<String> searchableStrings = new ArrayList<>(veinType.getOreMaterialNames());
