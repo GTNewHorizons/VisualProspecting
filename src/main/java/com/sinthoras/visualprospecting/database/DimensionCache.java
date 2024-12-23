@@ -138,7 +138,7 @@ public class DimensionCache {
                 final int chunkZ = oreChunksBuffer.getInt();
                 final short veinTypeId = oreChunksBuffer.getShort();
                 final boolean depleted = (veinTypeId & 0x8000) > 0;
-                final VeinType veinType = getVeinFromId(veinTypeId);
+                final VeinType veinType = getVeinFromId((short) (veinTypeId & 0x7FFF));
                 if (veinType == null) return;
 
                 oreChunks.put(
@@ -272,7 +272,7 @@ public class DimensionCache {
     }
 
     private @Nullable VeinType getVeinFromId(short veinTypeId) {
-        final String veinTypeName = getIdConversionMap().get((short) (veinTypeId & 0x7FFF));
+        final String veinTypeName = getIdConversionMap().get(veinTypeId);
         if (veinTypeName == null) {
             preventSaving = true;
             VP.LOG.warn(
