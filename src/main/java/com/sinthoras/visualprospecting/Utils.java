@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.storage.ThreadedFileIOBase;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -141,11 +142,14 @@ public class Utils {
     }
 
     public static void writeNBT(File file, NBTTagCompound tag) {
-        try (FileOutputStream stream = new FileOutputStream(newFile(file))) {
-            CompressedStreamTools.writeCompressed(tag, stream);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        ThreadedFileIOBase.threadedIOInstance.queueIO(() -> {
+            try (FileOutputStream stream = new FileOutputStream(newFile(file))) {
+                CompressedStreamTools.writeCompressed(tag, stream);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        });
     }
 
     public static File newFile(File file) {
