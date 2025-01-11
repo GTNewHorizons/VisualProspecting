@@ -25,6 +25,7 @@ import com.sinthoras.visualprospecting.network.WorldIdNotification;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
@@ -35,7 +36,6 @@ import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
-import gregtech.api.GregTechAPI;
 
 public class HooksShared {
 
@@ -82,8 +82,10 @@ public class HooksShared {
     }
 
     // postInit "Handle interaction with other mods, complete your setup based on this."
-    public void fmlLifeCycleEvent(FMLPostInitializationEvent event) {
-        GregTechAPI.sAfterGTPostload.add(new VeinTypeCaching());
+    public void fmlLifeCycleEvent(FMLPostInitializationEvent event) {}
+
+    public void fmlLifeCycleEvent(FMLLoadCompleteEvent event) {
+        VeinTypeCaching.init();
     }
 
     public void fmlLifeCycleEvent(FMLServerAboutToStartEvent event) {

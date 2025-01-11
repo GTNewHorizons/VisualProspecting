@@ -23,6 +23,11 @@ public class HooksFML {
     }
 
     @SubscribeEvent
+    public void onEvent(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+        ClientCache.instance.saveVeinCache();
+    }
+
+    @SubscribeEvent
     public void onEvent(TickEvent event) {
         TaskManager.instance.onTick();
     }
