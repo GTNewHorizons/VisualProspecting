@@ -15,11 +15,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import com.sinthoras.visualprospecting.Tags;
+import com.sinthoras.visualprospecting.Utils;
 
 import bartworks.system.material.Werkstoff;
 import bartworks.system.oregen.BWOreLayer;
-import codechicken.nei.NEIClientConfig;
-import codechicken.nei.SearchField;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OreMixes;
@@ -73,13 +72,10 @@ public class VeinTypeCaching {
 
     public static void recalculateNEISearch() {
         if (isNEIInstalled()) {
-            final boolean isSearchActive = SearchField.searchInventories();
-            final String searchString = NEIClientConfig.getSearchExpression().toLowerCase();
-            final Pattern filterPattern = SearchField.getPattern(searchString);
-
+            final Pattern filterPattern = Utils.getNEISearchPattern();
             for (VeinType veinType : veinTypes.values()) {
                 if (veinType == VeinType.NO_VEIN) continue;
-                if (isSearchActive && !searchString.isEmpty()) {
+                if (filterPattern != null) {
                     List<String> searchableStrings = new ArrayList<>(veinType.getOreMaterialNames());
                     searchableStrings.add(veinType.getVeinName());
                     final boolean match = searchableStrings.stream()

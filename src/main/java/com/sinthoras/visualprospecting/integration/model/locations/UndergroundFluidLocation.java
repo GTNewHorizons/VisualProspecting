@@ -8,6 +8,7 @@ import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 public class UndergroundFluidLocation implements ILocationProvider {
 
     private final UndergroundFluidPosition undergroundFluidPosition;
+    private boolean active;
 
     public UndergroundFluidLocation(UndergroundFluidPosition undergroundFluidPosition) {
         this.undergroundFluidPosition = undergroundFluidPosition;
@@ -36,7 +37,19 @@ public class UndergroundFluidLocation implements ILocationProvider {
         return undergroundFluidPosition.getMaxProduction();
     }
 
+    public int[][] getChunks() {
+        return undergroundFluidPosition.chunks;
+    }
+
     public Fluid getFluid() {
         return undergroundFluidPosition.fluid;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public boolean isActive() {
+        return active;
     }
 }

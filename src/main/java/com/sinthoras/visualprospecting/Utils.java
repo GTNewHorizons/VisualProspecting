@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,6 +34,8 @@ import com.google.gson.reflect.TypeToken;
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import com.sinthoras.visualprospecting.hooks.HooksClient;
 
+import codechicken.nei.NEIClientConfig;
+import codechicken.nei.SearchField;
 import cpw.mods.fml.common.Loader;
 import gregtech.common.GTWorldgenerator;
 
@@ -230,5 +233,16 @@ public class Utils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static @Nullable Pattern getNEISearchPattern() {
+        final String searchString = NEIClientConfig.getSearchExpression().toLowerCase();
+        if (!SearchField.searchInventories() || searchString.isEmpty()) {
+            return null;
+        }
+
+        final String unquotedRegex = SearchField.getPattern(searchString).pattern().replace("\\Q", "")
+                .replace("\\E", "");
+        return Pattern.compile(unquotedRegex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     }
 }
