@@ -10,17 +10,9 @@ import cpw.mods.fml.relauncher.FMLLaunchHandler;
 
 public enum Mixins {
 
-    // Bartworks mixins
-    WorldGenContainerMixin("bartworks.WorldGenContainerMixin", BARTWORKS),
-
-    // Galactic greg mixins
-    GT_Worldgenerator_SpaceMixin("galacticgreg.GT_Worldgenerator_SpaceMixin", GALACTICGREG),
-
     // Gregtech mixins
-    GT_Block_Ores_AbstractMixin("gregtech.GT_Block_Ores_AbstractMixin", GT5U),
-    GT_MetaTileEntity_AdvSeismicProspectorMixin("gregtech.GT_MetaTileEntity_AdvSeismicProspectorMixin", GT5U),
-    GT_MetaTileEntity_ScannerMixin("gregtech.GT_MetaTileEntity_ScannerMixin", GT5U),
-    GT_WorldGenContainerMixin("gregtech.WorldGenContainerMixin", GT5U),
+    MTEAdvSeismicProspectorMixin("gregtech.MTEAdvSeismicProspectorMixin", GT5U),
+    MTEScannerMixin("gregtech.MTEScannerMixin", GT5U),
 
     // Vanilla Mixins
     MinecraftServerAccessorMixin("minecraft.MinecraftServerAccessor", Phase.EARLY, Side.BOTH, VANILLA),
