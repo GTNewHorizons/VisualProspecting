@@ -8,7 +8,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
@@ -24,11 +23,20 @@ import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
 
-import gregtech.common.blocks.TileEntityOres;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import gregtech.api.events.GTEventBus;
+import gregtech.api.interfaces.IOreMaterial;
+import gregtech.common.ores.OreInfo;
+import gregtech.common.ores.OreInteractEvent;
+import gregtech.common.ores.OreManager;
 
 public class ClientCache extends WorldCache {
 
     public static final ClientCache instance = new ClientCache();
+
+    public ClientCache() {
+        GTEventBus.bus().register(this);
+    }
 
     protected File getStorageDirectory() {
         final EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
@@ -132,20 +140,23 @@ public class ClientCache extends WorldCache {
         Minecraft.getMinecraft().thePlayer.addChatMessage(undergroundFluidsNotification);
     }
 
-    public void onOreInteracted(World world, int blockX, int blockY, int blockZ, EntityPlayer entityPlayer) {
-        if (world.isRemote && Config.enableProspecting && Minecraft.getMinecraft().thePlayer == entityPlayer) {
-            final TileEntity tTileEntity = world.getTileEntity(blockX, blockY, blockZ);
-            if (tTileEntity instanceof TileEntityOres ore) {
-                final short oreMetaData = ore.mMetaData;
-                if (!Utils.isSmallOreId(oreMetaData) && oreMetaData != 0) {
-                    final int chunkX = Utils.coordBlockToChunk(blockX);
-                    final int chunkZ = Utils.coordBlockToChunk(blockZ);
-                    final OreVeinPosition oreVeinPosition = getOreVein(entityPlayer.dimension, chunkX, chunkZ);
-                    final short materialId = Utils.oreIdToMaterialId(oreMetaData);
-                    if (!oreVeinPosition.veinType.containsOre(materialId) && ProspectingRequest.canSendRequest()) {
-                        VP.network.sendToServer(
-                                new ProspectingRequest(entityPlayer.dimension, blockX, blockY, blockZ, materialId));
-                    }
+    @SubscribeEvent
+    public void onOreClicked(OreInteractEvent event) {
+        onOreInteracted(event.world, event.x, event.y, event.z, event.player);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void onOreInteracted(World world, int x, int y, int z, EntityPlayer player) {
+        if (world.isRemote && Config.enableProspecting && Minecraft.getMinecraft().thePlayer == player) {
+            try (OreInfo<IOreMaterial> info = (OreInfo<IOreMaterial>) OreManager.getOreInfo(world, x, y, z);) {
+                if (info == null || info.isSmall) return;
+
+                final int chunkX = Utils.coordBlockToChunk(x);
+                final int chunkZ = Utils.coordBlockToChunk(z);
+                final OreVeinPosition oreVeinPosition = getOreVein(player.dimension, chunkX, chunkZ);
+
+                if (!oreVeinPosition.veinType.containsOre(info.material) && ProspectingRequest.canSendRequest()) {
+                    VP.network.sendToServer(new ProspectingRequest(player.dimension, x, y, z, info.material));
                 }
             }
         }

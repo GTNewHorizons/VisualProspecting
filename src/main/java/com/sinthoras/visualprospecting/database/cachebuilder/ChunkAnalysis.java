@@ -1,71 +1,80 @@
 package com.sinthoras.visualprospecting.database.cachebuilder;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-import com.sinthoras.visualprospecting.Utils;
+import net.minecraft.block.Block;
+
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
+import gregtech.api.interfaces.IOreMaterial;
+import gregtech.common.ores.OreInfo;
+import gregtech.common.ores.OreManager;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
-import it.unimi.dsi.fastutil.shorts.Short2IntArrayMap;
-import it.unimi.dsi.fastutil.shorts.Short2IntMap;
-import it.unimi.dsi.fastutil.shorts.ShortArrayList;
-import it.unimi.dsi.fastutil.shorts.ShortList;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 
 // A slim, but faster version to identify >90% of veins
 public class ChunkAnalysis {
 
     private final ObjectSet<VeinType> matchedVeins = new ObjectOpenHashSet<>();
-    private final Short2IntMap oreCounts = new Short2IntArrayMap();
+    private final Reference2IntOpenHashMap<IOreMaterial> oreCounts = new Reference2IntOpenHashMap<>();
     private int minVeinBlockY = VP.minecraftWorldHeight;
-    private short primaryMeta;
+    private IOreMaterial primary, secondary;
     private final String dimName;
 
     public ChunkAnalysis(String dimName) {
         this.dimName = dimName;
     }
 
-    public void processMinecraftChunk(final NBTTagList tileEntities) {
-        if (tileEntities == null || tileEntities.tagCount() == 0) return;
-        for (int i = 0; i < tileEntities.tagCount(); i++) {
-            final NBTTagCompound tile = tileEntities.getCompoundTagAt(i);
-            if (tile == null || !tile.hasKey("m")) continue;
+    @SuppressWarnings("unchecked")
+    public void processMinecraftChunk(final PartiallyLoadedChunk chunk) {
+        for (int y = 0; y < PartiallyLoadedChunk.CHUNK_HEIGHT; y++) {
+            for (int z = 0; z < 16; z++) {
+                for (int x = 0; x < 16; x++) {
+                    Block block = chunk.getBlock(x, y, z);
+                    int meta = chunk.getBlockMeta(x, y, z);
 
-            String id = tile.getString("id");
-            if (!"GT_TileEntity_Ores".equals(id) && !"bw.blockoresTE".equals(id)) {
-                continue;
-            }
+                    try (OreInfo<IOreMaterial> info = (OreInfo<IOreMaterial>) OreManager.getOreInfo(block, meta)) {
+                        if (info == null || info.isSmall) continue;
 
-            short meta = tile.getShort("m");
-            if (Utils.isSmallOreId(meta) || meta == 0) continue;
+                        oreCounts.addTo(info.material, 1);
 
-            meta = Utils.oreIdToMaterialId(meta);
-            final int blockY = tile.getInteger("y");
-
-            oreCounts.put(meta, oreCounts.get(meta) + 1);
-            if (minVeinBlockY > blockY) {
-                minVeinBlockY = blockY;
+                        if (minVeinBlockY > y) {
+                            minVeinBlockY = y;
+                        }
+                    }
+                }
             }
         }
 
-        if (oreCounts.size() == 1) {
-            primaryMeta = oreCounts.keySet().iterator().nextShort();
-        } else if (oreCounts.size() > 1) {
-            ShortList metaCounts = new ShortArrayList(oreCounts.keySet());
-            metaCounts.sort((a, b) -> Integer.compare(oreCounts.get(b), oreCounts.get(a)));
-            primaryMeta = metaCounts.getShort(0);
-        }
+        // spotless:off
+        var byCount = oreCounts.reference2IntEntrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+            .collect(Collectors.toList());
+        // spotless:on
+
+        if (byCount.size() >= 1) primary = byCount.get(0).getKey();
+        if (byCount.size() >= 2) secondary = byCount.get(1).getKey();
     }
 
     public boolean matchesSingleVein() {
         if (oreCounts.isEmpty()) return true;
         if (oreCounts.size() > 4) return false;
+        // spotless:off
         VeinTypeCaching.getVeinTypes().stream()
-                .filter(vein -> vein.containsAllFoundOres(oreCounts.keySet(), dimName, primaryMeta, minVeinBlockY))
+                .filter(vein -> {
+                    if (vein.containsAllFoundOres(oreCounts.keySet(), dimName, primary, minVeinBlockY)) return true;
+                    if (vein.containsAllFoundOres(oreCounts.keySet(), dimName, secondary, minVeinBlockY)) return true;
+
+                    return false;
+                })
                 .forEach(matchedVeins::add);
+        // spotless:on
         return matchedVeins.size() <= 1;
     }
 

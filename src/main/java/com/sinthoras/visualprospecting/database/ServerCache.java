@@ -15,9 +15,18 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.integration.gregtech.UndergroundFluidsWrapper;
 
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import gregtech.api.events.GTEventBus;
+import gregtech.common.WorldgenGTOreLayer;
+import gregtech.common.worldgen.VeinGenerateEvent;
+
 public class ServerCache extends WorldCache {
 
     public static final ServerCache instance = new ServerCache();
+
+    private ServerCache() {
+        GTEventBus.bus().register(this);
+    }
 
     protected File getStorageDirectory() {
         return Utils.getSubDirectory(Tags.SERVER_DIR);
@@ -26,6 +35,19 @@ public class ServerCache extends WorldCache {
     public synchronized void notifyOreVeinGeneration(int dimensionId, int chunkX, int chunkZ, final VeinType veinType) {
         if (veinType != VeinType.NO_VEIN) {
             super.putOreVein(new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType));
+        }
+    }
+
+    @SubscribeEvent
+    public void onVeinGenerated(VeinGenerateEvent event) {
+        if (event.result == WorldgenGTOreLayer.ORE_PLACED && !event.layer.mWorldGenName.equals("NoOresInVein")) {
+            if (event.chunkX == event.oreSeedX && event.chunkZ == event.oreSeedZ) {
+                notifyOreVeinGeneration(
+                        event.world.provider.dimensionId,
+                        event.oreSeedX,
+                        event.oreSeedZ,
+                        event.layer.mWorldGenName);
+            }
         }
     }
 

@@ -74,7 +74,7 @@ _Dirty chunks in JourneyMap developer overlay_
  - Minecraft Forge
     - Injected class: [_ItemEditableBook_](https://github.com/SinTh0r4s/VisualProspecting/blob/master/src/main/java/com/sinthoras/visualprospecting/mixins/minecraft/ItemEditableBookMixin.java)
  - [GregTech5-Unofficial](https://github.com/GTNewHorizons/GT5-Unofficial)
-    - Injected classes: [_GT_Block_Ores_Abstract_](https://github.com/SinTh0r4s/VisualProspecting/blob/master/src/main/java/com/sinthoras/visualprospecting/mixins/gregtech/GT_Block_Ores_AbstractMixin.java), [_GT_MetaTileEntity_AdvSeismicProspector_](https://github.com/SinTh0r4s/VisualProspecting/blob/master/src/main/java/com/sinthoras/visualprospecting/mixins/gregtech/GT_MetaTileEntity_AdvSeismicProspectorMixin.java), [_GT_MetaTileEntity_Scanner_](https://github.com/SinTh0r4s/VisualProspecting/blob/master/src/main/java/com/sinthoras/visualprospecting/mixins/gregtech/GT_MetaTileEntity_ScannerMixin.java), [_GT_Worldgenerator.WorldGenContainer_](https://github.com/SinTh0r4s/VisualProspecting/blob/master/src/main/java/com/sinthoras/visualprospecting/mixins/gregtech/WorldGenContainerMixin.java)
+    - Injected classes: [_GT_MetaTileEntity_AdvSeismicProspector_](https://github.com/SinTh0r4s/VisualProspecting/blob/master/src/main/java/com/sinthoras/visualprospecting/mixins/gregtech/MTEAdvSeismicProspectorMixin.java), [_GT_MetaTileEntity_Scanner_](https://github.com/SinTh0r4s/VisualProspecting/blob/master/src/main/java/com/sinthoras/visualprospecting/mixins/gregtech/MTEScannerMixin.java)
  - [SpongeMixins](https://github.com/GTNewHorizons/SpongeMixins)
  - [Enklumne](https://github.com/Hugobros3/Enklume) _by Hugobros3_
     - Automatically shipped. No manual handling is required.
