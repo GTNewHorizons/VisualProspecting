@@ -45,7 +45,7 @@ public class DetailedChunkAnalysis {
                     Block block = chunk.getBlock(x, y, z);
                     int meta = chunk.getBlockMeta(x, y, z);
 
-                    try (OreInfo<IOreMaterial> info = (OreInfo<IOreMaterial>) OreManager.getOreInfo(block, meta)) {
+                    try (OreInfo<IOreMaterial> info = OreManager.getOreInfo(block, meta)) {
                         if (info == null || info.isSmall) continue;
 
                         if (oresPerY[y] == null) {

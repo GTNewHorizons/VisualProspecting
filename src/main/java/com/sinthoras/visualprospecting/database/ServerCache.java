@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -16,16 +17,15 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.integration.gregtech.UndergroundFluidsWrapper;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import gregtech.api.events.GTEventBus;
+import gregtech.api.events.VeinGenerateEvent;
 import gregtech.common.WorldgenGTOreLayer;
-import gregtech.common.worldgen.VeinGenerateEvent;
 
 public class ServerCache extends WorldCache {
 
     public static final ServerCache instance = new ServerCache();
 
     private ServerCache() {
-        GTEventBus.bus().register(this);
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     protected File getStorageDirectory() {

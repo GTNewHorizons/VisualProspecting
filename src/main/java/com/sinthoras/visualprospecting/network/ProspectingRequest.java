@@ -91,7 +91,7 @@ public class ProspectingRequest implements IMessage {
             if (timestamp - lastRequest < Config.minDelayBetweenVeinRequests) return null;
             if (!isChunkLoaded) return null;
 
-            try (OreInfo<IOreMaterial> info = (OreInfo<IOreMaterial>) OreManager
+            try (OreInfo<IOreMaterial> info = OreManager
                     .getOreInfo(world, message.blockX, message.blockY, message.blockZ);) {
                 if (info == null || info.isSmall || info.material != message.foundOre) return null;
 
