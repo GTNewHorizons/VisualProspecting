@@ -21,6 +21,7 @@ public class VeinType {
 
     public final String name;
     public final int blockSize;
+    public final IOreMaterial representativeOre;
     public final IOreMaterial primaryOre;
     public final IOreMaterial secondaryOre;
     public final IOreMaterial inBetweenOre;
@@ -40,6 +41,7 @@ public class VeinType {
         this.blockSize = 0;
         this.minBlockY = 0;
         this.maxBlockY = 255;
+        this.representativeOre = null;
         this.primaryOre = null;
         this.secondaryOre = null;
         this.inBetweenOre = null;
@@ -51,6 +53,7 @@ public class VeinType {
         name = oreMix.oreMixName;
         localizedName = oreMix.localizedName;
         blockSize = oreMix.size;
+        representativeOre = oreMix.representative;
         oresAsSet.add(primaryOre = oreMix.primary);
         oresAsSet.add(secondaryOre = oreMix.secondary);
         oresAsSet.add(inBetweenOre = oreMix.between);

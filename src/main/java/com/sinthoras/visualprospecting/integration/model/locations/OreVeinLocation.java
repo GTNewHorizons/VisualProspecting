@@ -16,6 +16,7 @@ import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 
 import gregtech.api.enums.OrePrefixes;
+import gregtech.api.enums.TextureSet;
 import gregtech.api.interfaces.IOreMaterial;
 import gregtech.api.util.LightingHelper;
 
@@ -120,7 +121,9 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
     }
 
     public IIcon getIconFromPrimaryOre() {
-        return getPrimaryOre().getTextureSet().mTextures[OrePrefixes.ore.mTextureIndex].getIcon();
+        TextureSet textureSet = oreVeinPosition.veinType.representativeOre.getTextureSet();
+
+        return textureSet.mTextures[OrePrefixes.ore.mTextureIndex].getIcon();
     }
 
     public IOreMaterial getPrimaryOre() {
