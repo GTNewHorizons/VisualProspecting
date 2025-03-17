@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import net.minecraft.block.Block;
-
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -17,8 +15,6 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
 import gregtech.api.interfaces.IOreMaterial;
-import gregtech.common.ores.OreInfo;
-import gregtech.common.ores.OreManager;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 
 // Slower, but more sophisticated approach to identify overlapping veins
@@ -39,24 +35,13 @@ public class DetailedChunkAnalysis {
     }
 
     public void processMinecraftChunk(final PartiallyLoadedChunk chunk) {
-        for (int y = 0; y < PartiallyLoadedChunk.CHUNK_HEIGHT; y++) {
-            for (int z = 0; z < 16; z++) {
-                for (int x = 0; x < 16; x++) {
-                    Block block = chunk.getBlock(x, y, z);
-                    int meta = chunk.getBlockMeta(x, y, z);
-
-                    try (OreInfo<IOreMaterial> info = OreManager.getOreInfo(block, meta)) {
-                        if (info == null || info.isSmall) continue;
-
-                        if (oresPerY[y] == null) {
-                            oresPerY[y] = new Reference2IntOpenHashMap<>();
-                        }
-
-                        oresPerY[y].addTo(info.material, 1);
-                    }
-                }
+        chunk.forEachOre((x, y, z, info) -> {
+            if (oresPerY[y] == null) {
+                oresPerY[y] = new Reference2IntOpenHashMap<>();
             }
-        }
+
+            oresPerY[y].addTo(info.material, 1);
+        });
     }
 
     public void cleanUpWithNeighbors(final Map<Long, Integer> veinChunkY) {
