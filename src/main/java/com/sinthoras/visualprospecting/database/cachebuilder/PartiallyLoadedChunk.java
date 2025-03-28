@@ -146,7 +146,7 @@ public class PartiallyLoadedChunk {
             ImmutableBlockMeta bm = GTOreAdapter.INSTANCE.transform(meta, true);
 
             try (OreInfo<Materials> info = GTOreAdapter.INSTANCE.getOreInfo(bm.getBlock(), bm.getBlockMeta())) {
-                if (info == null || info.isSmall || info.material == null) continue;
+                if (info == null || info.material == null) continue;
 
                 consumer.visit(te.getX(), te.getY(), te.getZ(), (OreInfo<IOreMaterial>) (OreInfo<?>) info);
             }
@@ -163,7 +163,7 @@ public class PartiallyLoadedChunk {
             ImmutableBlockMeta bm = BWOreAdapter.INSTANCE.transform(meta, true, false);
 
             try (OreInfo<Werkstoff> info = BWOreAdapter.INSTANCE.getOreInfo(bm.getBlock(), bm.getBlockMeta())) {
-                if (info == null || info.isSmall || info.material == null) continue;
+                if (info == null || info.material == null) continue;
 
                 consumer.visit(te.getX(), te.getY(), te.getZ(), (OreInfo<IOreMaterial>) (OreInfo<?>) info);
             }
@@ -176,7 +176,7 @@ public class PartiallyLoadedChunk {
                     int meta = getBlockMeta(x, y, z);
 
                     try (OreInfo<IOreMaterial> info = OreManager.getOreInfo(block, meta)) {
-                        if (info == null || info.isSmall || !info.isNatural || info.material == null) continue;
+                        if (info == null || !info.isNatural || info.material == null) continue;
 
                         consumer.visit(x, y, z, info);
                     }
