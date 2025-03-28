@@ -85,7 +85,7 @@ public class PartiallyLoadedChunk {
             }
         }
 
-        tiles = chunk.getTagList("TileEntities", NBT.TAG_COMPOUND).tagList;
+        tiles = chunk.getCompoundTag("Level").getTagList("TileEntities", NBT.TAG_COMPOUND).tagList;
     }
 
     public int getBlockId(int x, int y, int z) {

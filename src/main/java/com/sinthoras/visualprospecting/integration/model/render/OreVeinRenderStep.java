@@ -58,7 +58,7 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
         final IIcon blockIcon = Blocks.stone.getIcon(0, 0);
         DrawUtils.drawQuad(blockIcon, topX, topY, width, height, 0xFFFFFF, 255);
 
-        DrawUtils.drawQuad(location.getIconFromPrimaryOre(), topX, topY, width, height, location.getColor(), 255);
+        DrawUtils.drawQuad(location.getIconFromRepresentativeOre(), topX, topY, width, height, location.getColor(), 255);
 
         if (!location.drawSearchHighlight() || location.isDepleted()) {
             DrawUtils.drawRect(topX, topY, width, height, 0x000000, 150);
@@ -108,7 +108,7 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
         final ItemStack itemStack;
 
         try (OreInfo<IOreMaterial> info = OreInfo.getNewInfo()) {
-            info.material = location.getPrimaryOre();
+            info.material = location.getRepresentativeOre();
 
             itemStack = OreManager.getStack(info, 1);
         }

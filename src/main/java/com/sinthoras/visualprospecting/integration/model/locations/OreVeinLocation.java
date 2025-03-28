@@ -117,16 +117,16 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
     }
 
     public int getColor() {
-        return LightingHelper.getColor(getPrimaryOre().getRGBA());
+        return LightingHelper.getColor(getRepresentativeOre().getRGBA());
     }
 
-    public IIcon getIconFromPrimaryOre() {
-        TextureSet textureSet = oreVeinPosition.veinType.representativeOre.getTextureSet();
+    public IIcon getIconFromRepresentativeOre() {
+        TextureSet textureSet = getRepresentativeOre().getTextureSet();
 
         return textureSet.mTextures[OrePrefixes.ore.mTextureIndex].getIcon();
     }
 
-    public IOreMaterial getPrimaryOre() {
-        return oreVeinPosition.veinType.primaryOre;
+    public IOreMaterial getRepresentativeOre() {
+        return oreVeinPosition.veinType.representativeOre;
     }
 }
