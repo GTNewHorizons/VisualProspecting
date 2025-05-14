@@ -241,6 +241,11 @@ public class Utils {
             return null;
         }
 
+        return getSearchPattern(searchString);
+    }
+
+    public static @Nullable Pattern getSearchPattern(@NotNull String searchString) {
+        if(searchString.isEmpty()) return null;
         final String unquotedRegex = SearchField.getPattern(searchString).pattern().replace("\\Q", "")
                 .replace("\\E", "");
         return Pattern.compile(unquotedRegex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);

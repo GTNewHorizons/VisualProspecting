@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.gtnewhorizons.navigator.api.model.SupportedMods;
@@ -32,10 +33,10 @@ public class UndergroundFluidLayerManager extends LayerManager {
 
     public static final UndergroundFluidLayerManager instance = new UndergroundFluidLayerManager();
     private static final ObjectSet<Fluid> highlightedFluids = new ObjectOpenHashSet<>();
-    private boolean searching = false;
 
     public UndergroundFluidLayerManager() {
         super(UndergroundFluidButtonManager.instance);
+        setHasSearchField(true);
     }
 
     @Nullable
@@ -47,22 +48,8 @@ public class UndergroundFluidLayerManager extends LayerManager {
 
     @Override
     public void onOpenMap() {
-        if (!isNEIInstalled()) return;
         highlightedFluids.clear();
-        searching = false;
-        final Pattern filterPattern = Utils.getNEISearchPattern();
-        if (filterPattern != null) {
-            searching = true;
-            for (UndergroundFluidNames fluidName : UndergroundFluidNames.values()) {
-                Fluid fluid = FluidRegistry.getFluid(fluidName.name);
-                if (fluid == null) continue;
-                for (String name : getFluidNames(fluid)) {
-                    if (name != null && filterPattern.matcher(name.toLowerCase()).find()) {
-                        highlightedFluids.add(fluid);
-                    }
-                }
-            }
-        }
+        computeSearch(Utils.getNEISearchPattern());
     }
 
     private static List<String> getFluidNames(Fluid fluid) {
@@ -98,12 +85,35 @@ public class UndergroundFluidLayerManager extends LayerManager {
         return null;
     }
 
+    private void computeSearch(@Nullable Pattern filterPattern) {
+        if (filterPattern != null) {
+            for (UndergroundFluidNames fluidName : UndergroundFluidNames.values()) {
+                Fluid fluid = FluidRegistry.getFluid(fluidName.name);
+                if (fluid == null) continue;
+                for (String name : getFluidNames(fluid)) {
+                    if (name != null && filterPattern.matcher(name.toLowerCase()).find()) {
+                        highlightedFluids.add(fluid);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onSearch(@NotNull String searchString) {
+        if(searchString.isEmpty()) {
+            highlightedFluids.clear();
+        } else {
+            computeSearch(Utils.getSearchPattern(searchString));
+        }
+    }
+
     @Override
     public int getElementSize() {
         return 8;
     }
 
     public boolean isSearchActive() {
-        return searching;
+        return !highlightedFluids.isEmpty();
     }
 }
