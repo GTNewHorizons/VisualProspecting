@@ -42,10 +42,6 @@ import gregtech.common.GTWorldgenerator;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class Utils {
 
-    public static boolean isNEIInstalled() {
-        return Loader.isModLoaded("NotEnoughItems");
-    }
-
     public static boolean isNavigatorInstalled() {
         return Loader.isModLoaded("navigator");
     }
@@ -245,7 +241,7 @@ public class Utils {
     }
 
     public static @Nullable Pattern getSearchPattern(@NotNull String searchString) {
-        if(searchString.isEmpty()) return null;
+        if (searchString.isEmpty()) return null;
         final String unquotedRegex = SearchField.getPattern(searchString).pattern().replace("\\Q", "")
                 .replace("\\E", "");
         return Pattern.compile(unquotedRegex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);

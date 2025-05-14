@@ -1,7 +1,5 @@
 package com.sinthoras.visualprospecting.integration.model.layers;
 
-import static com.sinthoras.visualprospecting.Utils.isNEIInstalled;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -101,7 +99,7 @@ public class UndergroundFluidLayerManager extends LayerManager {
 
     @Override
     public void onSearch(@NotNull String searchString) {
-        if(searchString.isEmpty()) {
+        if (searchString.isEmpty()) {
             highlightedFluids.clear();
         } else {
             computeSearch(Utils.getSearchPattern(searchString));

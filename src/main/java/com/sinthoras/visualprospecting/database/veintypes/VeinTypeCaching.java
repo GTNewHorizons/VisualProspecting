@@ -13,9 +13,9 @@ import net.minecraft.util.EnumChatFormatting;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.sinthoras.visualprospecting.Tags;
-import com.sinthoras.visualprospecting.Utils;
 
 import bartworks.system.material.Werkstoff;
 import bartworks.system.oregen.BWOreLayer;
@@ -24,7 +24,6 @@ import gregtech.api.enums.Materials;
 import gregtech.api.enums.OreMixes;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.jetbrains.annotations.Nullable;
 
 public class VeinTypeCaching {
 
@@ -77,8 +76,8 @@ public class VeinTypeCaching {
             if (filterPattern != null) {
                 List<String> searchableStrings = new ArrayList<>(veinType.getOreMaterialNames());
                 searchableStrings.add(veinType.getVeinName());
-                final boolean match = searchableStrings.stream()
-                        .map(EnumChatFormatting::getTextWithoutFormattingCodes).map(String::toLowerCase)
+                final boolean match = searchableStrings.stream().map(EnumChatFormatting::getTextWithoutFormattingCodes)
+                        .map(String::toLowerCase)
                         .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
 
                 veinType.setNEISearchHighlight(match);
