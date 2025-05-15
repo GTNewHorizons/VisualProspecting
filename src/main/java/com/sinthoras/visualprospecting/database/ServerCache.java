@@ -19,6 +19,7 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.api.events.VeinGenerateEvent;
 import gregtech.common.UndergroundOil;
 import gregtech.common.WorldgenGTOreLayer;
+import gregtech.common.UndergroundOil;
 
 public class ServerCache extends WorldCache {
 
