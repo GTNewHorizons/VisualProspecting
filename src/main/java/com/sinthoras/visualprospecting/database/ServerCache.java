@@ -13,7 +13,8 @@ import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
-import com.sinthoras.visualprospecting.integration.gregtech.UndergroundFluidsWrapper;
+
+import gregtech.common.UndergroundOil;
 
 public class ServerCache extends WorldCache {
 
@@ -93,8 +94,8 @@ public class ServerCache extends WorldCache {
                 Fluid fluid = null;
                 for (int offsetChunkX = 0; offsetChunkX < VP.undergroundFluidSizeChunkX; offsetChunkX++) {
                     for (int offsetChunkZ = 0; offsetChunkZ < VP.undergroundFluidSizeChunkZ; offsetChunkZ++) {
-                        final FluidStack prospectedFluid = UndergroundFluidsWrapper
-                                .prospectFluid(world, chunkX + offsetChunkX, chunkZ + offsetChunkZ);
+                        final FluidStack prospectedFluid = UndergroundOil
+                                .undergroundOil(world, chunkX + offsetChunkX, chunkZ + offsetChunkZ, -1);
                         if (prospectedFluid != null) {
                             fluid = prospectedFluid.getFluid();
                             chunks[offsetChunkX][offsetChunkZ] = prospectedFluid.amount;
