@@ -1,5 +1,6 @@
 package com.sinthoras.visualprospecting.integration.model.layers;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.gtnewhorizons.navigator.api.journeymap.waypoints.JMWaypointManager;
@@ -25,11 +26,12 @@ public class OreVeinLayerManager extends InteractableLayerManager {
 
     public OreVeinLayerManager() {
         super(OreVeinButtonManager.instance);
+        setHasSearchField(true);
     }
 
     @Override
     public void onOpenMap() {
-        VeinTypeCaching.recalculateNEISearch();
+        VeinTypeCaching.recalculateSearch(Utils.getNEISearchPattern());
     }
 
     @Nullable
@@ -62,5 +64,10 @@ public class OreVeinLayerManager extends InteractableLayerManager {
         }
 
         return null;
+    }
+
+    @Override
+    public void onSearch(@NotNull String searchString) {
+        VeinTypeCaching.recalculateSearch(Utils.getSearchPattern(searchString));
     }
 }
