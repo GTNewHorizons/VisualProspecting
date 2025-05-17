@@ -16,7 +16,9 @@ import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 
 import codechicken.nei.api.ShortcutInputHandler;
-import gregtech.api.GregTechAPI;
+import gregtech.api.interfaces.IOreMaterial;
+import gregtech.common.ores.OreInfo;
+import gregtech.common.ores.OreManager;
 
 public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation> {
 
@@ -56,7 +58,8 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
         final IIcon blockIcon = Blocks.stone.getIcon(0, 0);
         DrawUtils.drawQuad(blockIcon, topX, topY, width, height, 0xFFFFFF, 255);
 
-        DrawUtils.drawQuad(location.getIconFromPrimaryOre(), topX, topY, width, height, location.getColor(), 255);
+        DrawUtils
+                .drawQuad(location.getIconFromRepresentativeOre(), topX, topY, width, height, location.getColor(), 255);
 
         if (!location.drawSearchHighlight() || location.isDepleted()) {
             DrawUtils.drawRect(topX, topY, width, height, 0x000000, 150);
@@ -103,7 +106,14 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
             return true;
         }
 
-        final var itemStack = new ItemStack(GregTechAPI.sBlockOres1, 1, location.getPrimaryOreMeta());
+        final ItemStack itemStack;
+
+        try (OreInfo<IOreMaterial> info = OreInfo.getNewInfo()) {
+            info.material = location.getRepresentativeOre();
+
+            itemStack = OreManager.getStack(info, 1);
+        }
+
         if (ShortcutInputHandler.handleKeyEvent(itemStack)) {
             playClickSound();
             return true;
