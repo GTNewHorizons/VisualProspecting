@@ -1,7 +1,5 @@
 package com.sinthoras.visualprospecting.database.veintypes;
 
-import static bartworks.util.BWColorUtil.getColorFromRGBArray;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +24,8 @@ public class BartworksOreMaterialProvider implements IOreMaterialProvider {
 
     public BartworksOreMaterialProvider(Werkstoff material) {
         this.material = material;
-        this.primaryOreColor = getColorFromRGBArray(material.getRGBA());
+        final short[] rgba = material.getRGBA();
+        this.primaryOreColor = (rgba[0] & 0x0ff) << 16 | (rgba[1] & 0x0ff) << 8 | rgba[2] & 0x0ff;
         this.primaryOreName = material.getLocalizedName();
     }
 
