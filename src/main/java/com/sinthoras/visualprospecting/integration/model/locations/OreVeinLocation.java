@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
 
 import org.lwjgl.input.Keyboard;
 
@@ -14,6 +13,8 @@ import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvi
 import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
+
+import gregtech.api.interfaces.IIconContainer;
 
 public class OreVeinLocation implements IWaypointAndLocationProvider {
 
@@ -115,8 +116,8 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
         return oreVeinPosition.veinType.oreMaterialProvider.getColor();
     }
 
-    public IIcon getIconFromPrimaryOre() {
-        return oreVeinPosition.veinType.oreMaterialProvider.getIcon();
+    public IIconContainer getIconsFromPrimaryOre() {
+        return oreVeinPosition.veinType.oreMaterialProvider.getIconContainer();
     }
 
     public short getPrimaryOreMeta() {
