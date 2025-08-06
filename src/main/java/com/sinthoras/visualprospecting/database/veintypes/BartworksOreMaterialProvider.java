@@ -3,8 +3,6 @@ package com.sinthoras.visualprospecting.database.veintypes;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.util.IIcon;
-
 import com.google.common.collect.ImmutableList;
 
 import bartworks.system.material.Werkstoff;
@@ -12,6 +10,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.OrePrefixes;
+import gregtech.api.interfaces.IIconContainer;
 import it.unimi.dsi.fastutil.shorts.ShortCollection;
 
 public class BartworksOreMaterialProvider implements IOreMaterialProvider {
@@ -19,7 +18,7 @@ public class BartworksOreMaterialProvider implements IOreMaterialProvider {
     private final Werkstoff material;
     private final int primaryOreColor;
     private final String primaryOreName;
-    private IIcon primaryOreIcon;
+    private IIconContainer oreIconContainer;
     private ImmutableList<String> containedOres;
 
     public BartworksOreMaterialProvider(Werkstoff material) {
@@ -31,11 +30,11 @@ public class BartworksOreMaterialProvider implements IOreMaterialProvider {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon() {
-        if (primaryOreIcon == null) {
-            primaryOreIcon = material.getTexSet().mTextures[OrePrefixes.ore.mTextureIndex].getIcon();
+    public IIconContainer getIconContainer() {
+        if (oreIconContainer == null) {
+            oreIconContainer = material.getTexSet().mTextures[OrePrefixes.ore.mTextureIndex];
         }
-        return primaryOreIcon;
+        return oreIconContainer;
     }
 
     @Override

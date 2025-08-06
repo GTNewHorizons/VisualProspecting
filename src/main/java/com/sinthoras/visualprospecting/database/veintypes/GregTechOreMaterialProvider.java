@@ -3,8 +3,6 @@ package com.sinthoras.visualprospecting.database.veintypes;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.util.IIcon;
-
 import com.google.common.collect.ImmutableList;
 
 import cpw.mods.fml.relauncher.Side;
@@ -12,13 +10,14 @@ import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.GregTechAPI;
 import gregtech.api.enums.Materials;
 import gregtech.api.enums.OrePrefixes;
+import gregtech.api.interfaces.IIconContainer;
 import it.unimi.dsi.fastutil.shorts.ShortCollection;
 
 public class GregTechOreMaterialProvider implements IOreMaterialProvider {
 
     private final Materials material;
     private final int primaryOreColor;
-    private IIcon primaryOreIcon;
+    private IIconContainer oreIconContainer;
     private final String primaryOreName;
     private ImmutableList<String> containedOres;
 
@@ -30,11 +29,11 @@ public class GregTechOreMaterialProvider implements IOreMaterialProvider {
 
     @Override
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon() {
-        if (primaryOreIcon == null) {
-            primaryOreIcon = material.mIconSet.mTextures[OrePrefixes.ore.mTextureIndex].getIcon();
+    public IIconContainer getIconContainer() {
+        if (oreIconContainer == null) {
+            oreIconContainer = material.mIconSet.mTextures[OrePrefixes.ore.mTextureIndex];
         }
-        return primaryOreIcon;
+        return oreIconContainer;
     }
 
     @Override
