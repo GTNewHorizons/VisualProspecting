@@ -19,6 +19,7 @@ import codechicken.nei.api.ShortcutInputHandler;
 import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
+import gregtech.api.interfaces.IIconContainer;
 
 public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation> {
 
@@ -58,8 +59,11 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
         final IIcon blockIcon = Blocks.stone.getIcon(0, 0);
         DrawUtils.drawQuad(blockIcon, topX, topY, width, height, 0xFFFFFF, 255);
 
-        DrawUtils
-                .drawQuad(location.getIconFromRepresentativeOre(), topX, topY, width, height, location.getColor(), 255);
+        final IIconContainer oreIconContainer = location.getIconFromRepresentativeOre();
+        final IIcon oreIcon = oreIconContainer.getIcon();
+        DrawUtils.drawQuad(oreIcon, topX, topY, width, height, location.getColor(), 255);
+        final IIcon oreIconOverlay = oreIconContainer.getOverlayIcon();
+        if (oreIconOverlay != null) DrawUtils.drawQuad(oreIconOverlay, topX, topY, width, height, 0xFFFFFF, 255);
 
         if (!location.drawSearchHighlight() || location.isDepleted()) {
             DrawUtils.drawRect(topX, topY, width, height, 0x000000, 150);

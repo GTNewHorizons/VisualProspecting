@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.IIcon;
 
 import org.lwjgl.input.Keyboard;
 
@@ -19,6 +18,8 @@ import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.TextureSet;
 import gregtech.api.interfaces.IOreMaterial;
 import gregtech.api.util.LightingHelper;
+
+import gregtech.api.interfaces.IIconContainer;
 
 public class OreVeinLocation implements IWaypointAndLocationProvider {
 
@@ -120,10 +121,10 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
         return LightingHelper.getColor(getRepresentativeOre().getRGBA());
     }
 
-    public IIcon getIconFromRepresentativeOre() {
+    public IIconContainer getIconFromRepresentativeOre() {
         TextureSet textureSet = getRepresentativeOre().getTextureSet();
 
-        return textureSet.mTextures[OrePrefixes.ore.mTextureIndex].getIcon();
+        return textureSet.mTextures[OrePrefixes.ore.mTextureIndex];
     }
 
     public IOreMaterial getRepresentativeOre() {

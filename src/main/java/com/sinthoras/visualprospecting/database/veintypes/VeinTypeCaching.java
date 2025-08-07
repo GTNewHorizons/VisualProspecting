@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 import net.minecraft.util.EnumChatFormatting;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.sinthoras.visualprospecting.Tags;
-import com.sinthoras.visualprospecting.Utils;
 
 import gregtech.api.enums.OreMixes;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -38,22 +38,19 @@ public class VeinTypeCaching {
         return veinTypes.values();
     }
 
-    public static void recalculateNEISearch() {
-        if (isNEIInstalled()) {
-            final Pattern filterPattern = Utils.getNEISearchPattern();
-            for (VeinType veinType : veinTypes.values()) {
-                if (veinType == VeinType.NO_VEIN) continue;
-                if (filterPattern != null) {
-                    List<String> searchableStrings = new ArrayList<>(veinType.getOreMaterialNames());
-                    searchableStrings.add(veinType.getVeinName());
-                    final boolean match = searchableStrings.stream()
-                            .map(EnumChatFormatting::getTextWithoutFormattingCodes).map(String::toLowerCase)
-                            .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
+    public static void recalculateSearch(@Nullable Pattern filterPattern) {
+        for (VeinType veinType : veinTypes.values()) {
+            if (veinType == VeinType.NO_VEIN) continue;
+            if (filterPattern != null) {
+                List<String> searchableStrings = new ArrayList<>(veinType.getOreMaterialNames());
+                searchableStrings.add(veinType.getVeinName());
+                final boolean match = searchableStrings.stream().map(EnumChatFormatting::getTextWithoutFormattingCodes)
+                        .map(String::toLowerCase)
+                        .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
 
-                    veinType.setNEISearchHighlight(match);
-                } else {
-                    veinType.setNEISearchHighlight(true);
-                }
+                veinType.setNEISearchHighlight(match);
+            } else {
+                veinType.setNEISearchHighlight(true);
             }
         }
     }
