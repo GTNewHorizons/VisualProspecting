@@ -16,10 +16,10 @@ import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
 
 import codechicken.nei.api.ShortcutInputHandler;
+import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
-import gregtech.api.interfaces.IIconContainer;
 
 public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation> {
 

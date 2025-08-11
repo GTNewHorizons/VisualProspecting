@@ -16,10 +16,9 @@ import com.sinthoras.visualprospecting.database.OreVeinPosition;
 
 import gregtech.api.enums.OrePrefixes;
 import gregtech.api.enums.TextureSet;
+import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.interfaces.IOreMaterial;
 import gregtech.api.util.LightingHelper;
-
-import gregtech.api.interfaces.IIconContainer;
 
 public class OreVeinLocation implements IWaypointAndLocationProvider {
 
