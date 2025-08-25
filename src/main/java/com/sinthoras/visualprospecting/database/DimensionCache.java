@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -129,7 +128,10 @@ public class DimensionCache {
             // Flatten 2D chunk array into contiguous memory layout
             int baseOffset = fluidIndex * chunkDataSize;
             for (int x = 0; x < VP.undergroundFluidSizeChunkX; x++) {
-                System.arraycopy(fluid.chunks[x], 0, allChunkData,
+                System.arraycopy(
+                        fluid.chunks[x],
+                        0,
+                        allChunkData,
                         baseOffset + x * VP.undergroundFluidSizeChunkZ,
                         VP.undergroundFluidSizeChunkZ);
             }
@@ -173,8 +175,8 @@ public class DimensionCache {
 
             // Sequential array processing - optimal cache line utilization
             for (int i = 0; i < size; i++) {
-                int chunkX = chunkXArray[i];           // Cache-friendly array access
-                int chunkZ = chunkZArray[i];           // Cache-friendly array access
+                int chunkX = chunkXArray[i]; // Cache-friendly array access
+                int chunkZ = chunkZArray[i]; // Cache-friendly array access
                 boolean depleted = depletedFlags.length > i && depletedFlags[i] == 1;
                 String veinTypeName = veinTypeNamesList.getStringTagAt(i);
                 VeinType veinType = VeinTypeCaching.getVeinType(veinTypeName);
@@ -226,8 +228,8 @@ public class DimensionCache {
 
             // Sequential array processing - optimal cache line utilization
             for (int fluidIndex = 0; fluidIndex < fluidCount; fluidIndex++) {
-                int chunkX = chunkXArray[fluidIndex];      // Cache-friendly array access
-                int chunkZ = chunkZArray[fluidIndex];      // Cache-friendly array access
+                int chunkX = chunkXArray[fluidIndex]; // Cache-friendly array access
+                int chunkZ = chunkZArray[fluidIndex]; // Cache-friendly array access
                 String fluidName = fluidNamesList.getStringTagAt(fluidIndex);
                 Fluid fluid = FluidRegistry.getFluid(fluidName);
 
@@ -235,8 +237,12 @@ public class DimensionCache {
                 int[][] chunks = new int[VP.undergroundFluidSizeChunkX][VP.undergroundFluidSizeChunkZ];
                 int baseOffset = fluidIndex * chunkDataSize;
                 for (int x = 0; x < VP.undergroundFluidSizeChunkX; x++) {
-                    System.arraycopy(allChunkData, baseOffset + x * VP.undergroundFluidSizeChunkZ,
-                            chunks[x], 0, VP.undergroundFluidSizeChunkZ);
+                    System.arraycopy(
+                            allChunkData,
+                            baseOffset + x * VP.undergroundFluidSizeChunkZ,
+                            chunks[x],
+                            0,
+                            VP.undergroundFluidSizeChunkZ);
                 }
 
                 undergroundFluids.put(
