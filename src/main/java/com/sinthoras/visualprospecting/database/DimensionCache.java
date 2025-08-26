@@ -74,14 +74,15 @@ public class DimensionCache {
         byte[] depletedFlags = new byte[size];
         NBTTagList veinTypeNamesList = new NBTTagList();
 
-        // Single-pass iteration for optimal memory access pattern
-        int i = 0;
-        for (OreVeinPosition vein : veins) {
+        // Convert collection to array for optimal indexed access
+        OreVeinPosition[] veinArray = veins.toArray(new OreVeinPosition[size]);
+
+        for (int i = 0; i < veinArray.length; i++) {
+            OreVeinPosition vein = veinArray[i];
             chunkXArray[i] = vein.chunkX;
             chunkZArray[i] = vein.chunkZ;
             depletedFlags[i] = vein.isDepleted() ? (byte) 1 : (byte) 0;
             veinTypeNamesList.appendTag(new net.minecraft.nbt.NBTTagString(vein.veinType.name));
-            i++;
         }
 
         // Store as contiguous arrays - only 4 string operations vs 400,000+
@@ -111,9 +112,11 @@ public class DimensionCache {
         int[] allChunkData = new int[size * chunkDataSize];
         NBTTagList fluidNamesList = new NBTTagList();
 
-        // Single-pass iteration with optimal memory access pattern
-        int fluidIndex = 0;
-        for (UndergroundFluidPosition fluid : fluids) {
+        // Convert collection to array for optimal indexed access
+        UndergroundFluidPosition[] fluidArray = fluids.toArray(new UndergroundFluidPosition[size]);
+
+        for (int fluidIndex = 0; fluidIndex < fluidArray.length; fluidIndex++) {
+            UndergroundFluidPosition fluid = fluidArray[fluidIndex];
             chunkXArray[fluidIndex] = fluid.chunkX;
             chunkZArray[fluidIndex] = fluid.chunkZ;
             fluidNamesList.appendTag(new net.minecraft.nbt.NBTTagString(fluid.fluid.getName()));
@@ -128,7 +131,6 @@ public class DimensionCache {
                         baseOffset + x * VP.undergroundFluidSizeChunkZ,
                         VP.undergroundFluidSizeChunkZ);
             }
-            fluidIndex++;
         }
 
         // Store as contiguous arrays - minimal string operations
