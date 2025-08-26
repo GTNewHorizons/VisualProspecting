@@ -25,7 +25,6 @@ import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMaps;
@@ -41,8 +40,8 @@ public class DimensionCache {
 
     private static final File oldIdFile = new File(Tags.VISUALPROSPECTING_DIR, "veintypesLUT");
     private static Short2ObjectMap<String> idConversionMap;
-    private final Long2ObjectMap<OreVeinPosition> oreChunks = new Long2ObjectOpenHashMap<>();
-    private final Long2ObjectMap<UndergroundFluidPosition> undergroundFluids = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectOpenHashMap<OreVeinPosition> oreChunks = new Long2ObjectOpenHashMap<>();
+    private final Long2ObjectOpenHashMap<UndergroundFluidPosition> undergroundFluids = new Long2ObjectOpenHashMap<>();
     public final int dimensionId;
     private boolean isDirty = false;
     private boolean preventSaving = false;
@@ -72,16 +71,16 @@ public class DimensionCache {
         // Pre-allocate contiguous arrays for optimal cache line utilization
         int[] chunkXArray = new int[size];
         int[] chunkZArray = new int[size];
-        String[] veinTypeNames = new String[size];
         byte[] depletedFlags = new byte[size];
+        NBTTagList veinTypeNamesList = new NBTTagList();
 
         // Single-pass iteration for optimal memory access pattern
         int i = 0;
         for (OreVeinPosition vein : veins) {
             chunkXArray[i] = vein.chunkX;
             chunkZArray[i] = vein.chunkZ;
-            veinTypeNames[i] = vein.veinType.name;
             depletedFlags[i] = vein.isDepleted() ? (byte) 1 : (byte) 0;
+            veinTypeNamesList.appendTag(new net.minecraft.nbt.NBTTagString(vein.veinType.name));
             i++;
         }
 
@@ -89,12 +88,6 @@ public class DimensionCache {
         compound.setIntArray("chunkX", chunkXArray);
         compound.setIntArray("chunkZ", chunkZArray);
         compound.setByteArray("depleted", depletedFlags);
-
-        // Create string list for vein type names
-        NBTTagList veinTypeNamesList = new NBTTagList();
-        for (String name : veinTypeNames) {
-            veinTypeNamesList.appendTag(new net.minecraft.nbt.NBTTagString(name));
-        }
         compound.setTag("veinTypeNames", veinTypeNamesList);
 
         return compound;
@@ -112,18 +105,18 @@ public class DimensionCache {
         // Pre-allocate contiguous arrays for optimal cache performance
         int[] chunkXArray = new int[size];
         int[] chunkZArray = new int[size];
-        String[] fluidNames = new String[size];
 
         // Calculate total chunk data size for flattened storage
         int chunkDataSize = VP.undergroundFluidSizeChunkX * VP.undergroundFluidSizeChunkZ;
         int[] allChunkData = new int[size * chunkDataSize];
+        NBTTagList fluidNamesList = new NBTTagList();
 
         // Single-pass iteration with optimal memory access pattern
         int fluidIndex = 0;
         for (UndergroundFluidPosition fluid : fluids) {
             chunkXArray[fluidIndex] = fluid.chunkX;
             chunkZArray[fluidIndex] = fluid.chunkZ;
-            fluidNames[fluidIndex] = fluid.fluid.getName();
+            fluidNamesList.appendTag(new net.minecraft.nbt.NBTTagString(fluid.fluid.getName()));
 
             // Flatten 2D chunk array into contiguous memory layout
             int baseOffset = fluidIndex * chunkDataSize;
@@ -143,12 +136,6 @@ public class DimensionCache {
         compound.setIntArray("chunkZ", chunkZArray);
         compound.setIntArray("chunkData", allChunkData);
         compound.setInteger("chunkDataSize", chunkDataSize);
-
-        // Create string list for fluid names
-        NBTTagList fluidNamesList = new NBTTagList();
-        for (String name : fluidNames) {
-            fluidNamesList.appendTag(new net.minecraft.nbt.NBTTagString(name));
-        }
         compound.setTag("fluidNames", fluidNamesList);
 
         return compound;
@@ -169,15 +156,13 @@ public class DimensionCache {
             int size = chunkXArray.length;
 
             // Pre-size HashMap to avoid rehashing during bulk load
-            if (oreChunks instanceof Long2ObjectOpenHashMap) {
-                ((Long2ObjectOpenHashMap<OreVeinPosition>) oreChunks).ensureCapacity(oreChunks.size() + size);
-            }
+            oreChunks.ensureCapacity(oreChunks.size() + size);
 
             // Sequential array processing - optimal cache line utilization
             for (int i = 0; i < size; i++) {
                 int chunkX = chunkXArray[i]; // Cache-friendly array access
                 int chunkZ = chunkZArray[i]; // Cache-friendly array access
-                boolean depleted = depletedFlags.length > i && depletedFlags[i] == 1;
+                boolean depleted = depletedFlags[i] == 1;
                 String veinTypeName = veinTypeNamesList.getStringTagAt(i);
                 VeinType veinType = VeinTypeCaching.getVeinType(veinTypeName);
 
@@ -221,10 +206,7 @@ public class DimensionCache {
             int fluidCount = chunkXArray.length;
 
             // Pre-size HashMap to avoid rehashing during bulk load
-            if (undergroundFluids instanceof Long2ObjectOpenHashMap) {
-                ((Long2ObjectOpenHashMap<UndergroundFluidPosition>) undergroundFluids)
-                        .ensureCapacity(undergroundFluids.size() + fluidCount);
-            }
+            undergroundFluids.ensureCapacity(undergroundFluids.size() + fluidCount);
 
             // Sequential array processing - optimal cache line utilization
             for (int fluidIndex = 0; fluidIndex < fluidCount; fluidIndex++) {
