@@ -23,9 +23,9 @@ import gregtech.api.util.GTUtility;
 import gregtech.common.tileentities.machines.basic.MTEScanner;
 
 @Mixin(value = MTEScanner.class, remap = false)
-public abstract class GT_MetaTileEntity_ScannerMixin extends MTEBasicMachine {
+public abstract class MTEScannerMixin extends MTEBasicMachine {
 
-    public GT_MetaTileEntity_ScannerMixin() {
+    public MTEScannerMixin() {
         super(0, "", "", 0, 0, "", 0, 0);
     }
 

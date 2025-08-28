@@ -14,7 +14,11 @@ import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 
+import gregtech.api.enums.OrePrefixes;
+import gregtech.api.enums.TextureSet;
 import gregtech.api.interfaces.IIconContainer;
+import gregtech.api.interfaces.IOreMaterial;
+import gregtech.api.util.LightingHelper;
 
 public class OreVeinLocation implements IWaypointAndLocationProvider {
 
@@ -113,14 +117,16 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
     }
 
     public int getColor() {
-        return oreVeinPosition.veinType.oreMaterialProvider.getColor();
+        return LightingHelper.getColor(getRepresentativeOre().getRGBA());
     }
 
-    public IIconContainer getIconsFromPrimaryOre() {
-        return oreVeinPosition.veinType.oreMaterialProvider.getIconContainer();
+    public IIconContainer getIconFromRepresentativeOre() {
+        TextureSet textureSet = getRepresentativeOre().getTextureSet();
+
+        return textureSet.mTextures[OrePrefixes.ore.mTextureIndex];
     }
 
-    public short getPrimaryOreMeta() {
-        return oreVeinPosition.veinType.primaryOreMeta;
+    public IOreMaterial getRepresentativeOre() {
+        return oreVeinPosition.veinType.representativeOre;
     }
 }

@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 
-import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
@@ -31,7 +31,7 @@ public class DimensionAnalysis {
 
     private interface IChunkHandler {
 
-        void processChunk(NBTTagList root, int chunkX, int chunkZ);
+        void processChunk(PartiallyLoadedChunk chunk, int chunkX, int chunkZ);
     }
 
     public void processMinecraftWorld(Collection<File> regionFiles) {
@@ -46,21 +46,21 @@ public class DimensionAnalysis {
             final Map<Long, DetailedChunkAnalysis> chunksForSecondIdentificationPass = new ConcurrentHashMap<>();
 
             regionFiles.parallelStream().forEach(regionFile -> {
-                executeForEachGeneratedOreChunk(regionFile, (root, chunkX, chunkZ) -> {
-                    final ChunkAnalysis chunk = new ChunkAnalysis(dimensionName);
-                    chunk.processMinecraftChunk(root);
+                executeForEachGeneratedOreChunk(regionFile, (chunk, chunkX, chunkZ) -> {
+                    final ChunkAnalysis analysis = new ChunkAnalysis(dimensionName);
+                    analysis.processMinecraftChunk(chunk);
 
-                    if (chunk.matchesSingleVein()) {
+                    if (analysis.matchesSingleVein()) {
                         ServerCache.instance
-                                .notifyOreVeinGeneration(dimensionId, chunkX, chunkZ, chunk.getMatchedVein());
-                        veinBlockY.put(Utils.chunkCoordsToKey(chunkX, chunkZ), chunk.getVeinBlockY());
+                                .notifyOreVeinGeneration(dimensionId, chunkX, chunkZ, analysis.getMatchedVein());
+                        veinBlockY.put(Utils.chunkCoordsToKey(chunkX, chunkZ), analysis.getVeinBlockY());
                     } else {
                         final DetailedChunkAnalysis detailedChunk = new DetailedChunkAnalysis(
                                 dimensionId,
                                 dimensionName,
                                 chunkX,
                                 chunkZ);
-                        detailedChunk.processMinecraftChunk(root);
+                        detailedChunk.processMinecraftChunk(chunk);
                         chunksForSecondIdentificationPass.put(Utils.chunkCoordsToKey(chunkX, chunkZ), detailedChunk);
                     }
                 });
@@ -76,33 +76,35 @@ public class DimensionAnalysis {
             AnalysisProgressTracker.setNumberOfRegionFiles(regionFiles.size() * 2);
 
             regionFiles.parallelStream().forEach(regionFile -> {
-                executeForEachGeneratedOreChunk(regionFile, (root, chunkX, chunkZ) -> {
-                    final ChunkAnalysis chunk = new ChunkAnalysis(dimensionName);
-                    chunk.processMinecraftChunk(root);
+                executeForEachGeneratedOreChunk(regionFile, (chunk, chunkX, chunkZ) -> {
+                    final ChunkAnalysis analysis = new ChunkAnalysis(dimensionName);
+                    analysis.processMinecraftChunk(chunk);
 
-                    if (chunk.matchesSingleVein()) {
+                    if (analysis.matchesSingleVein()) {
                         ServerCache.instance
-                                .notifyOreVeinGeneration(dimensionId, chunkX, chunkZ, chunk.getMatchedVein());
-                        veinBlockY.put(Utils.chunkCoordsToKey(chunkX, chunkZ), chunk.getVeinBlockY());
+                                .notifyOreVeinGeneration(dimensionId, chunkX, chunkZ, analysis.getMatchedVein());
+                        veinBlockY.put(Utils.chunkCoordsToKey(chunkX, chunkZ), analysis.getVeinBlockY());
                     }
                 });
             });
 
             regionFiles.parallelStream().forEach(regionFile -> {
-                executeForEachGeneratedOreChunk(regionFile, (root, chunkX, chunkZ) -> {
+                executeForEachGeneratedOreChunk(regionFile, (chunk, chunkX, chunkZ) -> {
                     if (ServerCache.instance.getOreVein(dimensionId, chunkX, chunkZ).veinType == VeinType.NO_VEIN) {
-                        final DetailedChunkAnalysis detailedChunk = new DetailedChunkAnalysis(
+                        final DetailedChunkAnalysis detailedAnalysis = new DetailedChunkAnalysis(
                                 dimensionId,
                                 dimensionName,
                                 chunkX,
                                 chunkZ);
-                        detailedChunk.processMinecraftChunk(root);
-                        detailedChunk.cleanUpWithNeighbors(veinBlockY);
+
+                        detailedAnalysis.processMinecraftChunk(chunk);
+                        detailedAnalysis.cleanUpWithNeighbors(veinBlockY);
+
                         ServerCache.instance.notifyOreVeinGeneration(
                                 dimensionId,
-                                detailedChunk.chunkX,
-                                detailedChunk.chunkZ,
-                                detailedChunk.getMatchedVein());
+                                detailedAnalysis.chunkX,
+                                detailedAnalysis.chunkZ,
+                                detailedAnalysis.getMatchedVein());
                     }
                 });
             });
@@ -125,14 +127,17 @@ public class DimensionAnalysis {
                         final int chunkZ = regionChunkZ + localChunkZ;
 
                         // Only process ore chunks
-                        if (chunkX == Utils.mapToCenterOreChunkCoord(chunkX)
-                                && chunkZ == Utils.mapToCenterOreChunkCoord(chunkZ)) {
-                            final NBTTagList chunkTiles = region.getChunkTiles(localChunkX, localChunkZ);
+                        if (chunkX != Utils.mapToCenterOreChunkCoord(chunkX)) continue;
+                        if (chunkZ != Utils.mapToCenterOreChunkCoord(chunkZ)) continue;
 
-                            if (chunkTiles != null) {
-                                chunkHandler.processChunk(chunkTiles, chunkX, chunkZ);
-                            }
-                        }
+                        NBTTagCompound chunk = region.getChunk(localChunkX, localChunkZ);
+
+                        if (chunk == null) continue;
+
+                        PartiallyLoadedChunk loadedChunk = new PartiallyLoadedChunk();
+                        loadedChunk.load(chunk, chunkX, chunkZ);
+
+                        chunkHandler.processChunk(loadedChunk, chunkX, chunkZ);
                     }
                 }
             }
