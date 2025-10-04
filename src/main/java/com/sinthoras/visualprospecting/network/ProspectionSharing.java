@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBuf;
 
 public class ProspectionSharing implements IMessage {
 
-    private static final int BYTES_OVERHEAD = 2 * Byte.BYTES + 2 * Integer.BYTES;
+    private static final int BYTES_OVERHEAD = Byte.BYTES + 2 * Byte.BYTES + 2 * Integer.BYTES;
 
     final List<OreVeinPosition> oreVeins = new ArrayList<>();
     final List<UndergroundFluidPosition> undergroundFluids = new ArrayList<>();
@@ -32,11 +32,16 @@ public class ProspectionSharing implements IMessage {
     public ProspectionSharing() {}
 
     public int putOreVeins(List<OreVeinPosition> oreVeins) {
-        final int availableBytes = VP.uploadSizePerPacketInBytes - bytesUsed;
-        final int maxAddedOreVeins = availableBytes / OreVeinPosition.MAX_BYTES;
-        final int addedOreVeins = Math.min(oreVeins.size(), maxAddedOreVeins);
-        this.oreVeins.addAll(oreVeins.subList(0, addedOreVeins));
-        bytesUsed += addedOreVeins * OreVeinPosition.MAX_BYTES;
+        int addedOreVeins = 0;
+        for (OreVeinPosition vein : oreVeins) {
+            final int veinByteSize = vein.getPacketBytes();
+
+            if ((bytesUsed + veinByteSize) > VP.uploadSizePerPacketInBytes) break;
+            this.oreVeins.add(vein);
+            bytesUsed += veinByteSize;
+            addedOreVeins++;
+        }
+
         return addedOreVeins;
     }
 
@@ -57,8 +62,8 @@ public class ProspectionSharing implements IMessage {
         this.isLastMessage = isLastMessage;
     }
 
-    public int getBytes() {
-        return BYTES_OVERHEAD + OreVeinPosition.MAX_BYTES * oreVeins.size()
+    public int getPacketBytes() {
+        return BYTES_OVERHEAD + oreVeins.stream().mapToInt(OreVeinPosition::getPacketBytes).sum()
                 + UndergroundFluidPosition.BYTES * undergroundFluids.size();
     }
 
@@ -90,7 +95,7 @@ public class ProspectionSharing implements IMessage {
             final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
 
             // Optional todo: Integrate over time for proper checking
-            if (message.getBytes() > VP.uploadSizePerPacketInBytes) {
+            if (message.getPacketBytes() > VP.uploadSizePerPacketInBytes) {
                 player.playerNetServerHandler.kickPlayerFromServer(
                         "Do not spam the server! Change your VisualProcessing configuration back to the servers!");
             }
