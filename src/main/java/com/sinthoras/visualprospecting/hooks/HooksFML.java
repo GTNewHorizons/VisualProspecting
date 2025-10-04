@@ -14,6 +14,8 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class HooksFML {
 
@@ -28,8 +30,14 @@ public class HooksFML {
     }
 
     @SubscribeEvent
-    public void onEvent(TickEvent event) {
-        TaskManager.instance.onTick();
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        TaskManager.SERVER_INSTANCE.onTick();
+    }
+
+    @SubscribeEvent
+    @SideOnly(Side.CLIENT)
+    public void onClientTick(TickEvent.ClientTickEvent event) {
+        TaskManager.CLIENT_INSTANCE.onTick();
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)

@@ -22,6 +22,7 @@ import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
 import com.sinthoras.visualprospecting.network.ProspectionSharing;
 import com.sinthoras.visualprospecting.network.WorldIdNotification;
+import com.sinthoras.visualprospecting.task.TaskManager;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -73,6 +74,8 @@ public class HooksShared {
 
         ProspectorsLog.instance = new ProspectorsLog();
         GameRegistry.registerItem(ProspectorsLog.instance, ProspectorsLog.instance.getUnlocalizedName());
+
+        initializeTaskManager();
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes."
@@ -129,4 +132,8 @@ public class HooksShared {
     }
 
     public void fmlLifeCycleEvent(FMLServerStoppedEvent event) {}
+
+    protected void initializeTaskManager() {
+        TaskManager.SERVER_INSTANCE = new TaskManager();
+    }
 }
