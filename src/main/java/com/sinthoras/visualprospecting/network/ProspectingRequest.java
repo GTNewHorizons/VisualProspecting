@@ -1,14 +1,9 @@
 package com.sinthoras.visualprospecting.network;
 
-import static com.sinthoras.visualprospecting.Utils.isSmallOreId;
-import static com.sinthoras.visualprospecting.Utils.oreIdToMaterialId;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import net.minecraft.block.Block;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 import com.sinthoras.visualprospecting.Config;
@@ -16,11 +11,13 @@ import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 
+import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import gregtech.common.blocks.BlockOresAbstract;
-import gregtech.common.blocks.TileEntityOres;
+import gregtech.api.interfaces.IOreMaterial;
+import gregtech.common.ores.OreInfo;
+import gregtech.common.ores.OreManager;
 import io.netty.buffer.ByteBuf;
 
 public class ProspectingRequest implements IMessage {
@@ -31,16 +28,16 @@ public class ProspectingRequest implements IMessage {
     private int blockX;
     private int blockY;
     private int blockZ;
-    private short foundOreMetaData;
+    private IOreMaterial foundOre;
 
     public ProspectingRequest() {}
 
-    public ProspectingRequest(int dimensionId, int blockX, int blockY, int blockZ, short foundOreMetaData) {
+    public ProspectingRequest(int dimensionId, int blockX, int blockY, int blockZ, IOreMaterial foundOre) {
         this.dimensionId = dimensionId;
         this.blockX = blockX;
         this.blockY = blockY;
         this.blockZ = blockZ;
-        this.foundOreMetaData = foundOreMetaData;
+        this.foundOre = foundOre;
     }
 
     public static boolean canSendRequest() {
@@ -58,7 +55,7 @@ public class ProspectingRequest implements IMessage {
         blockX = buf.readInt();
         blockY = buf.readInt();
         blockZ = buf.readInt();
-        foundOreMetaData = buf.readShort();
+        foundOre = IOreMaterial.findMaterial(ByteBufUtils.readUTF8String(buf));
     }
 
     @Override
@@ -67,7 +64,7 @@ public class ProspectingRequest implements IMessage {
         buf.writeInt(blockX);
         buf.writeInt(blockY);
         buf.writeInt(blockZ);
-        buf.writeShort(foundOreMetaData);
+        ByteBufUtils.writeUTF8String(buf, foundOre.getInternalName());
     }
 
     public static class Handler implements IMessageHandler<ProspectingRequest, IMessage> {
@@ -86,53 +83,57 @@ public class ProspectingRequest implements IMessage {
             final int chunkX = Utils.coordBlockToChunk(message.blockX);
             final int chunkZ = Utils.coordBlockToChunk(message.blockZ);
             final boolean isChunkLoaded = world.getChunkProvider().chunkExists(chunkX, chunkZ);
-            if (ctx.getServerHandler().playerEntity.dimension == message.dimensionId && distanceSquared <= 1024 // max
-                                                                                                                // 32
-                                                                                                                // blocks
-                                                                                                                // distance
-                    && timestamp - lastRequest >= Config.minDelayBetweenVeinRequests
-                    && isChunkLoaded) {
-                final Block block = world.getBlock(message.blockX, message.blockY, message.blockZ);
-                if (block instanceof BlockOresAbstract) {
-                    final TileEntity tileEntity = world.getTileEntity(message.blockX, message.blockY, message.blockZ);
-                    if (tileEntity instanceof TileEntityOres tileOre) {
-                        final short metaData = tileOre.mMetaData;
-                        if (!isSmallOreId(metaData) && oreIdToMaterialId(metaData) == message.foundOreMetaData) {
-                            lastRequestPerPlayer.put(uuid, timestamp);
 
-                            // Prioritise center vein
-                            final OreVeinPosition centerOreVeinPosition = ServerCache.instance
-                                    .getOreVein(message.dimensionId, chunkX, chunkZ);
-                            if (centerOreVeinPosition.veinType.containsOre(message.foundOreMetaData)) {
-                                return new ProspectingNotification(centerOreVeinPosition);
-                            }
+            if (ctx.getServerHandler().playerEntity.dimension != message.dimensionId) return null;
+            // max 32 blocks distance
+            if (distanceSquared > 32 * 32) return null;
 
-                            // Check if neighboring veins could fit
-                            final int centerChunkX = Utils.mapToCenterOreChunkCoord(chunkX);
-                            final int centerChunkZ = Utils.mapToCenterOreChunkCoord(chunkZ);
-                            for (int offsetChunkX = -3; offsetChunkX <= 3; offsetChunkX += 3) {
-                                for (int offsetChunkZ = -3; offsetChunkZ <= 3; offsetChunkZ += 3) {
-                                    if (offsetChunkX != 0 || offsetChunkZ != 0) {
-                                        final int neighborChunkX = centerChunkX + offsetChunkX;
-                                        final int neighborChunkZ = centerChunkZ + offsetChunkZ;
-                                        final int distanceBlocks = Math.max(
-                                                Math.abs(neighborChunkX - chunkX),
-                                                Math.abs(neighborChunkZ - chunkZ));
-                                        final OreVeinPosition neighborOreVeinPosition = ServerCache.instance
-                                                .getOreVein(message.dimensionId, neighborChunkX, neighborChunkZ);
-                                        final int maxDistance = ((neighborOreVeinPosition.veinType.blockSize + 16) >> 4)
-                                                + 1; // Equals to: ceil(blockSize / 16.0) + 1
-                                        if (neighborOreVeinPosition.veinType.containsOre(message.foundOreMetaData)
-                                                && distanceBlocks <= maxDistance) {
-                                            return new ProspectingNotification(neighborOreVeinPosition);
-                                        }
-                                    }
-                                }
+            if (timestamp - lastRequest < Config.minDelayBetweenVeinRequests) return null;
+            if (!isChunkLoaded) return null;
+
+            try (OreInfo<IOreMaterial> info = OreManager
+                    .getOreInfo(world, message.blockX, message.blockY, message.blockZ);) {
+                if (info == null || info.isSmall || info.material != message.foundOre) return null;
+
+                lastRequestPerPlayer.put(uuid, timestamp);
+
+                // Prioritise center vein
+                final OreVeinPosition centerOreVeinPosition = ServerCache.instance
+                        .getOreVein(message.dimensionId, chunkX, chunkZ);
+
+                if (centerOreVeinPosition.veinType.containsOre(message.foundOre)) {
+                    return new ProspectingNotification(centerOreVeinPosition);
+                }
+
+                // Check if neighboring veins could fit
+                final int centerChunkX = Utils.mapToCenterOreChunkCoord(chunkX);
+                final int centerChunkZ = Utils.mapToCenterOreChunkCoord(chunkZ);
+
+                for (int offsetChunkX = -3; offsetChunkX <= 3; offsetChunkX += 3) {
+                    for (int offsetChunkZ = -3; offsetChunkZ <= 3; offsetChunkZ += 3) {
+                        if (offsetChunkX != 0 || offsetChunkZ != 0) {
+
+                            final int neighborChunkX = centerChunkX + offsetChunkX;
+                            final int neighborChunkZ = centerChunkZ + offsetChunkZ;
+
+                            final int distanceBlocks = Math
+                                    .max(Math.abs(neighborChunkX - chunkX), Math.abs(neighborChunkZ - chunkZ));
+
+                            final OreVeinPosition neighborOreVeinPosition = ServerCache.instance
+                                    .getOreVein(message.dimensionId, neighborChunkX, neighborChunkZ);
+
+                            // Equals to: ceil(blockSize / 16.0) + 1
+                            final int maxDistance = ((neighborOreVeinPosition.veinType.blockSize + 16) >> 4) + 1;
+
+                            if (neighborOreVeinPosition.veinType.containsOre(message.foundOre)
+                                    && distanceBlocks <= maxDistance) {
+                                return new ProspectingNotification(neighborOreVeinPosition);
                             }
                         }
                     }
                 }
             }
+
             return null;
         }
     }
