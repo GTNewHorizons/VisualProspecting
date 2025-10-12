@@ -14,7 +14,6 @@ import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import gregtech.api.GregTechAPI;
 
 public class VoxelMapEventHandler {
 
@@ -25,7 +24,7 @@ public class VoxelMapEventHandler {
         }
 
         OreVeinPosition pos = event.getPosition();
-        short[] color = GregTechAPI.sGeneratedMaterials[pos.veinType.primaryOreMeta].getRGBA();
+        short[] color = pos.veinType.primaryOre.getRGBA();
         TreeSet<Integer> dim = new TreeSet<>();
         dim.add(pos.dimensionId);
         VoxelMapWaypointManager.addVoxelMapWaypoint(
