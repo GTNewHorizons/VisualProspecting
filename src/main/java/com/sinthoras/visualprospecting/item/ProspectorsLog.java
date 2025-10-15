@@ -41,7 +41,7 @@ public class ProspectorsLog extends Item {
             compound.setString(Tags.PROSPECTORSLOG_AUTHOR_ID, player.getPersistentID().toString());
             item.setTagCompound(compound);
             if (world.isRemote) {
-                TaskManager.instance.addTask(new SnapshotUploadTask());
+                TaskManager.CLIENT_INSTANCE.addTask(new SnapshotUploadTask());
             } else {
                 final int random = VP.randomGeneration.nextInt(1000);
                 if (random < 5) {
@@ -78,7 +78,7 @@ public class ProspectorsLog extends Item {
                     notification.getChatStyle().setItalic(true);
                     notification.getChatStyle().setColor(EnumChatFormatting.GRAY);
                     player.addChatMessage(notification);
-                    TaskManager.instance.addTask(new SnapshotDownloadTask(authorUuid, (EntityPlayerMP) player));
+                    TaskManager.SERVER_INSTANCE.addTask(new SnapshotDownloadTask(authorUuid, (EntityPlayerMP) player));
                 }
             }
         }
