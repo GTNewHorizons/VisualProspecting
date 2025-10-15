@@ -3,9 +3,15 @@ package com.sinthoras.visualprospecting.task;
 import java.util.ArrayList;
 import java.util.List;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 public class TaskManager {
 
-    public static final TaskManager instance = new TaskManager();
+    // Both instances are initialized in the sided proxy
+    @SideOnly(Side.CLIENT)
+    public static TaskManager CLIENT_INSTANCE;
+    public static TaskManager SERVER_INSTANCE;
 
     private final List<ITask> tasks = new ArrayList<>();
 

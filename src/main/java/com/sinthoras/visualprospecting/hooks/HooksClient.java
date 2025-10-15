@@ -10,6 +10,7 @@ import com.sinthoras.visualprospecting.database.ResetClientCacheCommand;
 import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
 import com.sinthoras.visualprospecting.integration.voxelmap.VoxelMapEventHandler;
+import com.sinthoras.visualprospecting.task.TaskManager;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -30,6 +31,8 @@ public class HooksClient extends HooksShared {
         if (Utils.isNavigatorInstalled()) {
             registerMapLayers();
         }
+
+        initializeTaskManager();
     }
 
     @Override
@@ -69,6 +72,12 @@ public class HooksClient extends HooksShared {
     @Override
     public void fmlLifeCycleEvent(FMLServerStoppedEvent event) {
         super.fmlLifeCycleEvent(event);
+    }
+
+    @Override
+    protected void initializeTaskManager() {
+        TaskManager.SERVER_INSTANCE = new TaskManager();
+        TaskManager.CLIENT_INSTANCE = new TaskManager();
     }
 
     public void registerMapLayers() {
