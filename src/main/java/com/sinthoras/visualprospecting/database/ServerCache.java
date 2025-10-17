@@ -4,21 +4,30 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
+import com.sinthoras.visualprospecting.network.ProspectingNotification;
+import com.sinthoras.visualprospecting.network.ProspectingRequest;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import gregtech.api.events.OreInteractEvent;
 import gregtech.api.events.VeinGenerateEvent;
+import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.UndergroundOil;
 import gregtech.common.WorldgenGTOreLayer;
+import gregtech.common.ores.OreInfo;
+import gregtech.common.ores.OreManager;
 
 public class ServerCache extends WorldCache {
 
@@ -53,6 +62,30 @@ public class ServerCache extends WorldCache {
 
     public void notifyOreVeinGeneration(int dimensionId, int chunkX, int chunkZ, final String veinName) {
         notifyOreVeinGeneration(dimensionId, chunkX, chunkZ, VeinTypeCaching.getVeinType(veinName));
+    }
+
+    @SubscribeEvent
+    public void onOreClicked(OreInteractEvent event) {
+        World world = event.world;
+        int x = event.x;
+        int y = event.y;
+        int z = event.z;
+        EntityPlayer player = event.player;
+
+        if (!world.isRemote && Config.enableProspecting) {
+            IOreMaterial material;
+
+            try (OreInfo<?> info = OreManager.getOreInfo(world, x, y, z)) {
+                material = info != null && info.isNatural ? info.material : null;
+            }
+
+            ProspectingNotification response = ProspectingRequest
+                    .prospect(new ProspectingRequest(world.provider.dimensionId, x, y, z, material), event.world);
+
+            if (response != null) {
+                VP.network.sendTo(response, (EntityPlayerMP) player);
+            }
+        }
     }
 
     public List<OreVeinPosition> prospectOreChunks(int dimensionId, int minChunkX, int minChunkZ, int maxChunkX,
