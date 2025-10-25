@@ -123,7 +123,7 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
     public IIconContainer getIconFromRepresentativeOre() {
         TextureSet textureSet = getRepresentativeOre().getTextureSet();
 
-        return textureSet.mTextures[OrePrefixes.ore.mTextureIndex];
+        return textureSet.mTextures[OrePrefixes.ore.getTextureIndex()];
     }
 
     public IOreMaterial getRepresentativeOre() {
