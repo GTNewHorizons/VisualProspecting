@@ -1,11 +1,15 @@
 package com.sinthoras.visualprospecting.database;
 
+import static cpw.mods.fml.common.network.ByteBufUtils.varIntByteCount;
+
+import java.nio.charset.StandardCharsets;
+
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 
 public class OreVeinPosition {
 
-    public static final int MAX_BYTES = 3 * Integer.BYTES + Short.BYTES;
+    public static final int BYTES_WITHOUT_VEIN_NAME = 3 * Integer.BYTES + Byte.BYTES;
     public static final OreVeinPosition EMPTY_VEIN = new OreVeinPosition(0, 0, 0, VeinType.NO_VEIN, true);
 
     public final int dimensionId;
@@ -38,6 +42,18 @@ public class OreVeinPosition {
         return Utils.coordChunkToBlock(chunkZ) + 8;
     }
 
+    public int getBytes() {
+        int veinNameLength = veinType.name.getBytes(StandardCharsets.UTF_8).length;
+
+        return BYTES_WITHOUT_VEIN_NAME + veinNameLength;
+    }
+
+    public int getPacketBytes() {
+        int veinNameLength = veinType.name.getBytes(StandardCharsets.UTF_8).length;
+
+        return BYTES_WITHOUT_VEIN_NAME + varIntByteCount(veinNameLength) + veinNameLength;
+    }
+
     public boolean isDepleted() {
         return depleted;
     }
@@ -51,8 +67,4 @@ public class OreVeinPosition {
         return this;
     }
 
-    // Leaving this here for compatability sake
-    public static int getMaxBytes() {
-        return MAX_BYTES;
-    }
 }
