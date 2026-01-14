@@ -5,33 +5,33 @@ import static gregtech.api.util.GTUtility.ItemNBT.setNBT;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import gregtech.loaders.postload.ScannerHandlerLoader;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.fluids.FluidStack;
 
-import org.jetbrains.annotations.Nullable;
-
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 
 import gregtech.api.enums.ItemList;
+import gregtech.api.metatileentity.MetaTileEntity;
+import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTScannerResult;
 import gregtech.api.util.GTUtility;
-import gregtech.common.tileentities.machines.basic.MTEScanner;
+import gregtech.loaders.postload.ScannerHandlerLoader;
 
 public abstract class GTScannerHandler {
 
     public static void onPostLoad() {
         // add at start to override default behaviour
-        MTEScanner.HANDLERS.addFirst(GTScannerHandler::analyzeProspectorData);
+        RecipeMaps.scannerHandlers.addFirst(GTScannerHandler::analyzeProspectorData);
     }
 
-    private static @Nullable GTScannerResult analyzeProspectorData(@Nonnull MTEScanner aScanner,
+    private static @Nullable GTScannerResult analyzeProspectorData(@Nonnull MetaTileEntity aScanner,
             @Nonnull ItemStack aInput, @Nullable ItemStack aSpecialSlot, @Nullable FluidStack aFluid) {
         // mimic original functionality
         if (aSpecialSlot != null) return null;
@@ -152,6 +152,12 @@ public abstract class GTScannerHandler {
         setNBT(output, compound);
 
         // Mimic original behaviour
-        return new GTScannerResult(ScannerHandlerLoader.SCAN_PROSPECTING_DATA_EUT, ScannerHandlerLoader.SCAN_PROSPECTING_DATA_DURATION, 1, 0, 0, output, true);
+        return new GTScannerResult(
+                ScannerHandlerLoader.SCAN_PROSPECTING_DATA_EUT,
+                ScannerHandlerLoader.SCAN_PROSPECTING_DATA_DURATION,
+                1,
+                0,
+                0,
+                output);
     }
 }
