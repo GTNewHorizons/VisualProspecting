@@ -1,5 +1,9 @@
 package com.sinthoras.visualprospecting.integration.gregtech;
 
+import static gregtech.api.util.GTUtility.ItemNBT.getProspectionFrontPage;
+import static gregtech.api.util.GTUtility.ItemNBT.getProspectionGridPage;
+import static gregtech.api.util.GTUtility.ItemNBT.getProspectionOilLocationPage;
+import static gregtech.api.util.GTUtility.ItemNBT.getProspectionOilPosStr;
 import static gregtech.api.util.GTUtility.ItemNBT.setNBT;
 
 import java.util.List;
@@ -17,7 +21,6 @@ import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 
-import gregtech.api.enums.ItemList;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.recipe.RecipeMaps;
 import gregtech.api.util.GTScannerResult;
@@ -33,13 +36,11 @@ public abstract class GTScannerHandler {
 
     private static @Nullable GTScannerResult analyzeProspectorData(@Nonnull MetaTileEntity aScanner,
             @Nonnull ItemStack aInput, @Nullable ItemStack aSpecialSlot, @Nullable FluidStack aFluid) {
-        // mimic original functionality
-        if (aSpecialSlot != null) return null;
-        if (!ItemList.Tool_DataStick.isStackEqual(aInput, false, true)) return null;
-        // abort if this doesn't have VP data
-        if (!aInput.hasTagCompound() || !GTUtility.ItemNBT.getBookTitle(aInput).equals("Raw Prospection Data")
-                || !aInput.getTagCompound().hasKey(Tags.VISUALPROSPECTING_FLAG))
-            return null;
+
+        // validate inputs
+        if (!ScannerHandlerLoader.isValidProspectionBook(aInput, aSpecialSlot)) return null;
+        // ensure it has the right flag
+        if (!aInput.getTagCompound().hasKey(Tags.VISUALPROSPECTING_FLAG)) return null;
 
         ItemStack output = GTUtility.copyAmount(1, aInput);
         assert output != null;
@@ -51,22 +52,18 @@ public abstract class GTScannerHandler {
         final int blockZ = compound.getInteger(Tags.PROSPECTION_BLOCK_Z);
         final int blockRadius = compound.getInteger(Tags.PROSPECTION_ORE_RADIUS);
         final int numberOfUndergroundFluids = compound.getInteger(Tags.PROSPECTION_NUMBER_OF_UNDERGROUND_FLUID);
-        final String position = "Dim: " + dimensionId + " X: " + blockX + " Y: " + blockY + " Z: " + blockZ;
+        final String position = GTUtility.ItemNBT.getProspectionBookTitle(dimensionId, blockX, blockY, blockZ);
 
+        // generate starting pages
         final NBTTagList bookPages = new NBTTagList();
-
-        final String frontPage = "Prospector report\n" + position
-                + "\n\n"
-                + "Fluids: "
-                + numberOfUndergroundFluids
-                + "\n\n"
-                + "Ores within "
-                + blockRadius
-                + " blocks\n\n"
-                + "Location is center of orevein\n\n"
-                + "Results are synchronized to your map";
+        final String frontPage = getProspectionFrontPage(
+                position,
+                GTUtility.formatNumbers(numberOfUndergroundFluids),
+                GTUtility.formatNumbers(blockRadius)).replace("\nOils: ", "\nFluids: ")
+                        .replace("\nCheck NEI to confirm orevein type", "\nResults are synchronized to your map");
         bookPages.appendTag(new NBTTagString(frontPage));
 
+        // append ores
         final List<OreVeinPosition> foundOreVeins = ServerCache.instance
                 .prospectOreBlockRadius(dimensionId, blockX, blockZ, blockRadius);
         if (!foundOreVeins.isEmpty()) {
@@ -90,6 +87,7 @@ public abstract class GTScannerHandler {
             }
         }
 
+        // append fluids
         if (compound.hasKey(Tags.PROSPECTION_FLUIDS)) {
             GTUtility.ItemNBT.fillBookWithList(
                     bookPages,
@@ -98,55 +96,12 @@ public abstract class GTScannerHandler {
                     9,
                     compound.getString(Tags.PROSPECTION_FLUIDS).split("\\|"));
 
-            final String fluidCoverPage = "Fluid notes\n\n" + "Prospects from NW to SE 576 chunks"
-                    + "(9 8x8 fields)\n around and gives min-max amount"
-                    + "\n\n"
-                    + "[1][2][3]"
-                    + "\n"
-                    + "[4][5][6]"
-                    + "\n"
-                    + "[7][8][9]"
-                    + "\n"
-                    + "\n"
-                    + "[5] - Prospector in this 8x8 area";
-            bookPages.appendTag(new NBTTagString(fluidCoverPage));
-
-            String tFluidsPosStr = "X: " + Math.floorDiv(blockX, 16 * 8) * 16 * 8
-                    + " Z: "
-                    + Math.floorDiv(blockZ, 16 * 8) * 16 * 8
-                    + "\n";
-            int xOff = blockX - Math.floorDiv(blockX, 16 * 8) * 16 * 8;
-            xOff = xOff / 16;
-            int xOffRemain = 7 - xOff;
-
-            int zOff = blockZ - Math.floorDiv(blockZ, 16 * 8) * 16 * 8;
-            zOff = zOff / 16;
-            int zOffRemain = 7 - zOff;
-
-            for (; zOff > 0; zOff--) {
-                tFluidsPosStr = tFluidsPosStr.concat("--------\n");
-            }
-            for (; xOff > 0; xOff--) {
-                tFluidsPosStr = tFluidsPosStr.concat("-");
-            }
-
-            tFluidsPosStr = tFluidsPosStr.concat("P");
-
-            for (; xOffRemain > 0; xOffRemain--) {
-                tFluidsPosStr = tFluidsPosStr.concat("-");
-            }
-            tFluidsPosStr = tFluidsPosStr.concat("\n");
-            for (; zOffRemain > 0; zOffRemain--) {
-                tFluidsPosStr = tFluidsPosStr.concat("--------\n");
-            }
-            tFluidsPosStr = tFluidsPosStr.concat(
-                    " X: " + (Math.floorDiv(blockX, 16 * 8) + 1) * 16 * 8
-                            + " Z: "
-                            + (Math.floorDiv(blockZ, 16 * 8) + 1) * 16 * 8); // +1 field to find bottomright of [5]
-            final String fluidsPage = "Corners of [5] are \n" + tFluidsPosStr + "\n" + "P - Prospector in 8x8 field";
-            bookPages.appendTag(new NBTTagString(fluidsPage));
+            bookPages.appendTag(new NBTTagString(getProspectionGridPage().replace("Oil notes", "Fluid notes")));
+            bookPages.appendTag(
+                    new NBTTagString(getProspectionOilLocationPage(getProspectionOilPosStr(blockX, blockZ))));
         }
 
+        // set book data
         compound.setString("author", position);
         compound.setTag("pages", bookPages);
         setNBT(output, compound);
