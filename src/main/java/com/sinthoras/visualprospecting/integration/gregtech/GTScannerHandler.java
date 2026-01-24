@@ -1,5 +1,6 @@
 package com.sinthoras.visualprospecting.integration.gregtech;
 
+import static com.gtnewhorizon.gtnhlib.util.numberformatting.NumberFormatUtil.formatNumber;
 import static gregtech.api.util.GTUtility.ItemNBT.getProspectionFrontPage;
 import static gregtech.api.util.GTUtility.ItemNBT.getProspectionGridPage;
 import static gregtech.api.util.GTUtility.ItemNBT.getProspectionOilLocationPage;
@@ -58,8 +59,8 @@ public abstract class GTScannerHandler {
         final NBTTagList bookPages = new NBTTagList();
         final String frontPage = getProspectionFrontPage(
                 position,
-                GTUtility.formatNumbers(numberOfUndergroundFluids),
-                GTUtility.formatNumbers(blockRadius)).replace("\nOils: ", "\nFluids: ")
+                formatNumber(numberOfUndergroundFluids),
+                formatNumber(blockRadius)).replace("\nOils: ", "\nFluids: ")
                         .replace("\nCheck NEI to confirm orevein type", "\nResults are synchronized to your map");
         bookPages.appendTag(new NBTTagString(frontPage));
 
