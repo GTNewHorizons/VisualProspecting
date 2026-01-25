@@ -12,7 +12,6 @@ public enum Mixins implements IMixins {
     // spotless:off
     // Gregtech mixins
     MTEAdvSeismicProspectorMixin("gregtech.MTEAdvSeismicProspectorMixin", GT5U),
-    MTEScannerMixin("gregtech.MTEScannerMixin", GT5U),
 
     // Vanilla Mixins
     MINECRAFT(new MixinBuilder()
