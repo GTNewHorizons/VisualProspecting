@@ -81,6 +81,7 @@ public class HooksShared {
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes."
     public void fmlLifeCycleEvent(FMLInitializationEvent event) {
         MinecraftForge.EVENT_BUS.register(new HooksEventBus());
+        MinecraftForge.EVENT_BUS.register(ServerCache.instance);
         FMLCommonHandler.instance().bus().register(new HooksFML());
     }
 

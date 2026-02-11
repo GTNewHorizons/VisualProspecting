@@ -34,7 +34,7 @@ public class ClientCache extends WorldCache {
     public static final ClientCache instance = new ClientCache();
 
     public ClientCache() {
-        MinecraftForge.EVENT_BUS.register(this);
+
     }
 
     protected File getStorageDirectory() {
