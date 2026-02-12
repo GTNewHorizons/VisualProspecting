@@ -7,7 +7,6 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -33,9 +32,7 @@ public class ServerCache extends WorldCache {
 
     public static final ServerCache instance = new ServerCache();
 
-    private ServerCache() {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
+    private ServerCache() {}
 
     protected File getStorageDirectory() {
         return Utils.getSubDirectory(Tags.SERVER_DIR);

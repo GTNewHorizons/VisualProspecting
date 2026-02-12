@@ -67,7 +67,7 @@ public class VeinType {
             int minY) {
         return minY >= minBlockY && (primaryOre == specific || secondaryOre == specific)
                 && (dimName.isEmpty() || allowedDims.contains(dimName))
-                && oresAsSet.containsAll(foundOres);
+                && foundOres.containsAll(oresAsSet);
     }
 
     public boolean matchesWithSpecificPrimaryOrSecondary(Collection<IOreMaterial> foundOres, String dimName,
