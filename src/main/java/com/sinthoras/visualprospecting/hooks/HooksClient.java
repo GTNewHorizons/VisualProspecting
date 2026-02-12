@@ -6,6 +6,7 @@ import net.minecraftforge.common.MinecraftForge;
 import com.gtnewhorizons.navigator.api.NavigatorApi;
 import com.gtnewhorizons.navigator.api.util.Util;
 import com.sinthoras.visualprospecting.Utils;
+import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.ResetClientCacheCommand;
 import com.sinthoras.visualprospecting.integration.model.layers.OreVeinLayerManager;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
@@ -39,6 +40,7 @@ public class HooksClient extends HooksShared {
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes."
     public void fmlLifeCycleEvent(FMLInitializationEvent event) {
         super.fmlLifeCycleEvent(event);
+        MinecraftForge.EVENT_BUS.register(ClientCache.instance);
         FMLCommonHandler.instance().bus().register(new HooksKey());
     }
 
