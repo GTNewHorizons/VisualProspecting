@@ -1,6 +1,7 @@
 package com.sinthoras.visualprospecting;
 
 import com.sinthoras.visualprospecting.hooks.HooksShared;
+import com.sinthoras.visualprospecting.integration.gregtech.GTScannerHandler;
 import com.sinthoras.visualprospecting.integration.gregtech.VeinDatabase;
 
 import cpw.mods.fml.common.Mod;
@@ -44,6 +45,7 @@ public class VPMod {
     // postInit "Handle interaction with other mods, complete your setup based on this."
     public void fmlLifeCycle(FMLPostInitializationEvent event) {
         VisualProspectingDatabase.registerDatabase(new VeinDatabase());
+        GTScannerHandler.onPostLoad();
         proxy.fmlLifeCycleEvent(event);
     }
 

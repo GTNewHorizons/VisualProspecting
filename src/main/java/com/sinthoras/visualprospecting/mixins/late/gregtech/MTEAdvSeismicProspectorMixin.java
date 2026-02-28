@@ -68,7 +68,7 @@ public abstract class MTEAdvSeismicProspectorMixin extends MTEBasicMachine {
                         this.ready = false;
 
                         final NBTTagCompound compound = getNBT(aStack);
-                        compound.setString(Tags.BOOK_TITLE, "Raw Prospection Data");
+                        compound.setString(Tags.BOOK_TITLE, GTUtility.ItemNBT.getRawProspectionDataName());
                         compound.setBoolean(Tags.VISUALPROSPECTING_FLAG, true);
                         compound.setByte(Tags.PROSPECTION_TIER, mTier);
                         compound.setInteger(Tags.PROSPECTION_DIMENSION_ID, igte.getWorld().provider.dimensionId);
