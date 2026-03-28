@@ -51,7 +51,7 @@ public class VeinType {
 
     public VeinType(OreMixBuilder oreMix) {
         name = oreMix.oreMixName;
-        localizedName = oreMix.localizedName;
+        localizedName = oreMix.getLocalizedName();
         blockSize = oreMix.size;
         representativeOre = oreMix.representative;
         oresAsSet.add(primaryOre = oreMix.primary);
