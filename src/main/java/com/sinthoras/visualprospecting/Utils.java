@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -244,6 +245,10 @@ public class Utils {
         if (searchString.isEmpty()) return null;
         final String unquotedRegex = SearchField.getPattern(searchString).pattern().replace("\\Q", "")
                 .replace("\\E", "");
-        return Pattern.compile(unquotedRegex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        try {
+            return Pattern.compile(unquotedRegex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+        } catch (PatternSyntaxException e) {
+            return null;
+        }
     }
 }
