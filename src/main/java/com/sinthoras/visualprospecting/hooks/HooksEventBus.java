@@ -1,5 +1,7 @@
 package com.sinthoras.visualprospecting.hooks;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -58,10 +60,10 @@ public class HooksEventBus {
             }
         }
 
-        UUID userUUID = VPSaveCleanupUtils.getUUIDForCurrentUser(mcDataDir, currentUsername);
+        UUID userUUID = Minecraft.getMinecraft().getSession().func_148256_e().getId();
         if (userUUID == null) {
             VP.LOG.debug("Unable to read userUUID for current user. Attempting to use fallback instead");
-            userUUID = VPSaveCleanupUtils.getUUIDFromBytesForCurrentUser(currentUsername);
+            userUUID = UUID.nameUUIDFromBytes(("OfflinePlayer:" + currentUsername).getBytes(UTF_8));
         }
         Path vpClientPathFull = vpBasePath.resolve("client").resolve(userUUID.toString()).resolve(worldId);
         if (Files.isDirectory(vpClientPathFull)) {
