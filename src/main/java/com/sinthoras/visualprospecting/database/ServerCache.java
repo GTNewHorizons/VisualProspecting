@@ -47,13 +47,11 @@ public class ServerCache extends WorldCache {
     @SubscribeEvent
     public void onVeinGenerated(VeinGenerateEvent event) {
         if (event.result == WorldgenGTOreLayer.ORE_PLACED && !event.layer.mWorldGenName.equals("NoOresInVein")) {
-            if (event.chunkX == event.oreSeedX && event.chunkZ == event.oreSeedZ) {
-                notifyOreVeinGeneration(
-                        event.world.provider.dimensionId,
-                        event.oreSeedX,
-                        event.oreSeedZ,
-                        event.layer.mWorldGenName);
-            }
+            notifyOreVeinGeneration(
+                    event.world.provider.dimensionId,
+                    event.oreSeedX,
+                    event.oreSeedZ,
+                    event.layer.mWorldGenName);
         }
     }
 
