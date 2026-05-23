@@ -11,7 +11,8 @@ import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
-import com.sinthoras.visualprospecting.network.ProspectingNotification;
+import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
+import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -41,17 +42,26 @@ public class VisualProspecting_API {
         public static void setOreVeinDepleted(int dimensionId, int blockX, int blockZ) {
             final OreVeinPosition oreVeinPosition = ClientCache.instance
                     .getOreVein(dimensionId, Utils.coordBlockToChunk(blockX), Utils.coordBlockToChunk(blockZ));
-            if (!oreVeinPosition.isDepleted()) {
-                oreVeinPosition.toggleDepleted();
-            }
+            if (oreVeinPosition == OreVeinPosition.EMPTY_VEIN) return;
+            if (oreVeinPosition.isDepleted()) return;
+            oreVeinPosition.toggleDepleted();
             ClientCache.instance.putOreVeins(Collections.singletonList(oreVeinPosition));
+            VP.network.sendToServer(
+                    new VeinDepletionMessage(dimensionId, oreVeinPosition.chunkX, oreVeinPosition.chunkZ, true));
         }
 
         public static void toggleOreVeinDepleted(OreVeinPosition oreVeinPosition) {
             oreVeinPosition = ClientCache.instance
                     .getOreVein(oreVeinPosition.dimensionId, oreVeinPosition.chunkX, oreVeinPosition.chunkZ);
+            if (oreVeinPosition == OreVeinPosition.EMPTY_VEIN) return;
             oreVeinPosition.toggleDepleted();
             ClientCache.instance.putOreVeins(Collections.singletonList(oreVeinPosition));
+            VP.network.sendToServer(
+                    new VeinDepletionMessage(
+                            oreVeinPosition.dimensionId,
+                            oreVeinPosition.chunkX,
+                            oreVeinPosition.chunkZ,
+                            oreVeinPosition.isDepleted()));
         }
 
         public static void putProspectionResults(List<OreVeinPosition> oreVeins,
@@ -80,13 +90,7 @@ public class VisualProspecting_API {
 
         public static void sendProspectionResultsToClient(EntityPlayerMP player, List<OreVeinPosition> oreVeins,
                 List<UndergroundFluidPosition> undergroundFluids) {
-            // Skip networking if in single player
-            if (Utils.isLogicalClient()) {
-                ClientCache.instance.putOreVeins(oreVeins);
-                ClientCache.instance.putUndergroundFluids(undergroundFluids);
-            } else {
-                VP.network.sendTo(new ProspectingNotification(oreVeins, undergroundFluids), player);
-            }
+            TeamProspectionDispatcher.deliverProspectingResults(player, oreVeins, undergroundFluids);
         }
 
         public static List<OreVeinPosition> prospectOreVeinsWithinRadius(int dimensionId, int blockX, int blockZ,

@@ -10,6 +10,7 @@ public class Config {
     private static class Defaults {
 
         public static final boolean enableProspecting = true;
+        public static final boolean enableTeamSharing = true;
         public static final int cacheGenerationLogUpdateMinTime = 5;
         public static final boolean recacheVeins = false;
         public static final int minDelayBetweenVeinRequests = 2000;
@@ -30,6 +31,7 @@ public class Config {
     }
 
     public static boolean enableProspecting = Defaults.enableProspecting;
+    public static boolean enableTeamSharing = Defaults.enableTeamSharing;
     public static int cacheGenerationLogUpdateMinTime = Defaults.cacheGenerationLogUpdateMinTime;
     public static boolean recacheVeins = Defaults.recacheVeins;
     public static int minDelayBetweenVeinRequests = Defaults.minDelayBetweenVeinRequests;
@@ -51,6 +53,13 @@ public class Config {
                 Defaults.enableProspecting,
                 "[CLIENT] You may want to disable prospecting for low-performance clients.");
         enableProspecting = enableProspectingProperty.getBoolean();
+
+        Property enableTeamSharingProperty = configuration.get(
+                Categories.general,
+                "enableTeamSharing",
+                Defaults.enableTeamSharing,
+                "[SERVER] Share prospecting data automatically between members of a GTNHLib team.");
+        enableTeamSharing = enableTeamSharingProperty.getBoolean();
 
         Property cacheGenerationLogUpdateMinTimeProperty = configuration.get(
                 Categories.general,

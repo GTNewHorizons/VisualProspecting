@@ -22,6 +22,7 @@ import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
+import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.api.events.OreInteractEvent;
@@ -97,6 +98,18 @@ public class ClientCache extends WorldCache {
 
     public void toggleOreVein(int dimensionId, int chunkX, int chunkZ) {
         super.toggleOreVein(dimensionId, chunkX, chunkZ);
+        OreVeinPosition vein = getOreVein(dimensionId, chunkX, chunkZ);
+        if (vein != OreVeinPosition.EMPTY_VEIN) {
+            VP.network.sendToServer(new VeinDepletionMessage(dimensionId, chunkX, chunkZ, vein.isDepleted()));
+        }
+    }
+
+    public void putOreVeinsSilent(List<OreVeinPosition> oreVeinPositions) {
+        for (OreVeinPosition oreVeinPosition : oreVeinPositions) {
+            if (putOreVein(oreVeinPosition) != DimensionCache.UpdateResult.AlreadyKnown) {
+                MinecraftForge.EVENT_BUS.post(new ProspectingNotificationEvent.OreVein(oreVeinPosition));
+            }
+        }
     }
 
     public void putUndergroundFluids(List<UndergroundFluidPosition> undergroundFluids) {
@@ -137,6 +150,16 @@ public class ClientCache extends WorldCache {
         if (undergroundFluidsNotification == null) return;
         undergroundFluidsNotification.getChatStyle().setItalic(true).setColor(EnumChatFormatting.GRAY);
         Minecraft.getMinecraft().thePlayer.addChatMessage(undergroundFluidsNotification);
+    }
+
+    public void putUndergroundFluidsSilent(List<UndergroundFluidPosition> undergroundFluids) {
+        for (UndergroundFluidPosition undergroundFluidPosition : undergroundFluids) {
+            DimensionCache.UpdateResult updateResult = putUndergroundFluids(undergroundFluidPosition);
+            if (updateResult != DimensionCache.UpdateResult.AlreadyKnown) {
+                MinecraftForge.EVENT_BUS
+                        .post(new ProspectingNotificationEvent.UndergroundFluid(undergroundFluidPosition));
+            }
+        }
     }
 
     @SubscribeEvent
