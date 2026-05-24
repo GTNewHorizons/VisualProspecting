@@ -44,11 +44,11 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 @EventBusSubscriber
 public final class TeamCatchupHandler {
 
-    // Conservative caps for one ProspectingNotification:
-    // ~20 B per vein -> 1000 veins ~= 20 KB per packet
-    // ~272 B per fluid -> 100 fluids ~= 27 KB per packet
-    private static final int VEINS_PER_PACKET = 1000;
-    private static final int FLUIDS_PER_PACKET = 100;
+    // Caps for one ProspectingNotification: (With ton of margin)
+    //   ~20 B per vein   -> 5000 veins ~= 100 KB per packet
+    //   ~272 B per fluid -> 400 fluids ~= 109 KB per packet
+    private static final int VEINS_PER_PACKET = 5000;
+    private static final int FLUIDS_PER_PACKET = 400;
 
     private static final Map<UUID, IntSet> SENT_DIMS = new HashMap<>();
 
