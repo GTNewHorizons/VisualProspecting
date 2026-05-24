@@ -18,6 +18,7 @@ import net.minecraftforge.common.util.Constants;
 import com.gtnewhorizon.gtnhlib.teams.ITeamData;
 import com.gtnewhorizon.gtnhlib.teams.Team;
 import com.gtnewhorizon.gtnhlib.teams.TeamDataCopyReason;
+import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.VP;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -239,11 +240,11 @@ public class TeamProspectionData implements ITeamData {
     @Override
     public void copyData(Team prevTeam, Team newTeam, UUID playerId, ITeamData prevTeamData,
             TeamDataCopyReason reason) {
-        if (reason == TeamDataCopyReason.JoinedExistingTeam && prevTeamData instanceof TeamProspectionData prev) {
-            ensureExpanded();
-            prev.ensureExpanded();
-            mergeFrom(prev);
-        }
+        if (!(prevTeamData instanceof TeamProspectionData prev)) return;
+        if (reason == TeamDataCopyReason.JoinedNewTeam && !Config.keepProspectionOnTeamLeave) return;
+        ensureExpanded();
+        prev.ensureExpanded();
+        mergeFrom(prev);
     }
 
     private void mergeFrom(TeamProspectionData other) {
