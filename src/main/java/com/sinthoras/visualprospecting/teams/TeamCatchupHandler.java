@@ -45,8 +45,8 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 public final class TeamCatchupHandler {
 
     // Caps for one ProspectingNotification: (With ton of margin)
-    //   ~20 B per vein   -> 5000 veins ~= 100 KB per packet
-    //   ~272 B per fluid -> 400 fluids ~= 109 KB per packet
+    // ~20 B per vein -> 5000 veins ~= 100 KB per packet
+    // ~272 B per fluid -> 400 fluids ~= 109 KB per packet
     private static final int VEINS_PER_PACKET = 5000;
     private static final int FLUIDS_PER_PACKET = 400;
 
