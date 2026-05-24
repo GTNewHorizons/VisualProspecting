@@ -1,5 +1,6 @@
 package com.sinthoras.visualprospecting.network;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.sinthoras.visualprospecting.database.ClientCache;
@@ -11,8 +12,8 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 /**
- * Similar as {@link ProspectingNotification} but indicates that the data is being delivered as recorded team state and
- * not a live prospection event.
+ * Similar to {@link ProspectingNotification} but for data being sent as recorded team state instead of a live
+ * prospection event.
  * <p>
  * Used by the team-sharing catch-up paths (player login and post-team-merge).
  */
@@ -24,6 +25,14 @@ public class TeamCatchupNotification extends ProspectingNotification {
 
     public TeamCatchupNotification(List<OreVeinPosition> oreVeins, List<UndergroundFluidPosition> undergroundFluids) {
         super(oreVeins, undergroundFluids);
+    }
+
+    public static TeamCatchupNotification veins(List<OreVeinPosition> oreVeins) {
+        return new TeamCatchupNotification(oreVeins, Collections.emptyList());
+    }
+
+    public static TeamCatchupNotification fluids(List<UndergroundFluidPosition> undergroundFluids) {
+        return new TeamCatchupNotification(Collections.emptyList(), undergroundFluids);
     }
 
     public static class ClientHandler implements IMessageHandler<TeamCatchupNotification, IMessage> {

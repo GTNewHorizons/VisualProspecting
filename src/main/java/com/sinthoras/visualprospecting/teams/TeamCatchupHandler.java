@@ -1,8 +1,10 @@
 package com.sinthoras.visualprospecting.teams;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
@@ -23,18 +25,21 @@ import com.sinthoras.visualprospecting.network.TeamCatchupNotification;
 
 import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerChangedDimensionEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
 /**
- * On player login, push the player's team's complete prospection record to their client by reconstructing all payloads
- * from {@link ServerCache} and sending them via {@link TeamCatchupNotification} packets.
+ * Lazily push the team's prospection record to a player, one dimension at a time, as they enter it. Only catchup once
+ * per dimension per session as the rest is done live.
  * <p>
  * Allow for player to catch up to what happened in the team when they were offline.
  * <p>
- * Data is split into separate batched notifications.
+ * Data is split into type and sent in batched notifications.
  */
 @EventBusSubscriber
 public final class TeamCatchupHandler {
@@ -45,8 +50,7 @@ public final class TeamCatchupHandler {
     private static final int VEINS_PER_PACKET = 1000;
     private static final int FLUIDS_PER_PACKET = 100;
 
-    private static final List<OreVeinPosition> EMPTY_VEINS = Collections.emptyList();
-    private static final List<UndergroundFluidPosition> EMPTY_FLUIDS = Collections.emptyList();
+    private static final Map<UUID, IntSet> SENT_DIMS = new HashMap<>();
 
     private TeamCatchupHandler() {}
 
@@ -56,15 +60,24 @@ public final class TeamCatchupHandler {
         if (!Config.enableTeamSharing) return;
         if (!(event.player instanceof EntityPlayerMP playerMP)) return;
         if (playerMP.worldObj.isRemote) return;
-        resyncPlayer(playerMP);
+        SENT_DIMS.remove(playerMP.getUniqueID());
+
+        sendDimIfNeeded(playerMP, playerMP.dimension);
     }
 
-    public static void resyncPlayer(EntityPlayerMP player) {
-        Team team = TeamManager.getTeamByPlayer(player.getUniqueID());
-        if (team == null) return;
-        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
-        if (data == null) return;
-        sendCatchup(player, data);
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
+        if (!Config.enableTeamSharing) return;
+        if (!(event.player instanceof EntityPlayerMP playerMP)) return;
+        if (playerMP.worldObj.isRemote) return;
+
+        sendDimIfNeeded(playerMP, event.toDim);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogout(PlayerLoggedOutEvent event) {
+        if (!(event.player instanceof EntityPlayerMP playerMP)) return;
+        SENT_DIMS.remove(playerMP.getUniqueID());
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -77,17 +90,32 @@ public final class TeamCatchupHandler {
         TeamProspectionData data = (TeamProspectionData) surviving.getData(TeamProspectionData.DATA_KEY);
         if (data == null) return;
 
-        TeamManager.forEachOnlineTeamMember(surviving, member -> sendCatchup(member, data));
+        // Update every player with new merged data, only for dimensions they visited since login
+        TeamManager.forEachOnlineTeamMember(surviving, member -> {
+            VP.LOG.debug("[onTeamMerge] Sending catchup to: {}", member);
+
+            IntSet alreadySent = SENT_DIMS.get(member.getUniqueID());
+            if (alreadySent == null || alreadySent.isEmpty()) return;
+
+            alreadySent.forEach((int dim) -> {
+                sendDimVeins(member, data, dim);
+                sendDimFluids(member, data, dim);
+            });
+        });
     }
 
-    private static void sendCatchup(EntityPlayerMP player, TeamProspectionData data) {
-        IntSet dims = data.knownDimensions();
-        if (dims.isEmpty()) return;
+    private static void sendDimIfNeeded(EntityPlayerMP player, int dim) {
+        UUID uuid = player.getUniqueID();
+        IntSet sent = SENT_DIMS.computeIfAbsent(uuid, k -> new IntOpenHashSet());
+        if (!sent.add(dim)) return;
 
-        for (int dim : dims) {
-            sendDimVeins(player, data, dim);
-            sendDimFluids(player, data, dim);
-        }
+        Team team = TeamManager.getTeamByPlayer(uuid);
+        if (team == null) return;
+        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
+        if (data == null) return;
+
+        sendDimVeins(player, data, dim);
+        sendDimFluids(player, data, dim);
     }
 
     private static void sendDimVeins(EntityPlayerMP player, TeamProspectionData data, int dim) {
@@ -123,7 +151,7 @@ public final class TeamCatchupHandler {
 
     private static void flushVeins(EntityPlayerMP player, List<OreVeinPosition> batch) {
         if (batch.isEmpty()) return;
-        VP.network.sendTo(new TeamCatchupNotification(batch, EMPTY_FLUIDS), player);
+        VP.network.sendTo(TeamCatchupNotification.veins(batch), player);
     }
 
     private static void sendDimFluids(EntityPlayerMP player, TeamProspectionData data, int dim) {
@@ -159,6 +187,6 @@ public final class TeamCatchupHandler {
 
     private static void flushFluids(EntityPlayerMP player, List<UndergroundFluidPosition> batch) {
         if (batch.isEmpty()) return;
-        VP.network.sendTo(new TeamCatchupNotification(EMPTY_VEINS, batch), player);
+        VP.network.sendTo(TeamCatchupNotification.fluids(batch), player);
     }
 }
