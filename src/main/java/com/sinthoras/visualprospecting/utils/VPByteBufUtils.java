@@ -38,7 +38,7 @@ public final class VPByteBufUtils {
         buf.writeInt(undergroundFluidPosition.dimensionId);
         buf.writeInt(undergroundFluidPosition.chunkX);
         buf.writeInt(undergroundFluidPosition.chunkZ);
-        buf.writeInt(undergroundFluidPosition.fluid.getID());
+        ByteBufUtils.writeUTF8String(buf, undergroundFluidPosition.fluid.getName());
         for (int offsetChunkX = 0; offsetChunkX < VP.undergroundFluidSizeChunkX; offsetChunkX++) {
             for (int offsetChunkZ = 0; offsetChunkZ < VP.undergroundFluidSizeChunkZ; offsetChunkZ++) {
                 buf.writeInt(undergroundFluidPosition.chunks[offsetChunkX][offsetChunkZ]);
@@ -50,7 +50,7 @@ public final class VPByteBufUtils {
         final int dimId = buf.readInt();
         final int chunkX = buf.readInt();
         final int chunkZ = buf.readInt();
-        final Fluid fluid = FluidRegistry.getFluid(buf.readInt());
+        final Fluid fluid = FluidRegistry.getFluid(ByteBufUtils.readUTF8String(buf));
         final int[][] chunks = new int[VP.undergroundFluidSizeChunkX][VP.undergroundFluidSizeChunkZ];
         for (int offsetChunkX = 0; offsetChunkX < VP.undergroundFluidSizeChunkX; offsetChunkX++) {
             for (int offsetChunkZ = 0; offsetChunkZ < VP.undergroundFluidSizeChunkZ; offsetChunkZ++) {
