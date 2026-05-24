@@ -8,7 +8,7 @@
 This mod is intended for player convenience, but may also be used as API, since it provides the location of all GT ore veins in a cache. VisualProspecting tracks all GT Ore Veins a player has found and visualizes them in JourneyMap and/or XaeroWorldMap (optional, if installed). It also visualizes tracked Thaumcraft aura nodes if TCNodeTracker if installed. VoxelMap will add waypoints for prospected ore veins and fluids.
 
 VisualProspecting tracks all ores that a player interacted with, by right or by left click. It also integrates prospecting data from GTs _Advanced Seismic Prospector_, although only books that are created after this mod was added will provide integration.
-You may share your findings with other players by crafting a _Prospector's Log_.
+You may share your findings with other players by crafting a _Prospector's Log_, or automatically with your GTNHLib team (see [Team Sharing](#team-sharing)).
 
 This mod is tailored to _GregTech: New Horizons 2_, but feel free to use it however you like. Even though this mod is build against the custom GT5U from GT:NH, it should still work fine with other GT5U versions.
 
@@ -43,6 +43,16 @@ _Thaumcraft aura nodes in JourneyMap overlay. You may double-click an aura node 
 ![Thaumcraft aura nodes in XaeroWorldMap overlay](https://i.ibb.co/njQ14RK/2021-11-15-20-48-12.png) \
 _Thaumcraft aura nodes in XaeroWorldMap overlay_
 </details>
+
+### Team Sharing
+
+If you belong to a [GTNHLib](https://github.com/GTNewHorizons/GTNHLib) team, all prospection findings (ore veins, underground fluids, vein-depletion toggles) are automatically shared with online team members, and replayed to teammates when they next log in. This replaces the standalone _SharedProspecting_ mod.
+
+Disable via `B:enableTeamSharing=false` in `config/visualprospecting.cfg`.
+
+Admin commands:
+ - `/vp_team_info [player] [detailed]`: inspect a team's prospection record.
+ - `/vp_team_clear <player>`: wipe a team's server-side prospection record (op/console).
 
 ### Reset Progress
 
