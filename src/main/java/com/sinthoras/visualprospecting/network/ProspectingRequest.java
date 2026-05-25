@@ -12,6 +12,7 @@ import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
+import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -98,7 +99,11 @@ public class ProspectingRequest implements IMessage {
 
             if (!isChunkLoaded) return null;
 
-            return prospect(message, world);
+            ProspectingNotification response = prospect(message, world);
+            if (response != null) {
+                TeamProspectionDispatcher.deliverProspectingResults(ctx.getServerHandler().playerEntity, response);
+            }
+            return null;
         }
     }
 

@@ -15,13 +15,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.sinthoras.visualprospecting.Tags;
-import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
-import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
-import com.sinthoras.visualprospecting.network.ProspectingNotification;
+import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 @Mixin(value = ItemEditableBook.class)
 public class ItemEditableBookMixin {
@@ -45,14 +43,10 @@ public class ItemEditableBookMixin {
                                     blockX,
                                     blockZ,
                                     VP.undergroundFluidChunkProspectingBlockRadius);
-                    if (Utils.isLogicalClient()) {
-                        ClientCache.instance.putOreVeins(foundOreVeins);
-                        ClientCache.instance.putUndergroundFluids(foundUndergroundFluids);
-                    } else {
-                        VP.network.sendTo(
-                                new ProspectingNotification(foundOreVeins, foundUndergroundFluids),
-                                (EntityPlayerMP) entityPlayer);
-                    }
+                    TeamProspectionDispatcher.deliverProspectingResults(
+                            (EntityPlayerMP) entityPlayer,
+                            foundOreVeins,
+                            foundUndergroundFluids);
                 }
             }
         }

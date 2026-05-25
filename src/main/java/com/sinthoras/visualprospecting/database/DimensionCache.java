@@ -154,6 +154,7 @@ public class DimensionCache {
             NBTTagList veinTypeNamesList = ores.getTagList("veinTypeNames", 8);
 
             int size = chunkXArray.length;
+            int unknownVeinTypes = 0;
 
             // Pre-size HashMap to avoid rehashing during bulk load
             oreChunks.ensureCapacity(oreChunks.size() + size);
@@ -165,10 +166,20 @@ public class DimensionCache {
                 boolean depleted = depletedFlags[i] == 1;
                 String veinTypeName = veinTypeNamesList.getStringTagAt(i);
                 VeinType veinType = VeinTypeCaching.getVeinType(veinTypeName);
+                if (veinType == VeinType.NO_VEIN) {
+                    unknownVeinTypes++;
+                    continue;
+                }
 
                 oreChunks.put(
                         getOreVeinKey(chunkX, chunkZ),
                         new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType, depleted));
+            }
+            if (unknownVeinTypes > 0) {
+                VP.LOG.warn(
+                        "Dimension {}: skipped {} entries with unknown vein type names while loading cache.",
+                        dimensionId,
+                        unknownVeinTypes);
             }
         } else {
             // LEGACY PATH: Backward compatibility for old nested compound format
@@ -180,10 +191,11 @@ public class DimensionCache {
                 VeinType veinType;
                 if (veinCompound.hasKey("veinTypeId")) {
                     veinType = getVeinFromId(veinCompound.getShort("veinTypeId"));
-                    if (veinType == null) return;
+                    if (veinType == null) continue;
                     markDirty();
                 } else {
                     veinType = VeinTypeCaching.getVeinType(veinCompound.getString("veinTypeName"));
+                    if (veinType == VeinType.NO_VEIN) continue;
                 }
 
                 oreChunks.put(
@@ -204,6 +216,7 @@ public class DimensionCache {
             NBTTagList fluidNamesList = fluids.getTagList("fluidNames", 8);
 
             int fluidCount = chunkXArray.length;
+            int unknownFluids = 0;
 
             // Pre-size HashMap to avoid rehashing during bulk load
             undergroundFluids.ensureCapacity(undergroundFluids.size() + fluidCount);
@@ -214,6 +227,10 @@ public class DimensionCache {
                 int chunkZ = chunkZArray[fluidIndex]; // Cache-friendly array access
                 String fluidName = fluidNamesList.getStringTagAt(fluidIndex);
                 Fluid fluid = FluidRegistry.getFluid(fluidName);
+                if (fluid == null) {
+                    unknownFluids++;
+                    continue;
+                }
 
                 // Reconstruct 2D chunk array from flattened data
                 int[][] chunks = new int[VP.undergroundFluidSizeChunkX][VP.undergroundFluidSizeChunkZ];
@@ -231,6 +248,12 @@ public class DimensionCache {
                         getUndergroundFluidKey(chunkX, chunkZ),
                         new UndergroundFluidPosition(dimensionId, chunkX, chunkZ, fluid, chunks));
             }
+            if (unknownFluids > 0) {
+                VP.LOG.warn(
+                        "Dimension {}: skipped {} entries with unknown fluid names while loading cache.",
+                        dimensionId,
+                        unknownFluids);
+            }
         } else {
             // LEGACY PATH: Backward compatibility for old nested compound format
             for (NBTBase base : (Collection<NBTBase>) fluids.tagMap.values()) {
@@ -239,6 +262,7 @@ public class DimensionCache {
                 int chunkZ = fluidCompound.getInteger("chunkZ");
                 String fluidName = fluidCompound.getString("fluidName");
                 Fluid fluid = FluidRegistry.getFluid(fluidName);
+                if (fluid == null) continue;
                 int[][] chunks = new int[VP.undergroundFluidSizeChunkX][VP.undergroundFluidSizeChunkZ];
                 NBTTagList chunkList = fluidCompound.getTagList("chunks", 11);
                 for (int i = 0; i < VP.undergroundFluidSizeChunkX; i++) {
@@ -259,7 +283,7 @@ public class DimensionCache {
                 final short veinTypeId = oreChunksBuffer.getShort();
                 final boolean depleted = (veinTypeId & 0x8000) > 0;
                 final VeinType veinType = getVeinFromId((short) (veinTypeId & 0x7FFF));
-                if (veinType == null) return;
+                if (veinType == null) continue;
 
                 oreChunks.put(
                         getOreVeinKey(chunkX, chunkZ),
@@ -316,6 +340,10 @@ public class DimensionCache {
     }
 
     public UpdateResult putOreVein(final OreVeinPosition oreVeinPosition) {
+        if (oreVeinPosition.veinType == VeinType.NO_VEIN) {
+            return UpdateResult.AlreadyKnown;
+        }
+
         final long key = getOreVeinKey(oreVeinPosition.chunkX, oreVeinPosition.chunkZ);
         final OreVeinPosition storedOreVeinPosition = oreChunks.get(key);
         if (storedOreVeinPosition == null) {
@@ -383,12 +411,15 @@ public class DimensionCache {
         // This method iterates for each chunk mapped. In many cases, it is probably faster to iterate over chunks in
         // the area to be cleared instead. i.e. if (chunksInClearArea < totalChunksMapped) {useAltIterator()}. If
         // someone calls this enough to make it a problem, they can add that.
-        oreChunks.long2ObjectEntrySet().removeIf(entry -> {
+        boolean removedAny = oreChunks.long2ObjectEntrySet().removeIf(entry -> {
             OreVeinPosition val = entry.getValue();
             final boolean withinX = val.chunkX >= startChunkX && val.chunkX <= endChunkX;
             final boolean withinZ = val.chunkZ >= startChunkZ && val.chunkZ <= endChunkZ;
             return withinX && withinZ;
         });
+        if (removedAny) {
+            markDirty();
+        }
     }
 
     private @Nullable VeinType getVeinFromId(short veinTypeId) {
@@ -425,7 +456,7 @@ public class DimensionCache {
             }
             return idConversionMap = result;
         } catch (IOException e) {
-            e.printStackTrace();
+            VP.LOG.error("Failed to read legacy file at {}", oldIdFile.getAbsolutePath(), e);
             return Short2ObjectMaps.emptyMap();
         }
     }

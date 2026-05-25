@@ -2,6 +2,8 @@ package com.sinthoras.visualprospecting.task;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
+
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ClientCache;
@@ -23,6 +25,8 @@ public class SnapshotUploadTask implements ITask {
 
     @Override
     public boolean process() {
+        if (Minecraft.getMinecraft().getNetHandler() == null) return true;
+
         final long timestamp = System.currentTimeMillis();
         if (timestamp - lastUpload > 1000 / Config.uploadPacketsPerSecond && !listsEmpty()) {
             lastUpload = timestamp;
