@@ -79,10 +79,7 @@ public class ServerCache extends WorldCache {
                     .prospect(new ProspectingRequest(world.provider.dimensionId, x, y, z, material), event.world);
 
             if (response != null) {
-                TeamProspectionDispatcher.deliverProspectingResults(
-                        (EntityPlayerMP) player,
-                        response.getOreVeins(),
-                        response.getUndergroundFluids());
+                TeamProspectionDispatcher.deliverProspectingResults((EntityPlayerMP) player, response);
             }
         }
     }

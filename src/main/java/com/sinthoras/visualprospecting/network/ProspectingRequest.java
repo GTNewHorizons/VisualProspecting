@@ -101,10 +101,7 @@ public class ProspectingRequest implements IMessage {
 
             ProspectingNotification response = prospect(message, world);
             if (response != null) {
-                TeamProspectionDispatcher.deliverProspectingResults(
-                        ctx.getServerHandler().playerEntity,
-                        response.getOreVeins(),
-                        response.getUndergroundFluids());
+                TeamProspectionDispatcher.deliverProspectingResults(ctx.getServerHandler().playerEntity, response);
             }
             return null;
         }

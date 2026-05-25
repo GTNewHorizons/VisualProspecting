@@ -35,8 +35,12 @@ public final class TeamProspectionDispatcher {
      */
     public static void deliverProspectingResults(EntityPlayerMP player, List<OreVeinPosition> oreVeins,
             List<UndergroundFluidPosition> fluids) {
-        // Notify the originating player.
-        VP.network.sendTo(new ProspectingNotification(oreVeins, fluids), player);
+        deliverProspectingResults(player, new ProspectingNotification(oreVeins, fluids));
+    }
+
+    public static void deliverProspectingResults(EntityPlayerMP player, ProspectingNotification notification) {
+        // Notify the originating player with the pre-built notification.
+        VP.network.sendTo(notification, player);
 
         if (!Config.enableTeamSharing) return;
 
@@ -46,8 +50,8 @@ public final class TeamProspectionDispatcher {
         if (data == null) return;
 
         // Update the team's record
-        List<OreVeinPosition> newVeins = filterNewVeins(data, oreVeins);
-        List<UndergroundFluidPosition> newFluids = filterNewFluids(data, fluids);
+        List<OreVeinPosition> newVeins = filterNewVeins(data, notification.getOreVeins());
+        List<UndergroundFluidPosition> newFluids = filterNewFluids(data, notification.getUndergroundFluids());
         if (newVeins.isEmpty() && newFluids.isEmpty()) return;
 
         team.markDirty();
