@@ -262,12 +262,7 @@ public class TeamProspectionData implements ITeamData {
     }
 
     private static LongSet getOrCreate(Int2ObjectMap<LongSet> map, int dim) {
-        LongSet set = map.get(dim);
-        if (set == null) {
-            set = new LongOpenHashSet();
-            map.put(dim, set);
-        }
-        return set;
+        return map.computeIfAbsent(dim, value -> new LongOpenHashSet());
     }
 
     /**

@@ -59,7 +59,6 @@ public final class TeamCatchupHandler {
     public static void onPlayerLogin(PlayerLoggedInEvent event) {
         if (!Config.enableTeamSharing) return;
         if (!(event.player instanceof EntityPlayerMP playerMP)) return;
-        if (playerMP.worldObj.isRemote) return;
         SENT_DIMS.remove(playerMP.getUniqueID());
 
         sendDimIfNeeded(playerMP, playerMP.dimension);
@@ -69,7 +68,6 @@ public final class TeamCatchupHandler {
     public static void onPlayerChangedDimension(PlayerChangedDimensionEvent event) {
         if (!Config.enableTeamSharing) return;
         if (!(event.player instanceof EntityPlayerMP playerMP)) return;
-        if (playerMP.worldObj.isRemote) return;
 
         sendDimIfNeeded(playerMP, event.toDim);
     }
@@ -80,7 +78,7 @@ public final class TeamCatchupHandler {
         SENT_DIMS.remove(playerMP.getUniqueID());
     }
 
-    @SubscribeEvent(priority = EventPriority.LOW)
+    @SubscribeEvent
     public static void onTeamMerge(TeamMergeEvent event) {
         if (!Config.enableTeamSharing) return;
 
