@@ -26,6 +26,8 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.world.storage.ThreadedFileIOBase;
 
 import org.jetbrains.annotations.NotNull;
@@ -230,6 +232,11 @@ public class Utils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static void sendChatMessage(IChatComponent msg, boolean italic, EnumChatFormatting color) {
+        msg.getChatStyle().setItalic(italic).setColor(color);
+        Minecraft.getMinecraft().thePlayer.addChatMessage(msg);
     }
 
     public static @Nullable Pattern getNEISearchPattern() {

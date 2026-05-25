@@ -33,6 +33,14 @@ public class ProspectingNotification implements IMessage {
         this.undergroundFluids = undergroundFluids;
     }
 
+    public List<OreVeinPosition> getOreVeins() {
+        return oreVeins;
+    }
+
+    public List<UndergroundFluidPosition> getUndergroundFluids() {
+        return undergroundFluids;
+    }
+
     @Override
     public void fromBytes(ByteBuf buf) {
         oreVeins = VPByteBufUtils.ReadOreVeinPositions(buf);

@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.task;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
@@ -30,6 +31,8 @@ public class SnapshotDownloadTask implements ITask {
 
     @Override
     public boolean process() {
+        if (!MinecraftServer.getServer().getConfigurationManager().playerEntityList.contains(player)) return true;
+
         final long timestamp = System.currentTimeMillis();
         if (timestamp - lastUpload > 1000 / Config.uploadPacketsPerSecond && !listsEmpty()) {
             lastUpload = timestamp;

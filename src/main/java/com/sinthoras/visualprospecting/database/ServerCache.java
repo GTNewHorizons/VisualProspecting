@@ -18,6 +18,7 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
+import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.api.events.OreInteractEvent;
@@ -78,7 +79,7 @@ public class ServerCache extends WorldCache {
                     .prospect(new ProspectingRequest(world.provider.dimensionId, x, y, z, material), event.world);
 
             if (response != null) {
-                VP.network.sendTo(response, (EntityPlayerMP) player);
+                TeamProspectionDispatcher.deliverProspectingResults((EntityPlayerMP) player, response);
             }
         }
     }

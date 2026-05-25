@@ -8,6 +8,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 
+import com.gtnewhorizon.gtnhlib.teams.TeamDataRegistry;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.VP;
@@ -21,8 +22,13 @@ import com.sinthoras.visualprospecting.item.ProspectorsLog;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
 import com.sinthoras.visualprospecting.network.ProspectionSharing;
+import com.sinthoras.visualprospecting.network.TeamCatchupNotification;
+import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
 import com.sinthoras.visualprospecting.network.WorldIdNotification;
 import com.sinthoras.visualprospecting.task.TaskManager;
+import com.sinthoras.visualprospecting.teams.TeamClearCommand;
+import com.sinthoras.visualprospecting.teams.TeamInfoCommand;
+import com.sinthoras.visualprospecting.teams.TeamProspectionData;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -71,9 +77,27 @@ public class HooksShared {
                 ProspectionSharing.class,
                 networkId++,
                 Side.CLIENT);
+        VP.network.registerMessage(
+                VeinDepletionMessage.ServerHandler.class,
+                VeinDepletionMessage.class,
+                networkId++,
+                Side.SERVER);
+        VP.network.registerMessage(
+                VeinDepletionMessage.ClientHandler.class,
+                VeinDepletionMessage.class,
+                networkId++,
+                Side.CLIENT);
+        VP.network.registerMessage(
+                TeamCatchupNotification.ClientHandler.class,
+                TeamCatchupNotification.class,
+                networkId++,
+                Side.CLIENT);
 
         ProspectorsLog.instance = new ProspectorsLog();
         GameRegistry.registerItem(ProspectorsLog.instance, ProspectorsLog.instance.getUnlocalizedName());
+
+        // Register with GTNHLib team system
+        TeamDataRegistry.register(TeamProspectionData.DATA_KEY, TeamProspectionData::new);
 
         initializeTaskManager();
     }
@@ -123,6 +147,10 @@ public class HooksShared {
         // Register the recache command
         event.registerServerCommand(new RedoServerCacheCommand());
         event.registerServerCommand(new RedoServerSpawnCacheCommand());
+
+        // Team-sharing debug commands
+        event.registerServerCommand(new TeamInfoCommand());
+        event.registerServerCommand(new TeamClearCommand());
     }
 
     public void fmlLifeCycleEvent(FMLServerStartedEvent event) {}

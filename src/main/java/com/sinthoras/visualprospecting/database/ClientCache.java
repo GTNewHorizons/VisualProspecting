@@ -22,6 +22,7 @@ import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
+import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.api.events.OreInteractEvent;
@@ -52,54 +53,57 @@ public class ClientCache extends WorldCache {
 
     private void notifyNewOreVein(OreVeinPosition oreVeinPosition) {
         final String location = "(" + (oreVeinPosition.getBlockX() + 8) + "," + (oreVeinPosition.getBlockZ() + 8) + ")";
-        final IChatComponent veinNotification = new ChatComponentTranslation(
-                "visualprospecting.vein.prospected",
-                oreVeinPosition.veinType.getVeinName(),
-                location);
-        veinNotification.getChatStyle().setItalic(true);
-        veinNotification.getChatStyle().setColor(EnumChatFormatting.GRAY);
-        Minecraft.getMinecraft().thePlayer.addChatMessage(veinNotification);
+        Utils.sendChatMessage(
+                new ChatComponentTranslation(
+                        "visualprospecting.vein.prospected",
+                        oreVeinPosition.veinType.getVeinName(),
+                        location),
+                true,
+                EnumChatFormatting.GRAY);
 
         final String oreNames = String.join(", ", oreVeinPosition.veinType.getOreMaterialNames());
-        final IChatComponent oresNotification = new ChatComponentTranslation(
-                "visualprospecting.vein.contents",
-                oreNames);
-        oresNotification.getChatStyle().setItalic(true);
-        oresNotification.getChatStyle().setColor(EnumChatFormatting.GRAY);
-        Minecraft.getMinecraft().thePlayer.addChatMessage(oresNotification);
+        Utils.sendChatMessage(
+                new ChatComponentTranslation("visualprospecting.vein.contents", oreNames),
+                true,
+                EnumChatFormatting.GRAY);
     }
 
     public void putOreVeins(List<OreVeinPosition> oreVeinPositions) {
+        putOreVeins(oreVeinPositions, false);
+    }
+
+    public void putOreVeins(List<OreVeinPosition> oreVeinPositions, boolean silent) {
+        int newOreVeins = 0;
+        for (OreVeinPosition vein : oreVeinPositions) {
+            if (putOreVein(vein) == DimensionCache.UpdateResult.AlreadyKnown) continue;
+            MinecraftForge.EVENT_BUS.post(new ProspectingNotificationEvent.OreVein(vein));
+            newOreVeins++;
+        }
+        if (silent || newOreVeins == 0) return;
+
         if (oreVeinPositions.size() == 1) {
-            final OreVeinPosition oreVeinPosition = oreVeinPositions.get(0);
-            if (putOreVein(oreVeinPosition) != DimensionCache.UpdateResult.AlreadyKnown) {
-                MinecraftForge.EVENT_BUS.post(new ProspectingNotificationEvent.OreVein(oreVeinPosition));
-                notifyNewOreVein(oreVeinPosition);
-            }
-        } else if (oreVeinPositions.size() > 1) {
-            int newOreVeins = 0;
-            for (OreVeinPosition oreVeinPosition : oreVeinPositions) {
-                if (putOreVein(oreVeinPosition) != DimensionCache.UpdateResult.AlreadyKnown) {
-                    MinecraftForge.EVENT_BUS.post(new ProspectingNotificationEvent.OreVein(oreVeinPosition));
-                    newOreVeins++;
-                }
-            }
-            if (newOreVeins > 0) {
-                final IChatComponent oreVeinNotification = new ChatComponentTranslation(
-                        "visualprospecting.veins.prospected",
-                        newOreVeins);
-                oreVeinNotification.getChatStyle().setItalic(true);
-                oreVeinNotification.getChatStyle().setColor(EnumChatFormatting.GRAY);
-                Minecraft.getMinecraft().thePlayer.addChatMessage(oreVeinNotification);
-            }
+            notifyNewOreVein(oreVeinPositions.get(0));
+        } else {
+            Utils.sendChatMessage(
+                    new ChatComponentTranslation("visualprospecting.veins.prospected", newOreVeins),
+                    true,
+                    EnumChatFormatting.GRAY);
         }
     }
 
     public void toggleOreVein(int dimensionId, int chunkX, int chunkZ) {
         super.toggleOreVein(dimensionId, chunkX, chunkZ);
+        OreVeinPosition vein = getOreVein(dimensionId, chunkX, chunkZ);
+        if (vein != OreVeinPosition.EMPTY_VEIN) {
+            VP.network.sendToServer(new VeinDepletionMessage(dimensionId, chunkX, chunkZ, vein.isDepleted()));
+        }
     }
 
     public void putUndergroundFluids(List<UndergroundFluidPosition> undergroundFluids) {
+        putUndergroundFluids(undergroundFluids, false);
+    }
+
+    public void putUndergroundFluids(List<UndergroundFluidPosition> undergroundFluids, boolean silent) {
         int newUndergroundFluids = 0;
         int updatedUndergroundFluids = 0;
         for (UndergroundFluidPosition undergroundFluidPosition : undergroundFluids) {
@@ -114,6 +118,7 @@ public class ClientCache extends WorldCache {
                 updatedUndergroundFluids++;
             }
         }
+        if (silent) return;
 
         IChatComponent undergroundFluidsNotification = null;
         if (newUndergroundFluids > 0 && updatedUndergroundFluids > 0) {
@@ -121,22 +126,18 @@ public class ClientCache extends WorldCache {
                     "visualprospecting.undergroundfluid.prospected.newandupdated",
                     newUndergroundFluids,
                     updatedUndergroundFluids);
-        } else {
-            if (newUndergroundFluids > 0) {
-                undergroundFluidsNotification = new ChatComponentTranslation(
-                        "visualprospecting.undergroundfluid.prospected.onlynew",
-                        newUndergroundFluids);
-            }
-            if (updatedUndergroundFluids > 0) {
-                undergroundFluidsNotification = new ChatComponentTranslation(
-                        "visualprospecting.undergroundfluid.prospected.onlyupdated",
-                        updatedUndergroundFluids);
-            }
+        } else if (newUndergroundFluids > 0) {
+            undergroundFluidsNotification = new ChatComponentTranslation(
+                    "visualprospecting.undergroundfluid.prospected.onlynew",
+                    newUndergroundFluids);
+        } else if (updatedUndergroundFluids > 0) {
+            undergroundFluidsNotification = new ChatComponentTranslation(
+                    "visualprospecting.undergroundfluid.prospected.onlyupdated",
+                    updatedUndergroundFluids);
         }
 
         if (undergroundFluidsNotification == null) return;
-        undergroundFluidsNotification.getChatStyle().setItalic(true).setColor(EnumChatFormatting.GRAY);
-        Minecraft.getMinecraft().thePlayer.addChatMessage(undergroundFluidsNotification);
+        Utils.sendChatMessage(undergroundFluidsNotification, true, EnumChatFormatting.GRAY);
     }
 
     @SubscribeEvent
