@@ -39,8 +39,8 @@ public class TeamCatchupNotification extends ProspectingNotification {
 
         @Override
         public IMessage onMessage(TeamCatchupNotification message, MessageContext ctx) {
-            ClientCache.instance.putOreVeinsSilent(message.getOreVeins());
-            ClientCache.instance.putUndergroundFluidsSilent(message.getUndergroundFluids());
+            ClientCache.instance.putOreVeins(message.getOreVeins(), true);
+            ClientCache.instance.putUndergroundFluids(message.getUndergroundFluids(), true);
             return null;
         }
     }
