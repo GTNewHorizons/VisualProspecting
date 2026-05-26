@@ -9,29 +9,31 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 
 public class OreVeinPosition {
 
-    public static final int BYTES_WITHOUT_VEIN_NAME = 3 * Integer.BYTES + Byte.BYTES;
-    public static final OreVeinPosition EMPTY_VEIN = new OreVeinPosition(0, 0, 0, VeinType.NO_VEIN, true);
+    public static final int BYTES_WITHOUT_VEIN_NAME = 3 * Integer.BYTES + 2 * Byte.BYTES;
+    public static final OreVeinPosition EMPTY_VEIN = new OreVeinPosition(
+            0,
+            0,
+            0,
+            VeinType.NO_VEIN,
+            true,
+            VeinSource.UNKNOWN);
 
     public final int dimensionId;
     public final int chunkX;
     public final int chunkZ;
     public final VeinType veinType;
 
-    private boolean depleted = false;
+    private boolean depleted;
+    private final byte source;
 
-    public OreVeinPosition(int dimensionId, int chunkX, int chunkZ, VeinType veinType) {
-        this.dimensionId = dimensionId;
-        this.chunkX = Utils.mapToCenterOreChunkCoord(chunkX);
-        this.chunkZ = Utils.mapToCenterOreChunkCoord(chunkZ);
-        this.veinType = veinType;
-    }
-
-    public OreVeinPosition(int dimensionId, int chunkX, int chunkZ, VeinType veinType, boolean depleted) {
+    public OreVeinPosition(int dimensionId, int chunkX, int chunkZ, VeinType veinType, boolean depleted,
+            VeinSource source) {
         this.dimensionId = dimensionId;
         this.chunkX = Utils.mapToCenterOreChunkCoord(chunkX);
         this.chunkZ = Utils.mapToCenterOreChunkCoord(chunkZ);
         this.veinType = veinType;
         this.depleted = depleted;
+        this.source = (byte) source.ordinal();
     }
 
     public int getBlockX() {
@@ -56,6 +58,14 @@ public class OreVeinPosition {
 
     public boolean isDepleted() {
         return depleted;
+    }
+
+    public VeinSource getSource() {
+        return VeinSource.fromByte(source);
+    }
+
+    public byte getSourceByte() {
+        return source;
     }
 
     public void toggleDepleted() {

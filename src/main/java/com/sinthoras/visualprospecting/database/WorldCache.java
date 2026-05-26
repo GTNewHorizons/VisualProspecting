@@ -76,7 +76,8 @@ public abstract class WorldCache {
             if (dimension == null) {
                 dimension = new DimensionCache(dimensionId);
             }
-            dimension.loadLegacy(
+            LegacyDimensionCacheLoader.loadV0Binary(
+                    dimension,
                     oreVeinDimensionBuffers.get(dimensionId),
                     undergroundFluidDimensionBuffers.get(dimensionId));
             dimension.markDirty();
