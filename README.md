@@ -53,6 +53,7 @@ Disable via `B:enableTeamSharing=false` in `config/visualprospecting.cfg`.
 Admin commands:
  - `/vp_team_info [player] [detailed]`: inspect a team's prospection record.
  - `/vp_team_clear <player>`: wipe a team's server-side prospection record (op/console).
+ - `/vp_team_upload <player>`: Push a player's local cache into their team's record (op/console).
 
 ### Reset Progress
 
