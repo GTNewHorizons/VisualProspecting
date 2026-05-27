@@ -39,9 +39,10 @@ public class ServerCache extends WorldCache {
         return Utils.getSubDirectory(Tags.SERVER_DIR);
     }
 
-    public synchronized void notifyOreVeinGeneration(int dimensionId, int chunkX, int chunkZ, final VeinType veinType) {
+    public synchronized void notifyOreVeinGeneration(int dimensionId, int chunkX, int chunkZ, final VeinType veinType,
+            VeinSource source) {
         if (veinType != VeinType.NO_VEIN) {
-            super.putOreVein(new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType));
+            super.putOreVein(new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType, false, source));
         }
     }
 
@@ -52,12 +53,9 @@ public class ServerCache extends WorldCache {
                     event.world.provider.dimensionId,
                     event.oreSeedX,
                     event.oreSeedZ,
-                    event.layer.mWorldGenName);
+                    VeinTypeCaching.getVeinType(event.layer.mWorldGenName),
+                    VeinSource.GENERATED);
         }
-    }
-
-    public void notifyOreVeinGeneration(int dimensionId, int chunkX, int chunkZ, final String veinName) {
-        notifyOreVeinGeneration(dimensionId, chunkX, chunkZ, VeinTypeCaching.getVeinType(veinName));
     }
 
     @SubscribeEvent

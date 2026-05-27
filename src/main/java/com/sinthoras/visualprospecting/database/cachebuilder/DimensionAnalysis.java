@@ -17,6 +17,7 @@ import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ServerCache;
+import com.sinthoras.visualprospecting.database.VeinSource;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 
 public class DimensionAnalysis {
@@ -51,8 +52,12 @@ public class DimensionAnalysis {
                     analysis.processMinecraftChunk(chunk);
 
                     if (analysis.matchesSingleVein()) {
-                        ServerCache.instance
-                                .notifyOreVeinGeneration(dimensionId, chunkX, chunkZ, analysis.getMatchedVein());
+                        ServerCache.instance.notifyOreVeinGeneration(
+                                dimensionId,
+                                chunkX,
+                                chunkZ,
+                                analysis.getMatchedVein(),
+                                VeinSource.RESCAN);
                         veinBlockY.put(Utils.chunkCoordsToKey(chunkX, chunkZ), analysis.getVeinBlockY());
                     } else {
                         final DetailedChunkAnalysis detailedChunk = new DetailedChunkAnalysis(
@@ -68,8 +73,12 @@ public class DimensionAnalysis {
 
             chunksForSecondIdentificationPass.values().parallelStream().forEach(chunk -> {
                 chunk.cleanUpWithNeighbors(veinBlockY);
-                ServerCache.instance
-                        .notifyOreVeinGeneration(dimensionId, chunk.chunkX, chunk.chunkZ, chunk.getMatchedVein());
+                ServerCache.instance.notifyOreVeinGeneration(
+                        dimensionId,
+                        chunk.chunkX,
+                        chunk.chunkZ,
+                        chunk.getMatchedVein(),
+                        VeinSource.RESCAN);
             });
         } else {
             AnalysisProgressTracker.announceSlowDimension(dimensionId);
@@ -81,8 +90,12 @@ public class DimensionAnalysis {
                     analysis.processMinecraftChunk(chunk);
 
                     if (analysis.matchesSingleVein()) {
-                        ServerCache.instance
-                                .notifyOreVeinGeneration(dimensionId, chunkX, chunkZ, analysis.getMatchedVein());
+                        ServerCache.instance.notifyOreVeinGeneration(
+                                dimensionId,
+                                chunkX,
+                                chunkZ,
+                                analysis.getMatchedVein(),
+                                VeinSource.RESCAN);
                         veinBlockY.put(Utils.chunkCoordsToKey(chunkX, chunkZ), analysis.getVeinBlockY());
                     }
                 });
@@ -104,7 +117,8 @@ public class DimensionAnalysis {
                                 dimensionId,
                                 detailedAnalysis.chunkX,
                                 detailedAnalysis.chunkZ,
-                                detailedAnalysis.getMatchedVein());
+                                detailedAnalysis.getMatchedVein(),
+                                VeinSource.RESCAN);
                     }
                 });
             });

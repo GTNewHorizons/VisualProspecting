@@ -9,6 +9,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+import com.sinthoras.visualprospecting.database.VeinSource;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -21,6 +22,7 @@ public final class VPByteBufUtils {
         buf.writeInt(oreVeinPosition.chunkX);
         buf.writeInt(oreVeinPosition.chunkZ);
         buf.writeBoolean(oreVeinPosition.isDepleted());
+        buf.writeByte(oreVeinPosition.getSourceByte());
         ByteBufUtils.writeUTF8String(buf, oreVeinPosition.veinType.name);
     }
 
@@ -29,9 +31,10 @@ public final class VPByteBufUtils {
         final int chunkX = buf.readInt();
         final int chunkZ = buf.readInt();
         final boolean isDepleted = buf.readBoolean();
+        final VeinSource source = VeinSource.fromByte(buf.readByte());
         final String veinName = ByteBufUtils.readUTF8String(buf);
 
-        return new OreVeinPosition(dimId, chunkX, chunkZ, VeinTypeCaching.getVeinType(veinName), isDepleted);
+        return new OreVeinPosition(dimId, chunkX, chunkZ, VeinTypeCaching.getVeinType(veinName), isDepleted, source);
     }
 
     public static void WriteUndergroundFluidPosition(ByteBuf buf, UndergroundFluidPosition undergroundFluidPosition) {

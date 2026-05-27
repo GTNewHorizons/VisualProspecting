@@ -11,6 +11,8 @@ import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+import com.sinthoras.visualprospecting.database.VeinSource;
+import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
 import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
@@ -85,7 +87,12 @@ public class VisualProspecting_API {
         }
 
         public static void notifyOreGeneration(int dimensionId, int blockX, int blockZ, final String oreVeinName) {
-            ServerCache.instance.notifyOreVeinGeneration(dimensionId, blockX, blockZ, oreVeinName);
+            ServerCache.instance.notifyOreVeinGeneration(
+                    dimensionId,
+                    blockX,
+                    blockZ,
+                    VeinTypeCaching.getVeinType(oreVeinName),
+                    VeinSource.API);
         }
 
         public static void sendProspectionResultsToClient(EntityPlayerMP player, List<OreVeinPosition> oreVeins,

@@ -1,35 +1,60 @@
 package com.sinthoras.visualprospecting.database;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectMaps;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 
+/**
+ * Cache of ore veins and underground fluids. Stored as NBT file per dimension (e.g. {@code DIM0.dat}).
+ * <p>
+ * 
+ * <pre>
+ * Root: {
+ *   "version": 3,  // int   Absence means a legacy format {@link LegacyDimensionCacheLoader}
+ *   "dim":     &lt;dimensionId&gt;,      // int
+ *   "ores":    &lt;ores compound&gt;,    // optional
+ *   "fluids":  &lt;fluids compound&gt;   // optional
+ * }
+ * </pre>
+ *
+ * {@code ores} and {@code fluids} use a palette.
+ * 
+ * <pre>
+ * ores: {
+ *   "palette":       [String, ...],  // unique vein type
+ *   "chunkX":        int[N],         // chunk X
+ *   "chunkZ":        int[N],         // chunk Z
+ *   "veinTypeIndex": int[N],         // index into palette
+ *   "depleted":      byte[N],        // bool
+ *   "source":        byte[N]         // {@link VeinSource}
+ * }
+ *
+ * fluids: {
+ *   "palette":        [String, ...], // unique fluid names
+ *   "chunkX":         int[N],
+ *   "chunkZ":         int[N],
+ *   "fluidTypeIndex": int[N],
+ *   "chunkData":      int[N * chunkDataSize], // fluid amounts for 8x8 area
+ *   "chunkDataSize":  int
+ * }
+ * </pre>
+ */
 public class DimensionCache {
 
     public enum UpdateResult {
@@ -38,8 +63,8 @@ public class DimensionCache {
         New
     }
 
-    private static final File oldIdFile = new File(Tags.VISUALPROSPECTING_DIR, "veintypesLUT");
-    private static Short2ObjectMap<String> idConversionMap;
+    private static final int CURRENT_FORMAT_VERSION = 3;
+
     private final Long2ObjectOpenHashMap<OreVeinPosition> oreChunks = new Long2ObjectOpenHashMap<>();
     private final Long2ObjectOpenHashMap<UndergroundFluidPosition> undergroundFluids = new Long2ObjectOpenHashMap<>();
     public final int dimensionId;
@@ -50,76 +75,218 @@ public class DimensionCache {
         this.dimensionId = dimensionId;
     }
 
+    public void loadFromNbt(NBTTagCompound compound) {
+        int version = compound.getInteger("version");
+
+        if (version > CURRENT_FORMAT_VERSION) {
+            preventSaving = true;
+            VP.LOG.warn(
+                    "Dimension {}: unsupported format version {}, data will not be modified.",
+                    dimensionId,
+                    version);
+            return;
+        }
+
+        if (version == CURRENT_FORMAT_VERSION) {
+            loadOres(compound.getCompoundTag("ores"));
+            loadFluids(compound.getCompoundTag("fluids"));
+        } else {
+            // version key absent => v2 or older
+            LegacyDimensionCacheLoader.loadV2Ores(this, compound.getCompoundTag("ores"));
+            LegacyDimensionCacheLoader.loadV2Fluids(this, compound.getCompoundTag("fluids"));
+        }
+    }
+
     public NBTTagCompound saveToNbt() {
         NBTTagCompound compound = new NBTTagCompound();
+        compound.setInteger("version", CURRENT_FORMAT_VERSION);
+        compound.setInteger("dim", dimensionId);
         compound.setTag("ores", saveOres());
         compound.setTag("fluids", saveFluids());
-        compound.setInteger("dim", dimensionId);
         isDirty = false;
         return compound;
     }
 
+    private void loadOres(NBTTagCompound ores) {
+        if (!ores.hasKey("palette")) return;
+
+        NBTTagList paletteTag = ores.getTagList("palette", 8);
+        String[] palette = new String[paletteTag.tagCount()];
+        for (int i = 0; i < palette.length; i++) {
+            palette[i] = paletteTag.getStringTagAt(i);
+        }
+
+        int[] chunkXArray = ores.getIntArray("chunkX");
+        int[] chunkZArray = ores.getIntArray("chunkZ");
+        int[] veinTypeIndexArray = ores.getIntArray("veinTypeIndex");
+        byte[] depletedArray = ores.getByteArray("depleted");
+        byte[] sourceArray = ores.getByteArray("source");
+
+        int size = chunkXArray.length;
+        oreChunks.ensureCapacity(oreChunks.size() + size);
+
+        int unknownVeinTypes = 0;
+        for (int i = 0; i < size; i++) {
+            int index = veinTypeIndexArray[i];
+            if (index < 0 || index >= palette.length) {
+                unknownVeinTypes++;
+                continue;
+            }
+            VeinType veinType = VeinTypeCaching.getVeinType(palette[index]);
+            if (veinType == VeinType.NO_VEIN) {
+                unknownVeinTypes++;
+                continue;
+            }
+            VeinSource source = VeinSource.fromByte(sourceArray[i]);
+            oreChunks.put(
+                    getOreVeinKey(chunkXArray[i], chunkZArray[i]),
+                    new OreVeinPosition(
+                            dimensionId,
+                            chunkXArray[i],
+                            chunkZArray[i],
+                            veinType,
+                            depletedArray[i] == 1,
+                            source));
+        }
+        if (unknownVeinTypes > 0) {
+            VP.LOG.warn(
+                    "Dimension {}: skipped {} entries with unknown vein type names while loading cache.",
+                    dimensionId,
+                    unknownVeinTypes);
+        }
+    }
+
+    private void loadFluids(NBTTagCompound fluids) {
+        if (!fluids.hasKey("palette")) return;
+
+        NBTTagList paletteTag = fluids.getTagList("palette", 8);
+        String[] palette = new String[paletteTag.tagCount()];
+        for (int i = 0; i < palette.length; i++) {
+            palette[i] = paletteTag.getStringTagAt(i);
+        }
+
+        int[] chunkXArray = fluids.getIntArray("chunkX");
+        int[] chunkZArray = fluids.getIntArray("chunkZ");
+        int[] fluidTypeIndexArray = fluids.getIntArray("fluidTypeIndex");
+        int[] allChunkData = fluids.getIntArray("chunkData");
+        int chunkDataSize = fluids.getInteger("chunkDataSize");
+
+        int fluidCount = chunkXArray.length;
+        undergroundFluids.ensureCapacity(undergroundFluids.size() + fluidCount);
+
+        int unknownFluids = 0;
+        for (int i = 0; i < fluidCount; i++) {
+            int index = fluidTypeIndexArray[i];
+            if (index < 0 || index >= palette.length) {
+                unknownFluids++;
+                continue;
+            }
+            Fluid fluid = FluidRegistry.getFluid(palette[index]);
+            if (fluid == null) {
+                unknownFluids++;
+                continue;
+            }
+            int[][] chunks = new int[VP.undergroundFluidSizeChunkX][VP.undergroundFluidSizeChunkZ];
+            int baseOffset = i * chunkDataSize;
+            for (int x = 0; x < VP.undergroundFluidSizeChunkX; x++) {
+                System.arraycopy(
+                        allChunkData,
+                        baseOffset + x * VP.undergroundFluidSizeChunkZ,
+                        chunks[x],
+                        0,
+                        VP.undergroundFluidSizeChunkZ);
+            }
+            undergroundFluids.put(
+                    getUndergroundFluidKey(chunkXArray[i], chunkZArray[i]),
+                    new UndergroundFluidPosition(dimensionId, chunkXArray[i], chunkZArray[i], fluid, chunks));
+        }
+        if (unknownFluids > 0) {
+            VP.LOG.warn(
+                    "Dimension {}: skipped {} entries with unknown fluid names while loading cache.",
+                    dimensionId,
+                    unknownFluids);
+        }
+    }
+
     private NBTTagCompound saveOres() {
         NBTTagCompound compound = new NBTTagCompound();
-        Collection<OreVeinPosition> veins = oreChunks.values();
-        int size = veins.size();
+        int size = oreChunks.size();
+        if (size == 0) return compound;
 
-        if (size == 0) {
-            return compound;
+        long[] sortedKeys = oreChunks.keySet().toLongArray();
+        Arrays.sort(sortedKeys);
+
+        List<String> palette = new ArrayList<>();
+        Map<String, Integer> paletteIndex = new HashMap<>();
+        for (long key : sortedKeys) {
+            String name = oreChunks.get(key).veinType.name;
+            if (!paletteIndex.containsKey(name)) {
+                paletteIndex.put(name, palette.size());
+                palette.add(name);
+            }
         }
 
-        // Pre-allocate contiguous arrays for optimal cache line utilization
         int[] chunkXArray = new int[size];
         int[] chunkZArray = new int[size];
-        byte[] depletedFlags = new byte[size];
-        NBTTagList veinTypeNamesList = new NBTTagList();
+        int[] veinTypeIndexArray = new int[size];
+        byte[] depletedArray = new byte[size];
+        byte[] sourceArray = new byte[size];
 
-        // Single-pass iteration for optimal access pattern
-        int i = 0;
-        for (OreVeinPosition vein : veins) {
+        for (int i = 0; i < size; i++) {
+            OreVeinPosition vein = oreChunks.get(sortedKeys[i]);
             chunkXArray[i] = vein.chunkX;
             chunkZArray[i] = vein.chunkZ;
-            depletedFlags[i] = vein.isDepleted() ? (byte) 1 : (byte) 0;
-            veinTypeNamesList.appendTag(new net.minecraft.nbt.NBTTagString(vein.veinType.name));
-            i++;
+            veinTypeIndexArray[i] = paletteIndex.get(vein.veinType.name);
+            depletedArray[i] = vein.isDepleted() ? (byte) 1 : (byte) 0;
+            sourceArray[i] = vein.getSourceByte();
         }
 
-        // Store as contiguous arrays - only 4 string operations vs 400,000+
+        NBTTagList paletteTag = new NBTTagList();
+        for (String name : palette) {
+            paletteTag.appendTag(new NBTTagString(name));
+        }
+
+        compound.setTag("palette", paletteTag);
         compound.setIntArray("chunkX", chunkXArray);
         compound.setIntArray("chunkZ", chunkZArray);
-        compound.setByteArray("depleted", depletedFlags);
-        compound.setTag("veinTypeNames", veinTypeNamesList);
+        compound.setIntArray("veinTypeIndex", veinTypeIndexArray);
+        compound.setByteArray("depleted", depletedArray);
+        compound.setByteArray("source", sourceArray);
 
         return compound;
     }
 
     private NBTTagCompound saveFluids() {
         NBTTagCompound compound = new NBTTagCompound();
-        Collection<UndergroundFluidPosition> fluids = undergroundFluids.values();
-        int size = fluids.size();
+        int size = undergroundFluids.size();
+        if (size == 0) return compound;
 
-        if (size == 0) {
-            return compound;
+        int chunkDataSize = VP.undergroundFluidSizeChunkX * VP.undergroundFluidSizeChunkZ;
+
+        long[] sortedKeys = undergroundFluids.keySet().toLongArray();
+        Arrays.sort(sortedKeys);
+
+        List<String> palette = new ArrayList<>();
+        Map<String, Integer> paletteIndex = new HashMap<>();
+        for (long key : sortedKeys) {
+            String name = undergroundFluids.get(key).fluid.getName();
+            if (!paletteIndex.containsKey(name)) {
+                paletteIndex.put(name, palette.size());
+                palette.add(name);
+            }
         }
 
-        // Pre-allocate contiguous arrays for optimal cache performance
         int[] chunkXArray = new int[size];
         int[] chunkZArray = new int[size];
-
-        // Calculate total chunk data size for flattened storage
-        int chunkDataSize = VP.undergroundFluidSizeChunkX * VP.undergroundFluidSizeChunkZ;
+        int[] fluidTypeIndexArray = new int[size];
         int[] allChunkData = new int[size * chunkDataSize];
-        NBTTagList fluidNamesList = new NBTTagList();
 
-        // Single-pass iteration for optimal access pattern
-        int fluidIndex = 0;
-        for (UndergroundFluidPosition fluid : fluids) {
-            chunkXArray[fluidIndex] = fluid.chunkX;
-            chunkZArray[fluidIndex] = fluid.chunkZ;
-            fluidNamesList.appendTag(new net.minecraft.nbt.NBTTagString(fluid.fluid.getName()));
-
-            // Flatten 2D chunk array into contiguous memory layout
-            int baseOffset = fluidIndex * chunkDataSize;
+        for (int i = 0; i < size; i++) {
+            UndergroundFluidPosition fluid = undergroundFluids.get(sortedKeys[i]);
+            chunkXArray[i] = fluid.chunkX;
+            chunkZArray[i] = fluid.chunkZ;
+            fluidTypeIndexArray[i] = paletteIndex.get(fluid.fluid.getName());
+            int baseOffset = i * chunkDataSize;
             for (int x = 0; x < VP.undergroundFluidSizeChunkX; x++) {
                 System.arraycopy(
                         fluid.chunks[x],
@@ -128,196 +295,49 @@ public class DimensionCache {
                         baseOffset + x * VP.undergroundFluidSizeChunkZ,
                         VP.undergroundFluidSizeChunkZ);
             }
-            fluidIndex++;
         }
 
-        // Store as contiguous arrays - minimal string operations
+        NBTTagList paletteTag = new NBTTagList();
+        for (String name : palette) {
+            paletteTag.appendTag(new NBTTagString(name));
+        }
+
+        compound.setTag("palette", paletteTag);
         compound.setIntArray("chunkX", chunkXArray);
         compound.setIntArray("chunkZ", chunkZArray);
+        compound.setIntArray("fluidTypeIndex", fluidTypeIndexArray);
         compound.setIntArray("chunkData", allChunkData);
         compound.setInteger("chunkDataSize", chunkDataSize);
-        compound.setTag("fluidNames", fluidNamesList);
 
         return compound;
     }
 
-    @SuppressWarnings("unchecked")
-    public void loadFromNbt(NBTTagCompound compound) {
-        NBTTagCompound ores = compound.getCompoundTag("ores");
-
-        // Check if using optimized array format (new) vs legacy nested format (old)
-        if (ores.hasKey("chunkX") && ores.hasKey("chunkZ")) {
-            // OPTIMIZED PATH: Array-based loading for maximum cache efficiency
-            int[] chunkXArray = ores.getIntArray("chunkX");
-            int[] chunkZArray = ores.getIntArray("chunkZ");
-            byte[] depletedFlags = ores.getByteArray("depleted");
-            NBTTagList veinTypeNamesList = ores.getTagList("veinTypeNames", 8);
-
-            int size = chunkXArray.length;
-            int unknownVeinTypes = 0;
-
-            // Pre-size HashMap to avoid rehashing during bulk load
-            oreChunks.ensureCapacity(oreChunks.size() + size);
-
-            // Sequential array processing - optimal cache line utilization
-            for (int i = 0; i < size; i++) {
-                int chunkX = chunkXArray[i]; // Cache-friendly array access
-                int chunkZ = chunkZArray[i]; // Cache-friendly array access
-                boolean depleted = depletedFlags[i] == 1;
-                String veinTypeName = veinTypeNamesList.getStringTagAt(i);
-                VeinType veinType = VeinTypeCaching.getVeinType(veinTypeName);
-                if (veinType == VeinType.NO_VEIN) {
-                    unknownVeinTypes++;
-                    continue;
-                }
-
-                oreChunks.put(
-                        getOreVeinKey(chunkX, chunkZ),
-                        new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType, depleted));
-            }
-            if (unknownVeinTypes > 0) {
-                VP.LOG.warn(
-                        "Dimension {}: skipped {} entries with unknown vein type names while loading cache.",
-                        dimensionId,
-                        unknownVeinTypes);
-            }
-        } else {
-            // LEGACY PATH: Backward compatibility for old nested compound format
-            for (NBTBase base : (Collection<NBTBase>) ores.tagMap.values()) {
-                NBTTagCompound veinCompound = (NBTTagCompound) base;
-                int chunkX = veinCompound.getInteger("chunkX");
-                int chunkZ = veinCompound.getInteger("chunkZ");
-                boolean depleted = veinCompound.getBoolean("depleted");
-                VeinType veinType;
-                if (veinCompound.hasKey("veinTypeId")) {
-                    veinType = getVeinFromId(veinCompound.getShort("veinTypeId"));
-                    if (veinType == null) continue;
-                    markDirty();
-                } else {
-                    veinType = VeinTypeCaching.getVeinType(veinCompound.getString("veinTypeName"));
-                    if (veinType == VeinType.NO_VEIN) continue;
-                }
-
-                oreChunks.put(
-                        getOreVeinKey(chunkX, chunkZ),
-                        new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType, depleted));
-            }
-        }
-
-        NBTTagCompound fluids = compound.getCompoundTag("fluids");
-
-        // Check if using optimized array format (new) vs legacy nested format (old)
-        if (fluids.hasKey("chunkX") && fluids.hasKey("chunkZ")) {
-            // OPTIMIZED PATH: Array-based fluid loading for maximum cache efficiency
-            int[] chunkXArray = fluids.getIntArray("chunkX");
-            int[] chunkZArray = fluids.getIntArray("chunkZ");
-            int[] allChunkData = fluids.getIntArray("chunkData");
-            int chunkDataSize = fluids.getInteger("chunkDataSize");
-            NBTTagList fluidNamesList = fluids.getTagList("fluidNames", 8);
-
-            int fluidCount = chunkXArray.length;
-            int unknownFluids = 0;
-
-            // Pre-size HashMap to avoid rehashing during bulk load
-            undergroundFluids.ensureCapacity(undergroundFluids.size() + fluidCount);
-
-            // Sequential array processing - optimal cache line utilization
-            for (int fluidIndex = 0; fluidIndex < fluidCount; fluidIndex++) {
-                int chunkX = chunkXArray[fluidIndex]; // Cache-friendly array access
-                int chunkZ = chunkZArray[fluidIndex]; // Cache-friendly array access
-                String fluidName = fluidNamesList.getStringTagAt(fluidIndex);
-                Fluid fluid = FluidRegistry.getFluid(fluidName);
-                if (fluid == null) {
-                    unknownFluids++;
-                    continue;
-                }
-
-                // Reconstruct 2D chunk array from flattened data
-                int[][] chunks = new int[VP.undergroundFluidSizeChunkX][VP.undergroundFluidSizeChunkZ];
-                int baseOffset = fluidIndex * chunkDataSize;
-                for (int x = 0; x < VP.undergroundFluidSizeChunkX; x++) {
-                    System.arraycopy(
-                            allChunkData,
-                            baseOffset + x * VP.undergroundFluidSizeChunkZ,
-                            chunks[x],
-                            0,
-                            VP.undergroundFluidSizeChunkZ);
-                }
-
-                undergroundFluids.put(
-                        getUndergroundFluidKey(chunkX, chunkZ),
-                        new UndergroundFluidPosition(dimensionId, chunkX, chunkZ, fluid, chunks));
-            }
-            if (unknownFluids > 0) {
-                VP.LOG.warn(
-                        "Dimension {}: skipped {} entries with unknown fluid names while loading cache.",
-                        dimensionId,
-                        unknownFluids);
-            }
-        } else {
-            // LEGACY PATH: Backward compatibility for old nested compound format
-            for (NBTBase base : (Collection<NBTBase>) fluids.tagMap.values()) {
-                NBTTagCompound fluidCompound = (NBTTagCompound) base;
-                int chunkX = fluidCompound.getInteger("chunkX");
-                int chunkZ = fluidCompound.getInteger("chunkZ");
-                String fluidName = fluidCompound.getString("fluidName");
-                Fluid fluid = FluidRegistry.getFluid(fluidName);
-                if (fluid == null) continue;
-                int[][] chunks = new int[VP.undergroundFluidSizeChunkX][VP.undergroundFluidSizeChunkZ];
-                NBTTagList chunkList = fluidCompound.getTagList("chunks", 11);
-                for (int i = 0; i < VP.undergroundFluidSizeChunkX; i++) {
-                    chunks[i] = chunkList.func_150306_c(i);
-                }
-                undergroundFluids.put(
-                        getUndergroundFluidKey(chunkX, chunkZ),
-                        new UndergroundFluidPosition(dimensionId, chunkX, chunkZ, fluid, chunks));
-            }
-        }
+    void putOreFromLegacyLoad(OreVeinPosition pos) {
+        oreChunks.put(getOreVeinKey(pos.chunkX, pos.chunkZ), pos);
     }
 
-    void loadLegacy(ByteBuffer oreChunksBuffer, ByteBuffer undergroundFluidsBuffer) {
-        if (oreChunksBuffer != null) {
-            while (oreChunksBuffer.remaining() >= Integer.BYTES * 2 + Short.BYTES) {
-                final int chunkX = oreChunksBuffer.getInt();
-                final int chunkZ = oreChunksBuffer.getInt();
-                final short veinTypeId = oreChunksBuffer.getShort();
-                final boolean depleted = (veinTypeId & 0x8000) > 0;
-                final VeinType veinType = getVeinFromId((short) (veinTypeId & 0x7FFF));
-                if (veinType == null) continue;
+    void putFluidFromLegacyLoad(UndergroundFluidPosition pos) {
+        undergroundFluids.put(getUndergroundFluidKey(pos.chunkX, pos.chunkZ), pos);
+    }
 
-                oreChunks.put(
-                        getOreVeinKey(chunkX, chunkZ),
-                        new OreVeinPosition(dimensionId, chunkX, chunkZ, veinType, depleted));
-            }
-        }
-        if (undergroundFluidsBuffer != null) {
-            while (undergroundFluidsBuffer.remaining()
-                    >= Integer.BYTES * (3 + VP.undergroundFluidSizeChunkX * VP.undergroundFluidSizeChunkZ)) {
-                final int chunkX = undergroundFluidsBuffer.getInt();
-                final int chunkZ = undergroundFluidsBuffer.getInt();
-                final int fluidIDorNameLength = undergroundFluidsBuffer.getInt();
-                final Fluid fluid;
-                if (fluidIDorNameLength < 0) { // name length
-                    byte[] fluidNameBytes = new byte[-fluidIDorNameLength];
-                    undergroundFluidsBuffer.get(fluidNameBytes);
-                    String fluidName = new String(fluidNameBytes, StandardCharsets.UTF_8);
-                    fluid = FluidRegistry.getFluid(fluidName);
-                } else { // ID (legacy save format)
-                    fluid = FluidRegistry.getFluid(fluidIDorNameLength);
-                }
-                final int[][] chunks = new int[VP.undergroundFluidSizeChunkX][VP.undergroundFluidSizeChunkZ];
-                for (int offsetChunkX = 0; offsetChunkX < VP.undergroundFluidSizeChunkX; offsetChunkX++) {
-                    for (int offsetChunkZ = 0; offsetChunkZ < VP.undergroundFluidSizeChunkZ; offsetChunkZ++) {
-                        chunks[offsetChunkX][offsetChunkZ] = undergroundFluidsBuffer.getInt();
-                    }
-                }
-                if (fluid != null) {
-                    undergroundFluids.put(
-                            getUndergroundFluidKey(chunkX, chunkZ),
-                            new UndergroundFluidPosition(dimensionId, chunkX, chunkZ, fluid, chunks));
-                }
-            }
-        }
+    void ensureOreCapacityForLegacyLoad(int expectedAdditions) {
+        oreChunks.ensureCapacity(oreChunks.size() + expectedAdditions);
+    }
+
+    void ensureFluidCapacityForLegacyLoad(int expectedAdditions) {
+        undergroundFluids.ensureCapacity(undergroundFluids.size() + expectedAdditions);
+    }
+
+    boolean hasOres() {
+        return !oreChunks.isEmpty();
+    }
+
+    boolean hasFluids() {
+        return !undergroundFluids.isEmpty();
+    }
+
+    void markPreventSaving() {
+        preventSaving = true;
     }
 
     private long getOreVeinKey(int chunkX, int chunkZ) {
@@ -406,8 +426,6 @@ public class DimensionCache {
      * respective endChunks.
      */
     public void clearOreVeins(int startChunkX, int startChunkZ, int endChunkX, int endChunkZ) {
-
-        // Remove entries if they fall within the corners
         // This method iterates for each chunk mapped. In many cases, it is probably faster to iterate over chunks in
         // the area to be cleared instead. i.e. if (chunksInClearArea < totalChunksMapped) {useAltIterator()}. If
         // someone calls this enough to make it a problem, they can add that.
@@ -422,42 +440,4 @@ public class DimensionCache {
         }
     }
 
-    private @Nullable VeinType getVeinFromId(short veinTypeId) {
-        final String veinTypeName = getIdConversionMap().get(veinTypeId);
-        if (veinTypeName == null) {
-            preventSaving = true;
-            VP.LOG.warn(
-                    "Not loading ores in dimension {}. Couldn't find vein type for id {}, file {} may be missing.",
-                    dimensionId,
-                    veinTypeId,
-                    oldIdFile.getAbsolutePath());
-            return null;
-        }
-        return VeinTypeCaching.getVeinType(veinTypeName);
-    }
-
-    private static Short2ObjectMap<String> getIdConversionMap() {
-        if (idConversionMap != null) {
-            return idConversionMap;
-        }
-
-        if (!oldIdFile.exists()) {
-            return Short2ObjectMaps.emptyMap();
-        }
-        try {
-            final Gson gson = new Gson();
-            final Reader reader = Files.newBufferedReader(oldIdFile.toPath());
-            final Map<String, Short> map = gson.fromJson(reader, new TypeToken<Map<String, Short>>() {}.getType());
-            reader.close();
-            Short2ObjectMap<String> result = new Short2ObjectOpenHashMap<>();
-            result.put((short) 0, Tags.ORE_MIX_NONE_NAME);
-            for (Map.Entry<String, Short> entry : map.entrySet()) {
-                result.put(entry.getValue().shortValue(), entry.getKey());
-            }
-            return idConversionMap = result;
-        } catch (IOException e) {
-            VP.LOG.error("Failed to read legacy file at {}", oldIdFile.getAbsolutePath(), e);
-            return Short2ObjectMaps.emptyMap();
-        }
-    }
 }

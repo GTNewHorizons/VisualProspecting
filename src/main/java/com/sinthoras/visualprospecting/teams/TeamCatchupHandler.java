@@ -135,7 +135,7 @@ public final class TeamCatchupHandler {
 
             boolean teamDepleted = depletedKeys.contains(key);
             if (vein.isDepleted() != teamDepleted) {
-                vein = new OreVeinPosition(dim, chunkX, chunkZ, vein.veinType, teamDepleted);
+                vein = new OreVeinPosition(dim, chunkX, chunkZ, vein.veinType, teamDepleted, vein.getSource());
             }
             batch.add(vein);
 
