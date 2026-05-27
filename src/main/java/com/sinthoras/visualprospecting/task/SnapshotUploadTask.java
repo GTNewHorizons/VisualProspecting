@@ -15,12 +15,18 @@ public class SnapshotUploadTask implements ITask {
 
     private final List<OreVeinPosition> oreVeins;
     private final List<UndergroundFluidPosition> undergroundFluids;
+    private final boolean routeToTeam;
     private long lastUpload = 0;
     private boolean firstMessage = true;
 
     public SnapshotUploadTask() {
+        this(false);
+    }
+
+    public SnapshotUploadTask(boolean routeToTeam) {
         oreVeins = ClientCache.instance.getAllOreVeins();
         undergroundFluids = ClientCache.instance.getAllUndergroundFluids();
+        this.routeToTeam = routeToTeam;
     }
 
     @Override
@@ -42,6 +48,7 @@ public class SnapshotUploadTask implements ITask {
             firstMessage = false;
 
             packet.setLastMessage(listsEmpty());
+            packet.setRouteToTeam(routeToTeam);
 
             VP.network.sendToServer(packet);
         }
