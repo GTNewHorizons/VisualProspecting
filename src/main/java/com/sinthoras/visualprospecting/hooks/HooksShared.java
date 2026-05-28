@@ -22,6 +22,7 @@ import com.sinthoras.visualprospecting.item.ProspectorsLog;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
 import com.sinthoras.visualprospecting.network.ProspectionSharing;
+import com.sinthoras.visualprospecting.network.RequestTeamUploadMessage;
 import com.sinthoras.visualprospecting.network.TeamCatchupNotification;
 import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
 import com.sinthoras.visualprospecting.network.WorldIdNotification;
@@ -29,6 +30,7 @@ import com.sinthoras.visualprospecting.task.TaskManager;
 import com.sinthoras.visualprospecting.teams.TeamClearCommand;
 import com.sinthoras.visualprospecting.teams.TeamInfoCommand;
 import com.sinthoras.visualprospecting.teams.TeamProspectionData;
+import com.sinthoras.visualprospecting.teams.TeamUploadCommand;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -92,6 +94,11 @@ public class HooksShared {
                 TeamCatchupNotification.class,
                 networkId++,
                 Side.CLIENT);
+        VP.network.registerMessage(
+                RequestTeamUploadMessage.ClientHandler.class,
+                RequestTeamUploadMessage.class,
+                networkId++,
+                Side.CLIENT);
 
         ProspectorsLog.instance = new ProspectorsLog();
         GameRegistry.registerItem(ProspectorsLog.instance, ProspectorsLog.instance.getUnlocalizedName());
@@ -151,6 +158,7 @@ public class HooksShared {
         // Team-sharing debug commands
         event.registerServerCommand(new TeamInfoCommand());
         event.registerServerCommand(new TeamClearCommand());
+        event.registerServerCommand(new TeamUploadCommand());
     }
 
     public void fmlLifeCycleEvent(FMLServerStartedEvent event) {}

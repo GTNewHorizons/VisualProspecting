@@ -12,22 +12,25 @@ import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.TransferCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
+import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 import com.sinthoras.visualprospecting.utils.VPByteBufUtils;
 
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
 public class ProspectionSharing implements IMessage {
 
-    private static final int BYTES_OVERHEAD = Byte.BYTES + 2 * Byte.BYTES + 2 * Integer.BYTES;
+    private static final int BYTES_OVERHEAD = Byte.BYTES + 3 * Byte.BYTES + 2 * Integer.BYTES;
 
     final List<OreVeinPosition> oreVeins = new ArrayList<>();
     final List<UndergroundFluidPosition> undergroundFluids = new ArrayList<>();
     private int bytesUsed = BYTES_OVERHEAD;
     boolean isFirstMessage = false;
     boolean isLastMessage = false;
+    boolean routeToTeam = false;
 
     public ProspectionSharing() {}
 
@@ -62,6 +65,10 @@ public class ProspectionSharing implements IMessage {
         this.isLastMessage = isLastMessage;
     }
 
+    public void setRouteToTeam(boolean routeToTeam) {
+        this.routeToTeam = routeToTeam;
+    }
+
     public int getPacketBytes() {
         return BYTES_OVERHEAD + oreVeins.stream().mapToInt(OreVeinPosition::getPacketBytes).sum()
                 + UndergroundFluidPosition.BYTES * undergroundFluids.size();
@@ -71,6 +78,7 @@ public class ProspectionSharing implements IMessage {
     public void fromBytes(ByteBuf buf) {
         isFirstMessage = buf.readByte() > 0;
         isLastMessage = buf.readByte() > 0;
+        routeToTeam = buf.readByte() > 0;
 
         oreVeins.addAll(VPByteBufUtils.ReadOreVeinPositions(buf));
         undergroundFluids.addAll(VPByteBufUtils.ReadUndergroundFluidPositions(buf));
@@ -80,6 +88,7 @@ public class ProspectionSharing implements IMessage {
     public void toBytes(ByteBuf buf) {
         buf.writeByte(isFirstMessage ? 1 : 0);
         buf.writeByte(isLastMessage ? 1 : 0);
+        buf.writeByte(routeToTeam ? 1 : 0);
 
         VPByteBufUtils.WriteOreVeinPositions(buf, oreVeins);
         VPByteBufUtils.WriteUndergroundFluidPositions(buf, undergroundFluids);
@@ -89,6 +98,7 @@ public class ProspectionSharing implements IMessage {
 
         private static final Map<EntityPlayerMP, List<OreVeinPosition>> oreVeins = new HashMap<>();
         private static final Map<EntityPlayerMP, List<UndergroundFluidPosition>> undergroundFluids = new HashMap<>();
+        private static final Object2BooleanOpenHashMap<EntityPlayerMP> routeToTeam = new Object2BooleanOpenHashMap<>();
 
         @Override
         public IMessage onMessage(ProspectionSharing message, MessageContext ctx) {
@@ -102,6 +112,7 @@ public class ProspectionSharing implements IMessage {
             if (message.isFirstMessage) {
                 oreVeins.put(player, new ArrayList<>());
                 undergroundFluids.put(player, new ArrayList<>());
+                routeToTeam.put(player, message.routeToTeam);
             }
             if (!oreVeins.containsKey(player) || !undergroundFluids.containsKey(player)) {
                 return null;
@@ -109,12 +120,15 @@ public class ProspectionSharing implements IMessage {
             oreVeins.get(player).addAll(message.oreVeins);
             undergroundFluids.get(player).addAll(message.undergroundFluids);
             if (message.isLastMessage) {
-                TransferCache.instance.addClientProspectionData(
-                        player.getPersistentID().toString(),
-                        oreVeins.get(player),
-                        undergroundFluids.get(player));
-                oreVeins.remove(player);
-                undergroundFluids.remove(player);
+                List<OreVeinPosition> veins = oreVeins.remove(player);
+                List<UndergroundFluidPosition> fluids = undergroundFluids.remove(player);
+                boolean toTeam = routeToTeam.removeBoolean(player);
+                if (toTeam) {
+                    TeamProspectionDispatcher
+                            .deliverProspectingResults(player, new ProspectingNotification(veins, fluids), false);
+                } else {
+                    TransferCache.instance.addClientProspectionData(player.getPersistentID().toString(), veins, fluids);
+                }
             }
             return null;
         }
