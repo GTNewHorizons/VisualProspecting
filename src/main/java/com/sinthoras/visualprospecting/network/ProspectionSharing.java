@@ -19,6 +19,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 
 public class ProspectionSharing implements IMessage {
 
@@ -97,7 +98,7 @@ public class ProspectionSharing implements IMessage {
 
         private static final Map<EntityPlayerMP, List<OreVeinPosition>> oreVeins = new HashMap<>();
         private static final Map<EntityPlayerMP, List<UndergroundFluidPosition>> undergroundFluids = new HashMap<>();
-        private static final Map<EntityPlayerMP, Boolean> routeToTeam = new HashMap<>();
+        private static final Object2BooleanOpenHashMap<EntityPlayerMP> routeToTeam = new Object2BooleanOpenHashMap<>();
 
         @Override
         public IMessage onMessage(ProspectionSharing message, MessageContext ctx) {
@@ -121,7 +122,7 @@ public class ProspectionSharing implements IMessage {
             if (message.isLastMessage) {
                 List<OreVeinPosition> veins = oreVeins.remove(player);
                 List<UndergroundFluidPosition> fluids = undergroundFluids.remove(player);
-                boolean toTeam = routeToTeam.remove(player) == Boolean.TRUE;
+                boolean toTeam = routeToTeam.removeBoolean(player);
                 if (toTeam) {
                     TeamProspectionDispatcher
                             .deliverProspectingResults(player, new ProspectingNotification(veins, fluids), false);
