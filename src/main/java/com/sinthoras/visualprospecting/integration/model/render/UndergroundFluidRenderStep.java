@@ -66,10 +66,12 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
     }
 
     private void renderChunks(double x, double y) {
-        if (getZoomStep() < Config.minZoomLevelForUndergroundFluidDetails || location.getMaxProduction() <= 0
+        final double zoomStep = getZoomStep();
+        if (zoomStep < Config.minZoomLevelForUndergroundFluidDetails - 1 || location.getMaxProduction() <= 0
                 || !location.isActive()) {
             return;
         }
+        final boolean drawLabels = zoomStep >= Config.minZoomLevelForUndergroundFluidDetails;
 
         setSize(VP.chunkWidth);
         for (int chunkX = 0; chunkX < VP.undergroundFluidSizeChunkX; chunkX++) {
@@ -101,14 +103,16 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
                                 1.5);
                     }
 
-                    DrawUtils.drawLabel(
-                            getFluidAmountFormatted(amount),
-                            x + xOffset + getAdjustedWidth() / 2,
-                            y + yOffset + getAdjustedHeight() / 2,
-                            0xFFFFFFFF,
-                            0xB4000000,
-                            true,
-                            getFontScale());
+                    if (drawLabels) {
+                        DrawUtils.drawLabel(
+                                getFluidAmountFormatted(amount),
+                                x + xOffset + getAdjustedWidth() / 2,
+                                y + yOffset + getAdjustedHeight() / 2,
+                                0xFFFFFFFF,
+                                0xB4000000,
+                                true,
+                                getFontScale());
+                    }
                 }
             }
         }
