@@ -1,5 +1,6 @@
 package com.sinthoras.visualprospecting.integration.model.render;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 
 import com.gtnewhorizons.navigator.api.model.steps.UniversalRenderStep;
@@ -19,6 +20,13 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
 
     @Override
     public void draw(double topX, double topY, float drawScale, double zoom) {
+        final Minecraft mc = Minecraft.getMinecraft();
+        final double regionW = VP.undergroundFluidSizeChunkX * VP.chunkWidth * blockSize;
+        final double regionH = VP.undergroundFluidSizeChunkZ * VP.chunkWidth * blockSize;
+        if (topX + regionW < 0 || topY + regionH < 0 || topX > mc.displayWidth || topY > mc.displayHeight) {
+            return;
+        }
+
         renderChunks(topX, topY);
         setSize(VP.undergroundFluidSizeChunkX * VP.chunkWidth);
         int alpha = location.isActive() ? 255 : 74;
