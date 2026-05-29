@@ -15,8 +15,8 @@ public class Config {
         public static final int cacheGenerationLogUpdateMinTime = 5;
         public static final boolean recacheVeins = false;
         public static final int minDelayBetweenVeinRequests = 2000;
-        public static final int minZoomLevelForOreLabel = 1;
-        public static final int minZoomLevelForUndergroundFluidDetails = 2;
+        public static final int minZoomLevelForOreLabel = 2;
+        public static final int minZoomLevelForUndergroundFluidDetails = 3;
         public static final int uploadBandwidthBytes = 2000000;
         public static final int maxTransferCacheSizeMB = 50;
         public static final boolean enableVoxelMapWaypointsByDefault = false;
