@@ -73,46 +73,42 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         }
         final boolean drawLabels = zoomStep >= Config.minZoomLevelForUndergroundFluidDetails;
 
+        final int minProduction = location.getMinProduction();
+        final int maxProduction = location.getMaxProduction();
+        final int fluidColor = location.getFluid().getColor();
+        final int[][] chunks = location.getChunks();
+        final float productionRange = maxProduction - minProduction + 1;
+
+        final Minecraft mc = Minecraft.getMinecraft();
+        final double screenW = mc.displayWidth;
+        final double screenH = mc.displayHeight;
         setSize(VP.chunkWidth);
+        final double cellW = getAdjustedWidth();
+        final double cellH = getAdjustedHeight();
         for (int chunkX = 0; chunkX < VP.undergroundFluidSizeChunkX; chunkX++) {
+            final double cellX = x + chunkX * cellW;
+            if (cellX + cellW < 0 || cellX > screenW) continue;
             for (int chunkZ = 0; chunkZ < VP.undergroundFluidSizeChunkZ; chunkZ++) {
-                double xOffset = chunkX * getAdjustedWidth();
-                double yOffset = chunkZ * getAdjustedHeight();
-                int amount = location.getChunks()[chunkX][chunkZ];
-                if (amount > 0) {
-                    float alpha = (float) (amount - location.getMinProduction())
-                            / (location.getMaxProduction() - location.getMinProduction() + 1);
-                    alpha = alpha * 255;
-                    int fluidColor = location.getFluid().getColor();
-                    DrawUtils.drawRect(
-                            x + xOffset,
-                            y + yOffset,
-                            getAdjustedWidth(),
-                            getAdjustedHeight(),
-                            fluidColor,
-                            (int) alpha);
+                final double cellY = y + chunkZ * cellH;
+                if (cellY + cellH < 0 || cellY > screenH) continue;
+                int amount = chunks[chunkX][chunkZ];
+                if (amount <= 0) continue;
+                int alpha = (int) ((amount - minProduction) / productionRange * 255);
+                DrawUtils.drawRect(cellX, cellY, cellW, cellH, fluidColor, alpha);
 
-                    if (amount >= location.getMaxProduction()) {
-                        DrawUtils.drawHollowRect(
-                                x + xOffset,
-                                y + yOffset,
-                                getAdjustedWidth(),
-                                getAdjustedHeight(),
-                                0xFFD700,
-                                204,
-                                1.5);
-                    }
+                if (amount >= maxProduction) {
+                    DrawUtils.drawHollowRect(cellX, cellY, cellW, cellH, 0xFFD700, 204, 1.5);
+                }
 
-                    if (drawLabels) {
-                        DrawUtils.drawLabel(
-                                getFluidAmountFormatted(amount),
-                                x + xOffset + getAdjustedWidth() / 2,
-                                y + yOffset + getAdjustedHeight() / 2,
-                                0xFFFFFFFF,
-                                0xB4000000,
-                                true,
-                                getFontScale());
-                    }
+                if (drawLabels) {
+                    DrawUtils.drawLabel(
+                            getFluidAmountFormatted(amount),
+                            cellX + cellW / 2,
+                            cellY + cellH / 2,
+                            0xFFFFFFFF,
+                            0xB4000000,
+                            true,
+                            getFontScale());
                 }
             }
         }
