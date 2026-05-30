@@ -31,6 +31,8 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
     private final OreVeinPosition oreVeinPosition;
     private final String name;
     private final List<String> materialNames;
+    private final IIconContainer iconContainer;
+    private final int color;
 
     private boolean isActiveAsWaypoint;
 
@@ -39,6 +41,10 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
         name = EnumChatFormatting.WHITE + oreVeinPosition.veinType.getVeinName();
         materialNames = oreVeinPosition.veinType.getOreMaterialNames().stream()
                 .map(materialName -> EnumChatFormatting.GRAY + materialName).collect(Collectors.toList());
+        final IOreMaterial representativeOre = oreVeinPosition.veinType.representativeOre;
+        final TextureSet textureSet = representativeOre.getTextureSet();
+        iconContainer = textureSet.mTextures[OrePrefixes.ore.getTextureIndex()];
+        color = LightingHelper.getColor(representativeOre.getRGBA());
     }
 
     @Override
@@ -117,13 +123,11 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
     }
 
     public int getColor() {
-        return LightingHelper.getColor(getRepresentativeOre().getRGBA());
+        return color;
     }
 
     public IIconContainer getIconFromRepresentativeOre() {
-        TextureSet textureSet = getRepresentativeOre().getTextureSet();
-
-        return textureSet.mTextures[OrePrefixes.ore.getTextureIndex()];
+        return iconContainer;
     }
 
     public IOreMaterial getRepresentativeOre() {
