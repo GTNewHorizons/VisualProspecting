@@ -29,11 +29,16 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
 
         renderChunks(topX, topY);
         setSize(VP.undergroundFluidSizeChunkX * VP.chunkWidth);
-        int alpha = location.isActive() ? 255 : 74;
-        DrawUtils.drawHollowRect(topX, topY, getAdjustedWidth(), getAdjustedHeight(), location.getColor(), alpha, 2);
+        final int maxAmountInField = location.getMaxProduction();
+        if (maxAmountInField > 0) {
+            int alpha = location.isActive() ? 255 : 74;
+            DrawUtils
+                    .drawHollowRect(topX, topY, getAdjustedWidth(), getAdjustedHeight(), location.getColor(), alpha, 2);
+        } else {
+            DrawUtils.drawHollowRect(topX, topY, getAdjustedWidth(), getAdjustedHeight(), 0xFFFFFF, 74, 2);
+        }
 
         if (!isMinimap()) {
-            final int maxAmountInField = location.getMaxProduction();
             String label = I18n.format("visualprospecting.empty");
             if (maxAmountInField > 0) {
                 label = location.getMinProduction() + "L - "
