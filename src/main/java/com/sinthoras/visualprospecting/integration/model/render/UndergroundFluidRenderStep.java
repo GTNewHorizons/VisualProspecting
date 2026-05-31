@@ -76,6 +76,7 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         final int fluidColor = location.getColor();
         final int[][] chunks = location.getChunks();
         final float productionRange = maxProduction - minProduction + 1;
+        final boolean highlightPeak = maxProduction >= 10;
 
         final Minecraft mc = Minecraft.getMinecraft();
         final double screenW = mc.displayWidth;
@@ -91,10 +92,10 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
                 if (cellY + cellH < 0 || cellY > screenH) continue;
                 int amount = chunks[chunkX][chunkZ];
                 if (amount <= 0) continue;
-                int alpha = (int) ((amount - minProduction) / productionRange * 255);
+                int alpha = productionRange > 1 ? (int) ((amount - minProduction) / productionRange * 255) : 10;
                 DrawUtils.drawRect(cellX, cellY, cellW, cellH, fluidColor, alpha);
 
-                if (amount >= maxProduction) {
+                if (highlightPeak && amount >= maxProduction) {
                     DrawUtils.drawHollowRect(cellX, cellY, cellW, cellH, 0xFFD700, 204, 1.5);
                 }
 
