@@ -30,14 +30,7 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         renderChunks(topX, topY);
         setSize(VP.undergroundFluidSizeChunkX * VP.chunkWidth);
         int alpha = location.isActive() ? 255 : 74;
-        DrawUtils.drawHollowRect(
-                topX,
-                topY,
-                getAdjustedWidth(),
-                getAdjustedHeight() - 0.5,
-                location.getFluid().getColor(),
-                alpha,
-                2);
+        DrawUtils.drawHollowRect(topX, topY, getAdjustedWidth(), getAdjustedHeight(), location.getColor(), alpha, 2);
 
         if (!isMinimap()) {
             final int maxAmountInField = location.getMaxProduction();
@@ -75,7 +68,7 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
 
         final int minProduction = location.getMinProduction();
         final int maxProduction = location.getMaxProduction();
-        final int fluidColor = location.getFluid().getColor();
+        final int fluidColor = location.getColor();
         final int[][] chunks = location.getChunks();
         final float productionRange = maxProduction - minProduction + 1;
 
