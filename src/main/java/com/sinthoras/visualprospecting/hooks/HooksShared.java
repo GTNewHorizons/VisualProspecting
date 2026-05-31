@@ -12,6 +12,8 @@ import com.gtnewhorizon.gtnhlib.teams.TeamDataRegistry;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.VP;
+import com.sinthoras.visualprospecting.commands.VPAdminCommand;
+import com.sinthoras.visualprospecting.commands.VPCommand;
 import com.sinthoras.visualprospecting.database.RedoServerCacheCommand;
 import com.sinthoras.visualprospecting.database.RedoServerSpawnCacheCommand;
 import com.sinthoras.visualprospecting.database.ServerCache;
@@ -27,10 +29,7 @@ import com.sinthoras.visualprospecting.network.TeamCatchupNotification;
 import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
 import com.sinthoras.visualprospecting.network.WorldIdNotification;
 import com.sinthoras.visualprospecting.task.TaskManager;
-import com.sinthoras.visualprospecting.teams.TeamClearCommand;
-import com.sinthoras.visualprospecting.teams.TeamInfoCommand;
 import com.sinthoras.visualprospecting.teams.TeamProspectionData;
-import com.sinthoras.visualprospecting.teams.TeamUploadCommand;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
@@ -129,6 +128,9 @@ public class HooksShared {
             File regionFolder = new File(worldDir, "region");
             newWorld = !regionFolder.exists();
         }
+
+        VPCommand.register();
+        VPAdminCommand.register();
     }
 
     // register server commands in this event handler
@@ -151,14 +153,10 @@ public class HooksShared {
             }
         }
 
+        // TODO cleanup all this at the end
         // Register the recache command
         event.registerServerCommand(new RedoServerCacheCommand());
         event.registerServerCommand(new RedoServerSpawnCacheCommand());
-
-        // Team-sharing debug commands
-        event.registerServerCommand(new TeamInfoCommand());
-        event.registerServerCommand(new TeamClearCommand());
-        event.registerServerCommand(new TeamUploadCommand());
     }
 
     public void fmlLifeCycleEvent(FMLServerStartedEvent event) {}
