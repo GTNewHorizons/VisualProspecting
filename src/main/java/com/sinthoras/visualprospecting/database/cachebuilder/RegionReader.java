@@ -15,6 +15,8 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
+import com.sinthoras.visualprospecting.VP;
+
 public class RegionReader implements AutoCloseable {
 
     private final RandomAccessFile is;
@@ -43,7 +45,7 @@ public class RegionReader implements AutoCloseable {
             }
             return null;
         } catch (DataFormatException | IOException e) {
-            e.printStackTrace();
+            VP.LOG.error("Failed to read chunk tiles at ({}, {})", x, z, e);
             return null;
         }
     }
