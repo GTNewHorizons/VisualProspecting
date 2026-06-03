@@ -25,15 +25,21 @@ public final class VPAdminCommand {
                 .then(literal("team")
                         .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.team.usage"))
 
-                        .then(literal("info").then(CommandHelpers.playerNameArg(VPAdminTeamCommand.ARG_PLAYER)
-                                .executes(ctx -> VPAdminTeamCommand.cmdInfo(ctx, false))
-                                .then(literal("detailed").executes(ctx -> VPAdminTeamCommand.cmdInfo(ctx, true)))))
+                        .then(literal("info")
+                                .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.team.info.usage"))
+                                .then(CommandHelpers.playerNameArg(VPAdminTeamCommand.ARG_PLAYER)
+                                        .executes(ctx -> VPAdminTeamCommand.cmdInfo(ctx, false))
+                                        .then(literal("detailed").executes(ctx -> VPAdminTeamCommand.cmdInfo(ctx, true)))))
 
-                        .then(literal("upload").then(CommandHelpers.playerNameArg(VPAdminTeamCommand.ARG_PLAYER)
-                                .executes(VPAdminTeamCommand::cmdUpload)))
+                        .then(literal("upload")
+                                .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.team.upload.usage"))
+                                .then(CommandHelpers.playerNameArg(VPAdminTeamCommand.ARG_PLAYER)
+                                        .executes(VPAdminTeamCommand::cmdUpload)))
 
-                        .then(literal("clear").then(CommandHelpers.playerNameArg(VPAdminTeamCommand.ARG_PLAYER)
-                                .executes(VPAdminTeamCommand::cmdClear))))
+                        .then(literal("clear")
+                                .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.team.clear.usage"))
+                                .then(CommandHelpers.playerNameArg(VPAdminTeamCommand.ARG_PLAYER)
+                                        .executes(VPAdminTeamCommand::cmdClear))))
 
                 // Tree for /vp_admin servercache <commands...>
                 .then(literal("servercache")
