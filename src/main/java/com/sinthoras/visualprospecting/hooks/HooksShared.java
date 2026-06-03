@@ -14,8 +14,6 @@ import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.commands.VPAdminCommand;
 import com.sinthoras.visualprospecting.commands.VPCommand;
-import com.sinthoras.visualprospecting.database.RedoServerCacheCommand;
-import com.sinthoras.visualprospecting.database.RedoServerSpawnCacheCommand;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.WorldIdHandler;
 import com.sinthoras.visualprospecting.database.cachebuilder.WorldAnalysis;
@@ -149,14 +147,9 @@ public class HooksShared {
                 WorldAnalysis worldAnalysis = new WorldAnalysis(world.getSaveHandler().getWorldDirectory());
                 worldAnalysis.cacheVeins();
             } catch (IOException | DataFormatException e) {
-                VP.LOG.info("Could not load world save files to build vein cache!", e);
+                VP.LOG.error("Could not load world save files to build vein cache!", e);
             }
         }
-
-        // TODO cleanup all this at the end
-        // Register the recache command
-        event.registerServerCommand(new RedoServerCacheCommand());
-        event.registerServerCommand(new RedoServerSpawnCacheCommand());
     }
 
     public void fmlLifeCycleEvent(FMLServerStartedEvent event) {}

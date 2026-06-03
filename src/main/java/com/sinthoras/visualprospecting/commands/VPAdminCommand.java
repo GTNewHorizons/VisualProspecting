@@ -4,6 +4,7 @@ import static com.gtnewhorizon.gtnhlib.util.CommandUtils.literal;
 import static com.sinthoras.visualprospecting.commands.CommandHelpers.sendUsage;
 
 import com.gtnewhorizon.gtnhlib.brigadier.BrigadierApi;
+import com.sinthoras.visualprospecting.commands.admin.VPAdminCacheCommand;
 import com.sinthoras.visualprospecting.commands.admin.VPAdminTeamCommand;
 
 /**
@@ -21,7 +22,8 @@ public final class VPAdminCommand {
                 .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.root.usage"))
 
                 // Tree for /vp_admin team <commands...>
-                .then(literal("team").executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.team.usage"))
+                .then(literal("team")
+                        .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.team.usage"))
 
                         .then(literal("info").then(CommandHelpers.playerNameArg(VPAdminTeamCommand.ARG_PLAYER)
                                 .executes(ctx -> VPAdminTeamCommand.cmdInfo(ctx, false))
@@ -31,8 +33,21 @@ public final class VPAdminCommand {
                                 .executes(VPAdminTeamCommand::cmdUpload)))
 
                         .then(literal("clear").then(CommandHelpers.playerNameArg(VPAdminTeamCommand.ARG_PLAYER)
-                                .executes(VPAdminTeamCommand::cmdClear)))
-                ));
+                                .executes(VPAdminTeamCommand::cmdClear))))
+
+                // Tree for /vp_admin servercache <commands...>
+                .then(literal("servercache")
+                        .requires(src -> src.canCommandSenderUseCommand(4, "vp_admin"))
+                        .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.servercache.usage"))
+
+                        .then(literal("rebuild")
+                                .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.servercache.rebuild.usage"))
+
+                                .then(literal("all")
+                                        .executes(VPAdminCacheCommand::cmdRebuildAll))
+                                .then(literal("spawn")
+                                        .executes(VPAdminCacheCommand::cmdRebuildSpawn))))
+        );
     }
     // spotless:on
 }

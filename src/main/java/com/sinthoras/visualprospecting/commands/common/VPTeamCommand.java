@@ -12,7 +12,6 @@ import net.minecraftforge.common.DimensionManager;
 
 import com.gtnewhorizon.gtnhlib.teams.Team;
 import com.gtnewhorizon.gtnhlib.teams.TeamManager;
-import com.gtnewhorizon.gtnhlib.util.CommandUtils;
 import com.mojang.brigadier.context.CommandContext;
 import com.sinthoras.visualprospecting.commands.CommandHelpers;
 import com.sinthoras.visualprospecting.teams.TeamProspectionData;
@@ -33,15 +32,15 @@ public final class VPTeamCommand {
         EntityPlayerMP subject = target;
         if (subject == null) {
             if (!(sender instanceof EntityPlayerMP self)) {
-                return CommandUtils.error(sender, "visualprospecting.command.console_needs_player");
+                return CommandHelpers.error(sender, "visualprospecting.command.console_needs_player");
             }
             subject = self;
         }
 
-        Team team = CommandHelpers.resolveTeam(sender, subject);
+        Team team = CommandHelpers.requireTeam(sender, subject);
         if (team == null) return CommandHelpers.FAILURE;
 
-        TeamProspectionData data = CommandHelpers.resolveData(sender, team);
+        TeamProspectionData data = CommandHelpers.requireTeamData(sender, team);
         if (data == null) return CommandHelpers.FAILURE;
 
         printInfoReport(sender, team, data, detailed);

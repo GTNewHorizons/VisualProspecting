@@ -27,20 +27,8 @@ public class VP {
     public static final int undergroundFluidChunkProspectingBlockRadius = undergroundFluidSizeChunkX * chunkWidth;
     public static int uploadSizePerPacketInBytes = 30000; // Larger than 32kB will kick the player!
 
-    public static void debug(String message) {
-        VP.LOG.debug(formatMessage(message));
-    }
-
     public static void info(String message) {
         VP.LOG.info(formatMessage(message));
-    }
-
-    public static void warn(String message) {
-        VP.LOG.warn(formatMessage(message));
-    }
-
-    public static void error(String message) {
-        VP.LOG.error(formatMessage(message));
     }
 
     private static String formatMessage(String message) {

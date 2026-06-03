@@ -4,7 +4,6 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import com.gtnewhorizon.gtnhlib.teams.Team;
-import com.gtnewhorizon.gtnhlib.util.CommandUtils;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.sinthoras.visualprospecting.Config;
@@ -39,10 +38,10 @@ public class VPAdminTeamCommand {
         EntityPlayerMP target = CommandHelpers.requireOnlinePlayer(sender, playerName);
         if (target == null) return CommandHelpers.FAILURE;
 
-        Team team = CommandHelpers.resolveTeam(sender, target);
+        Team team = CommandHelpers.requireTeam(sender, target);
         if (team == null) return CommandHelpers.FAILURE;
 
-        TeamProspectionData data = CommandHelpers.resolveData(sender, team);
+        TeamProspectionData data = CommandHelpers.requireTeamData(sender, team);
         if (data == null) return CommandHelpers.FAILURE;
 
         int veins = 0, fluids = 0;
@@ -54,7 +53,7 @@ public class VPAdminTeamCommand {
         data.clear();
         team.markDirty();
 
-        return CommandUtils.success(
+        return CommandHelpers.success(
                 sender,
                 "visualprospecting.command.vpadmin.team.clear.success",
                 team.getTeamName(),
@@ -67,18 +66,18 @@ public class VPAdminTeamCommand {
         String playerName = StringArgumentType.getString(ctx, ARG_PLAYER);
 
         if (!Config.enableTeamSharing) {
-            return CommandUtils.error(sender, "visualprospecting.command.sharing_disabled");
+            return CommandHelpers.error(sender, "visualprospecting.command.sharing_disabled");
         }
 
         EntityPlayerMP target = CommandHelpers.requireOnlinePlayer(sender, playerName);
         if (target == null) return CommandHelpers.FAILURE;
 
-        Team team = CommandHelpers.resolveTeam(sender, target);
+        Team team = CommandHelpers.requireTeam(sender, target);
         if (team == null) return CommandHelpers.FAILURE;
 
         VP.network.sendTo(new RequestTeamUploadMessage(), target);
 
-        return CommandUtils.success(
+        return CommandHelpers.success(
                 sender,
                 "visualprospecting.command.vpadmin.team.upload.requested",
                 target.getCommandSenderName(),
