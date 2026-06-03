@@ -44,42 +44,8 @@ public class PartiallyLoadedChunk {
             byte y = section.getByte("Y");
 
             if (section.hasKey("Blocks16")) {
-                // chunk saved with NotEnoughIds
-
-                ShortBuffer blocks = ByteBuffer.wrap(section.getByteArray("Blocks16")).asShortBuffer();
-                ShortBuffer metas = ByteBuffer.wrap(section.getByteArray("Data16")).asShortBuffer();
-
-                if (blocks.capacity() == 0 || metas.capacity() == 0) {
-                    // no-op for empty sections
-                    this.blocks[y] = i -> (short) 0;
-                    this.metas[y] = i -> (short) 0;
-                    continue;
-                }
-
-                if (blocks.capacity() != BLOCKS_PER_EBS) {
-                    VP.LOG.error(
-                            "Corrupt section detected at X={}, Y={}, Z={} (Blocks16 length was {}, needs {})",
-                            chunkX,
-                            y,
-                            chunkZ,
-                            blocks.capacity(),
-                            BLOCKS_PER_EBS);
-                    continue;
-                }
-
-                if (metas.capacity() != BLOCKS_PER_EBS) {
-                    VP.LOG.error(
-                            "Corrupt section detected at X={}, Y={}, Z={} (Data16 length was {}, needs {})",
-                            chunkX,
-                            y,
-                            chunkZ,
-                            metas.capacity(),
-                            BLOCKS_PER_EBS);
-                    continue;
-                }
-
-                this.blocks[y] = blocks::get;
-                this.metas[y] = metas::get;
+                // NotEnoughIDs format: full 16-bit block IDs and metas stored as ShortBuffers.
+                loadNotEnoughIds(section, chunkX, y, chunkZ);
 
             } else if (section.hasKey("Add") || section.hasKey("BlocksB2Hi")) {
                 // chunk saved with EndlessIds
@@ -152,6 +118,47 @@ public class PartiallyLoadedChunk {
         }
 
         tiles = chunk.getCompoundTag("Level").getTagList("TileEntities", NBT.TAG_COMPOUND).tagList;
+    }
+
+    /**
+     * Loads a chunk section saved in NotEnoughIDs format ("Blocks16" / "Data16"). Block IDs and metas are stored as
+     * flat ShortBuffers - one short per block, no bit packing.
+     */
+    private void loadNotEnoughIds(NBTTagCompound section, int chunkX, byte y, int chunkZ) {
+        ShortBuffer blocks = ByteBuffer.wrap(section.getByteArray("Blocks16")).asShortBuffer();
+        ShortBuffer metas = ByteBuffer.wrap(section.getByteArray("Data16")).asShortBuffer();
+
+        if (blocks.capacity() == 0 || metas.capacity() == 0) {
+            // no-op for empty sections
+            this.blocks[y] = i -> (short) 0;
+            this.metas[y] = i -> (short) 0;
+            return;
+        }
+
+        if (blocks.capacity() != BLOCKS_PER_EBS) {
+            VP.LOG.error(
+                    "Corrupt section detected at X={}, Y={}, Z={} (Blocks16 length was {}, needs {})",
+                    chunkX,
+                    y,
+                    chunkZ,
+                    blocks.capacity(),
+                    BLOCKS_PER_EBS);
+            return;
+        }
+
+        if (metas.capacity() != BLOCKS_PER_EBS) {
+            VP.LOG.error(
+                    "Corrupt section detected at X={}, Y={}, Z={} (Data16 length was {}, needs {})",
+                    chunkX,
+                    y,
+                    chunkZ,
+                    metas.capacity(),
+                    BLOCKS_PER_EBS);
+            return;
+        }
+
+        this.blocks[y] = blocks::get;
+        this.metas[y] = metas::get;
     }
 
     public int getBlockId(int x, int y, int z) {
