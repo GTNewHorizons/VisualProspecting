@@ -53,7 +53,7 @@ public class ChunkAnalysis {
                 .filter(vein -> vein.containsAllFoundOres(oreCounts.keySet(), dimName, mostCommonOre, minVeinBlockY))
                 .forEach(matchedVeins::add);
         // spotless:on
-        return matchedVeins.size() <= 1;
+        return matchedVeins.size() == 1;
     }
 
     // Result only valid if matchesSingleVein() returned true
