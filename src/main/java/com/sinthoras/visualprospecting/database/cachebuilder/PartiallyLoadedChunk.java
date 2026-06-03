@@ -20,6 +20,7 @@ import gregtech.common.ores.BWOreAdapter;
 import gregtech.common.ores.GTOreAdapter;
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import it.unimi.dsi.fastutil.ints.Int2ShortFunction;
 
 public class PartiallyLoadedChunk {
@@ -28,8 +29,9 @@ public class PartiallyLoadedChunk {
     private static final int BLOCKS_PER_EBS = SECTION_SIZE * SECTION_SIZE * SECTION_SIZE;
     public static final int CHUNK_HEIGHT = 256;
     private static final int SECTIONS_PER_CHUNK = CHUNK_HEIGHT / SECTION_SIZE;
+    private static final int NIBBLE_ARRAY_SIZE = BLOCKS_PER_EBS / 2; // Expected byte-array lengths for nibble arrays
 
-    private final Int2ShortFunction[] blocks = new Int2ShortFunction[SECTIONS_PER_CHUNK];
+    private final Int2IntFunction[] blocks = new Int2IntFunction[SECTIONS_PER_CHUNK];
     private final Int2ShortFunction[] metas = new Int2ShortFunction[SECTIONS_PER_CHUNK];
 
     private List<NBTTagCompound> tiles;
@@ -63,12 +65,15 @@ public class PartiallyLoadedChunk {
                 //
                 // "Add", "BlocksB2Hi", "BlocksB3", "Data1High", and "Data2" are all optional —
                 // absent arrays mean those bits are zero, preserving backwards compatibility.
+                // Reference:
+                // https://github.com/GTMEGA/EndlessIDs/blob/master/src/main/java/com/falsepattern/endlessids/managers/BlockIDManager.java
+                // https://github.com/GTMEGA/EndlessIDs/blob/master/src/main/java/com/falsepattern/endlessids/managers/BlockMetaManager.java
                 loadEndlessIds(section, chunkX, y, chunkZ);
 
             } else {
                 // Vanilla format or unrecognized: skip block data.
                 // Old chunks only have ore TileEntities.
-                this.blocks[y] = i -> (short) 0;
+                this.blocks[y] = i -> 0;
                 this.metas[y] = i -> (short) 0;
             }
         }
@@ -85,15 +90,14 @@ public class PartiallyLoadedChunk {
         ShortBuffer metas = ByteBuffer.wrap(section.getByteArray("Data16")).asShortBuffer();
 
         if (blocks.capacity() == 0 || metas.capacity() == 0) {
-            // no-op for empty sections
-            this.blocks[y] = i -> (short) 0;
+            this.blocks[y] = i -> 0;
             this.metas[y] = i -> (short) 0;
             return;
         }
 
         if (blocks.capacity() != BLOCKS_PER_EBS) {
             VP.LOG.error(
-                    "Corrupt section detected at X={}, Y={}, Z={} (Blocks16 length was {}, needs {})",
+                    "Corrupt NotEnoughIDs section at X={}, Y={}, Z={}: Blocks16 length {} (expected {})",
                     chunkX,
                     y,
                     chunkZ,
@@ -104,7 +108,7 @@ public class PartiallyLoadedChunk {
 
         if (metas.capacity() != BLOCKS_PER_EBS) {
             VP.LOG.error(
-                    "Corrupt section detected at X={}, Y={}, Z={} (Data16 length was {}, needs {})",
+                    "Corrupt NotEnoughIDs section at X={}, Y={}, Z={}: Data16 length {} (expected {})",
                     chunkX,
                     y,
                     chunkZ,
@@ -117,67 +121,109 @@ public class PartiallyLoadedChunk {
         this.metas[y] = metas::get;
     }
 
+    /**
+     * Loads a chunk section saved in EndlessIDs format. Missing optional arrays are treated as all-zero.
+     */
     private void loadEndlessIds(NBTTagCompound section, int chunkX, byte y, int chunkZ) {
+        // --- Block ID arrays ---
+        byte[] blocksRaw = section.getByteArray("Blocks");
+        if (blocksRaw.length != BLOCKS_PER_EBS) {
+            VP.LOG.error(
+                    "Corrupt EndlessIDs section at X={}, Y={}, Z={}: Blocks length {} (expected {})",
+                    chunkX,
+                    y,
+                    chunkZ,
+                    blocksRaw.length,
+                    BLOCKS_PER_EBS);
+            this.blocks[y] = i -> 0;
+            this.metas[y] = i -> (short) 0;
+            return;
+        }
+        ByteBuffer blockLo = ByteBuffer.wrap(blocksRaw);
 
-        // 00FF
-        ByteBuffer blocks1Byte = ByteBuffer.wrap(section.getByteArray("Blocks"));
-        // 0F00
-        ByteBuffer blocks2Lo;
-        if (section.hasKey("Add")) {
-            blocks2Lo = ByteBuffer.wrap(section.getByteArray("Add"));
-        } else {
-            blocks2Lo = null;
+        ByteBuffer blockMid = loadNibbleArray(section, "Add", chunkX, y, chunkZ);
+        ByteBuffer blockHi = loadNibbleArray(section, "BlocksB2Hi", chunkX, y, chunkZ);
+
+        // BlocksB3: bits 16-23, one byte per block, extends IDs to 24 bits
+        ByteBuffer blockB3 = null;
+        if (section.hasKey("BlocksB3")) {
+            byte[] b3 = section.getByteArray("BlocksB3");
+            if (b3.length != BLOCKS_PER_EBS) {
+                VP.LOG.error(
+                        "Corrupt EndlessIDs section at X={}, Y={}, Z={}: BlocksB3 length {} (expected {})",
+                        chunkX,
+                        y,
+                        chunkZ,
+                        b3.length,
+                        BLOCKS_PER_EBS);
+            } else {
+                blockB3 = ByteBuffer.wrap(b3);
+            }
         }
-        // F000
-        ByteBuffer blocks2Hi;
-        if (section.hasKey("BlocksB2Hi")) {
-            blocks2Hi = ByteBuffer.wrap(section.getByteArray("BlocksB2Hi"));
-        } else {
-            blocks2Hi = null;
-        }
+        final ByteBuffer fBlockB3 = blockB3;
 
         this.blocks[y] = i -> {
             int nibbleShift = (i & 1) * 4;
-            short id = (short) (blocks1Byte.get(i) & 0xFF);
-            if (blocks2Lo != null) {
-                id |= (short) (((blocks2Lo.get(i >> 1) >> nibbleShift) & 0xF) << 8);
-            }
-            if (blocks2Hi != null) {
-                id |= (short) (((blocks2Hi.get(i >> 1) >> nibbleShift) & 0xF) << 12);
-            }
+            int id = blockLo.get(i) & 0xFF;
+            if (blockMid != null) id |= ((blockMid.get(i >> 1) >> nibbleShift) & 0xF) << 8;
+            if (blockHi != null) id |= ((blockHi.get(i >> 1) >> nibbleShift) & 0xF) << 12;
+            if (fBlockB3 != null) id |= (fBlockB3.get(i) & 0xFF) << 16;
             return id;
         };
 
-        // 000F
-        ByteBuffer meta1Lo = ByteBuffer.wrap(section.getByteArray("Data"));
-        // 00F0
-        ByteBuffer meta1Hi;
-        if (section.hasKey("Data1High")) {
-            meta1Hi = ByteBuffer.wrap(section.getByteArray("Data1High"));
-        } else {
-            meta1Hi = null;
-        }
-        // FF00
-        ByteBuffer meta2;
+        // --- Meta arrays ---
+        ByteBuffer metaLo = loadNibbleArray(section, "Data", chunkX, y, chunkZ);
+        ByteBuffer metaMid = loadNibbleArray(section, "Data1High", chunkX, y, chunkZ);
+
+        ByteBuffer metaHi = null;
         if (section.hasKey("Data2")) {
-            meta2 = ByteBuffer.wrap(section.getByteArray("Data2"));
-        } else {
-            meta2 = null;
+            byte[] data2 = section.getByteArray("Data2");
+            if (data2.length != BLOCKS_PER_EBS) {
+                VP.LOG.error(
+                        "Corrupt EndlessIDs section at X={}, Y={}, Z={}: Data2 length {} (expected {})",
+                        chunkX,
+                        y,
+                        chunkZ,
+                        data2.length,
+                        BLOCKS_PER_EBS);
+            } else {
+                metaHi = ByteBuffer.wrap(data2);
+            }
         }
+
+        final ByteBuffer fMetaLo = metaLo;
+        final ByteBuffer fMetaMid = metaMid;
+        final ByteBuffer fMetaHi = metaHi;
 
         this.metas[y] = i -> {
             int nibbleShift = (i & 1) * 4;
             short meta = 0;
-            meta |= (short) (((meta1Lo.get(i >> 1) >> nibbleShift) & 0xF));
-            if (meta1Hi != null) {
-                meta |= (short) (((meta1Hi.get(i >> 1) >> nibbleShift) & 0xF) << 4);
-            }
-            if (meta2 != null) {
-                meta |= (short) ((meta2.get(i) & 0xFF) << 8);
-            }
+            if (fMetaLo != null) meta |= (short) ((fMetaLo.get(i >> 1) >> nibbleShift) & 0xF);
+            if (fMetaMid != null) meta |= (short) (((fMetaMid.get(i >> 1) >> nibbleShift) & 0xF) << 4);
+            if (fMetaHi != null) meta |= (short) ((fMetaHi.get(i) & 0xFF) << 8);
             return meta;
         };
+    }
 
+    /**
+     * Reads an optional nibble array from a section NBT compound. Validates the length ({@link #NIBBLE_ARRAY_SIZE}) and
+     * returns null if the key is absent or the array is malformed, so callers can treat null as all-zero bits.
+     */
+    private ByteBuffer loadNibbleArray(NBTTagCompound section, String key, int chunkX, byte y, int chunkZ) {
+        if (!section.hasKey(key)) return null;
+        byte[] data = section.getByteArray(key);
+        if (data.length != NIBBLE_ARRAY_SIZE) {
+            VP.LOG.error(
+                    "Corrupt EndlessIDs section at X={}, Y={}, Z={}: {} nibble array length {} (expected {})",
+                    chunkX,
+                    y,
+                    chunkZ,
+                    key,
+                    data.length,
+                    NIBBLE_ARRAY_SIZE);
+            return null;
+        }
+        return ByteBuffer.wrap(data);
     }
 
     public int getBlockId(int x, int y, int z) {
@@ -189,7 +235,7 @@ public class PartiallyLoadedChunk {
 
         int section = index / BLOCKS_PER_EBS;
 
-        Int2ShortFunction blocks = this.blocks[section];
+        Int2IntFunction blocks = this.blocks[section];
 
         if (blocks == null) return 0;
 
