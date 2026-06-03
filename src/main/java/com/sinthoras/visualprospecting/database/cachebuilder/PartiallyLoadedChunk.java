@@ -267,16 +267,26 @@ public class PartiallyLoadedChunk {
             }
         }
 
-        for (int y = 0; y < PartiallyLoadedChunk.CHUNK_HEIGHT; y++) {
-            for (int z = 0; z < 16; z++) {
-                for (int x = 0; x < 16; x++) {
-                    Block block = getBlock(x, y, z);
-                    int meta = getBlockMeta(x, y, z);
+        // Iterate per-section so the blocks/metas array lookups are done out of the inner loop
+        for (int section = 0; section < SECTIONS_PER_CHUNK; section++) {
+            Int2IntFunction blocks = this.blocks[section];
+            Int2IntFunction metas = this.metas[section];
 
-                    try (OreInfo<IOreMaterial> info = OreManager.getOreInfo(block, meta)) {
-                        if (info == null || info.isSmall || !info.isNatural || info.material == null) continue;
+            int baseY = section << 4;
+            for (int dy = 0; dy < SECTION_SIZE; dy++) {
+                int y = baseY + dy;
+                for (int z = 0; z < SECTION_SIZE; z++) {
+                    for (int x = 0; x < SECTION_SIZE; x++) {
+                        int withinSection = (dy << 8) | (z << 4) | x;
+                        int id = blocks == null ? 0 : blocks.get(withinSection);
+                        int meta = metas == null ? 0 : metas.get(withinSection);
+                        Block block = Block.getBlockById(id);
 
-                        consumer.visit(x, y, z, info);
+                        try (OreInfo<IOreMaterial> info = OreManager.getOreInfo(block, meta)) {
+                            if (info == null || info.isSmall || !info.isNatural || info.material == null) continue;
+
+                            consumer.visit(x, y, z, info);
+                        }
                     }
                 }
             }
