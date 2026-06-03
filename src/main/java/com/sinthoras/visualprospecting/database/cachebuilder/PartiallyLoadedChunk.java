@@ -48,70 +48,26 @@ public class PartiallyLoadedChunk {
                 loadNotEnoughIds(section, chunkX, y, chunkZ);
 
             } else if (section.hasKey("Add") || section.hasKey("BlocksB2Hi")) {
-                // chunk saved with EndlessIds
-
-                // 00FF
-                ByteBuffer blocks1Byte = ByteBuffer.wrap(section.getByteArray("Blocks"));
-                // 0F00
-                ByteBuffer blocks2Lo;
-                if (section.hasKey("Add")) {
-                    blocks2Lo = ByteBuffer.wrap(section.getByteArray("Add"));
-                } else {
-                    blocks2Lo = null;
-                }
-                // F000
-                ByteBuffer blocks2Hi;
-                if (section.hasKey("BlocksB2Hi")) {
-                    blocks2Hi = ByteBuffer.wrap(section.getByteArray("BlocksB2Hi"));
-                } else {
-                    blocks2Hi = null;
-                }
-
-                this.blocks[y] = i -> {
-                    int nibbleShift = (i & 1) * 4;
-                    short id = (short) (blocks1Byte.get(i) & 0xFF);
-                    if (blocks2Lo != null) {
-                        id |= (short) (((blocks2Lo.get(i >> 1) >> nibbleShift) & 0xF) << 8);
-                    }
-                    if (blocks2Hi != null) {
-                        id |= (short) (((blocks2Hi.get(i >> 1) >> nibbleShift) & 0xF) << 12);
-                    }
-                    return id;
-                };
-
-                // 000F
-                ByteBuffer meta1Lo = ByteBuffer.wrap(section.getByteArray("Data"));
-                // 00F0
-                ByteBuffer meta1Hi;
-                if (section.hasKey("Data1High")) {
-                    meta1Hi = ByteBuffer.wrap(section.getByteArray("Data1High"));
-                } else {
-                    meta1Hi = null;
-                }
-                // FF00
-                ByteBuffer meta2;
-                if (section.hasKey("Data2")) {
-                    meta2 = ByteBuffer.wrap(section.getByteArray("Data2"));
-                } else {
-                    meta2 = null;
-                }
-
-                this.metas[y] = i -> {
-                    int nibbleShift = (i & 1) * 4;
-                    short meta = 0;
-                    meta |= (short) (((meta1Lo.get(i >> 1) >> nibbleShift) & 0xF));
-                    if (meta1Hi != null) {
-                        meta |= (short) (((meta1Hi.get(i >> 1) >> nibbleShift) & 0xF) << 4);
-                    }
-                    if (meta2 != null) {
-                        meta |= (short) ((meta2.get(i) & 0xFF) << 8);
-                    }
-                    return meta;
-                };
+                // EndlessIDs format: block ID and meta split across multiple nibble/byte arrays.
+                //
+                // Block ID layout (24 bits total):
+                // bits 0x0000FF — "Blocks" byte array (vanilla low 8 bits)
+                // bits 0x000F00 — "Add" nibble array (NotEnoughIDs extension to 12 bits)
+                // bits 0x00F000 — "BlocksB2Hi" nibble array (EndlessIDs extension to 16 bits)
+                // bits 0xFF0000 — "BlocksB3" byte array (EndlessIDs extension to 24 bits)
+                //
+                // Meta layout (16 bits total):
+                // bits 0x000F — "Data" nibble array (vanilla low 4 bits)
+                // bits 0x00F0 — "Data1High" nibble array (EndlessIDs extension)
+                // bits 0xFF00 — "Data2" byte array (EndlessIDs extension, 1 byte per block)
+                //
+                // "Add", "BlocksB2Hi", "BlocksB3", "Data1High", and "Data2" are all optional —
+                // absent arrays mean those bits are zero, preserving backwards compatibility.
+                loadEndlessIds(section, chunkX, y, chunkZ);
 
             } else {
-                // neither NotEnoughIds nor EndlessIds
-                // don't bother loading the actual blocks, if a chunk is this old it'll only have ore tiles
+                // Vanilla format or unrecognized: skip block data.
+                // Old chunks only have ore TileEntities.
                 this.blocks[y] = i -> (short) 0;
                 this.metas[y] = i -> (short) 0;
             }
@@ -159,6 +115,69 @@ public class PartiallyLoadedChunk {
 
         this.blocks[y] = blocks::get;
         this.metas[y] = metas::get;
+    }
+
+    private void loadEndlessIds(NBTTagCompound section, int chunkX, byte y, int chunkZ) {
+
+        // 00FF
+        ByteBuffer blocks1Byte = ByteBuffer.wrap(section.getByteArray("Blocks"));
+        // 0F00
+        ByteBuffer blocks2Lo;
+        if (section.hasKey("Add")) {
+            blocks2Lo = ByteBuffer.wrap(section.getByteArray("Add"));
+        } else {
+            blocks2Lo = null;
+        }
+        // F000
+        ByteBuffer blocks2Hi;
+        if (section.hasKey("BlocksB2Hi")) {
+            blocks2Hi = ByteBuffer.wrap(section.getByteArray("BlocksB2Hi"));
+        } else {
+            blocks2Hi = null;
+        }
+
+        this.blocks[y] = i -> {
+            int nibbleShift = (i & 1) * 4;
+            short id = (short) (blocks1Byte.get(i) & 0xFF);
+            if (blocks2Lo != null) {
+                id |= (short) (((blocks2Lo.get(i >> 1) >> nibbleShift) & 0xF) << 8);
+            }
+            if (blocks2Hi != null) {
+                id |= (short) (((blocks2Hi.get(i >> 1) >> nibbleShift) & 0xF) << 12);
+            }
+            return id;
+        };
+
+        // 000F
+        ByteBuffer meta1Lo = ByteBuffer.wrap(section.getByteArray("Data"));
+        // 00F0
+        ByteBuffer meta1Hi;
+        if (section.hasKey("Data1High")) {
+            meta1Hi = ByteBuffer.wrap(section.getByteArray("Data1High"));
+        } else {
+            meta1Hi = null;
+        }
+        // FF00
+        ByteBuffer meta2;
+        if (section.hasKey("Data2")) {
+            meta2 = ByteBuffer.wrap(section.getByteArray("Data2"));
+        } else {
+            meta2 = null;
+        }
+
+        this.metas[y] = i -> {
+            int nibbleShift = (i & 1) * 4;
+            short meta = 0;
+            meta |= (short) (((meta1Lo.get(i >> 1) >> nibbleShift) & 0xF));
+            if (meta1Hi != null) {
+                meta |= (short) (((meta1Hi.get(i >> 1) >> nibbleShift) & 0xF) << 4);
+            }
+            if (meta2 != null) {
+                meta |= (short) ((meta2.get(i) & 0xFF) << 8);
+            }
+            return meta;
+        };
+
     }
 
     public int getBlockId(int x, int y, int z) {
