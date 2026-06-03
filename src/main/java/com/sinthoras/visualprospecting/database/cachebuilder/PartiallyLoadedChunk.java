@@ -186,46 +186,6 @@ public class PartiallyLoadedChunk {
         return ByteBuffer.wrap(data);
     }
 
-    public int getBlockId(int x, int y, int z) {
-        if (x < 0 || x >= 16) throw new IllegalArgumentException("x");
-        if (y < 0 || y >= CHUNK_HEIGHT) throw new IllegalArgumentException("y");
-        if (z < 0 || z >= 16) throw new IllegalArgumentException("z");
-
-        int index = y << 8 | z << 4 | x;
-
-        int section = index / BLOCKS_PER_EBS;
-
-        Int2IntFunction blocks = this.blocks[section];
-
-        if (blocks == null) return 0;
-
-        int withinSection = index % BLOCKS_PER_EBS;
-
-        return blocks.get(withinSection);
-    }
-
-    public Block getBlock(int x, int y, int z) {
-        return Block.getBlockById(getBlockId(x, y, z));
-    }
-
-    public int getBlockMeta(int x, int y, int z) {
-        if (x < 0 || x >= 16) throw new IllegalArgumentException("x");
-        if (y < 0 || y >= CHUNK_HEIGHT) throw new IllegalArgumentException("y");
-        if (z < 0 || z >= 16) throw new IllegalArgumentException("z");
-
-        int index = y << 8 | z << 4 | x;
-
-        int section = index / BLOCKS_PER_EBS;
-
-        Int2IntFunction metas = this.metas[section];
-
-        if (metas == null) return 0;
-
-        int withinSection = index % BLOCKS_PER_EBS;
-
-        return metas.get(withinSection);
-    }
-
     public interface OreConsumer {
 
         void visit(int x, int y, int z, OreInfo<IOreMaterial> ore);
