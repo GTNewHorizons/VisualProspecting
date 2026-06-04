@@ -20,6 +20,11 @@ import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.VeinSource;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 
+import cpw.mods.fml.common.Optional;
+import gregtech.api.enums.Mods;
+import micdoodle8.mods.galacticraft.api.galaxies.CelestialBody;
+import micdoodle8.mods.galacticraft.api.prefab.world.gen.WorldProviderSpace;
+
 public class DimensionAnalysis {
 
     public final int dimensionId;
@@ -167,10 +172,32 @@ public class DimensionAnalysis {
         }
     }
 
+    // Resolves the dimension name which will help filter ore veins
     private String getDimensionName() {
-        WorldServer world = DimensionManager.getWorld(dimensionId);
-        if (world == null) return "";
-        WorldProvider provider = world.provider;
-        return provider == null ? "" : provider.getDimensionName();
+        final WorldServer world = DimensionManager.getWorld(dimensionId);
+        WorldProvider provider = world != null ? world.provider : null;
+        if (provider == null) {
+            try {
+                provider = DimensionManager.createProviderFor(dimensionId);
+            } catch (Throwable t) {
+                VP.LOG.warn("Could not resolve a provider for dimensionId={}: {}", dimensionId, t);
+                return "";
+            }
+        }
+
+        final String celestialName = Mods.GalacticraftCore.isModLoaded() ? getCelestialBodyName(provider) : null;
+        if (celestialName != null) return celestialName;
+
+        final String name = provider.getDimensionName();
+        return name == null ? "" : name;
+    }
+
+    @Optional.Method(modid = Mods.ModIDs.GALACTICRAFT_CORE)
+    private static String getCelestialBodyName(WorldProvider provider) {
+        if (provider instanceof WorldProviderSpace space) {
+            final CelestialBody body = space.getCelestialBody();
+            return body == null ? null : body.getName();
+        }
+        return null;
     }
 }
