@@ -8,13 +8,23 @@ package com.sinthoras.visualprospecting.database;
  */
 public enum VeinSource {
 
-    UNKNOWN,
-    GENERATED,
-    RESCAN,
-    API;
-    // Add new values here not anywhere else
+    UNKNOWN(0),
+    GENERATED(3),
+    RESCAN(1),
+    API(2);
+    // Add new values here not anywhere else. Arg is trust hierarchy for overwriting.
+    // Trust order: GENERATED > API > RESCAN > UNKNOWN
 
     private static final VeinSource[] VALUES = values();
+    private final int trustLevel;
+
+    VeinSource(int trustLevel) {
+        this.trustLevel = trustLevel;
+    }
+
+    public boolean canOverwrite(VeinSource existing) {
+        return this.trustLevel >= existing.trustLevel;
+    }
 
     public static VeinSource fromByte(byte ordinal) {
         if (ordinal >= 0 && ordinal < VALUES.length) {
