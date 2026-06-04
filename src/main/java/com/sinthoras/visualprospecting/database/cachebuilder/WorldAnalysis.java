@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.VeinSource;
+import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -55,8 +56,19 @@ public class WorldAnalysis {
 
         AnalysisProgressTracker.setNumberOfDimensions(dimensionIds.size());
         for (int dimensionId : dimensionIds) {
-            final Collection<File> regionFiles = getRegionFilesForDim(dimensionId);
             final DimensionAnalysis dimension = new DimensionAnalysis(dimensionId);
+
+            // Skip dimensions in with no known GT OreMixes
+            if (!VeinTypeCaching.hasVeinsInDimension(dimension.dimensionName)) {
+                VP.LOG.info(
+                        "Skipping dimensionId={} name=\"{}\" - no ore veins generate in this dimension.",
+                        dimensionId,
+                        dimension.dimensionName);
+                AnalysisProgressTracker.dimensionProcessed();
+                continue;
+            }
+
+            final Collection<File> regionFiles = getRegionFilesForDim(dimensionId);
             dimension.processMinecraftWorld(regionFiles);
             AnalysisProgressTracker.dimensionProcessed();
         }

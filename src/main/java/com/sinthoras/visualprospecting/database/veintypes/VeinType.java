@@ -77,6 +77,10 @@ public class VeinType {
                 && foundOres.containsAll(oresAsSet);
     }
 
+    public List<String> getAllowedDimensions() {
+        return allowedDims;
+    }
+
     public boolean canOverlapIntoNeighborOreChunk() {
         return blockSize > 24;
     }

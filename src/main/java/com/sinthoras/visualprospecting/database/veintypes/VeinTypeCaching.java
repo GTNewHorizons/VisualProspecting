@@ -1,7 +1,5 @@
 package com.sinthoras.visualprospecting.database.veintypes;
 
-import static com.sinthoras.visualprospecting.Utils.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,10 +15,15 @@ import com.sinthoras.visualprospecting.Tags;
 import gregtech.api.enums.OreMixes;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class VeinTypeCaching {
 
     private static final Object2ObjectMap<String, VeinType> veinTypes = new Object2ObjectOpenHashMap<>();
+
+    // Dimensions without registered OreMixes are not expected to match anything
+    private static final ObjectSet<String> dimensionsWithVeins = new ObjectOpenHashSet<>();
 
     public static void init() {
         veinTypes.put(Tags.ORE_MIX_NONE_NAME, VeinType.NO_VEIN);
@@ -28,6 +31,16 @@ public class VeinTypeCaching {
         for (OreMixes mix : OreMixes.values()) {
             veinTypes.put(mix.oreMixBuilder.oreMixName, new VeinType(mix.oreMixBuilder));
         }
+
+        dimensionsWithVeins.clear();
+        for (VeinType veinType : veinTypes.values()) {
+            if (veinType == VeinType.NO_VEIN) continue;
+            dimensionsWithVeins.addAll(veinType.getAllowedDimensions());
+        }
+    }
+
+    public static boolean hasVeinsInDimension(String dimensionName) {
+        return dimensionsWithVeins.contains(dimensionName);
     }
 
     public static @NotNull VeinType getVeinType(String veinTypeName) {
