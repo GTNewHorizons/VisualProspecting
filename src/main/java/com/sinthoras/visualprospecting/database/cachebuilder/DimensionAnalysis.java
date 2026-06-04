@@ -144,6 +144,12 @@ public class DimensionAnalysis {
                         if (chunkX != Utils.mapToCenterOreChunkCoord(chunkX)) continue;
                         if (chunkZ != Utils.mapToCenterOreChunkCoord(chunkZ)) continue;
 
+                        // Skip chunks already cached with higher trustLevel than VeinSource.RESCAN
+                        if (!VeinSource.RESCAN.canOverwrite(
+                                ServerCache.instance.getOreVein(dimensionId, chunkX, chunkZ).getSource())) {
+                            continue;
+                        }
+
                         NBTTagCompound chunk = region.getChunk(localChunkX, localChunkZ);
 
                         if (chunk == null) continue;
