@@ -33,7 +33,7 @@ public class OreVeinPosition {
         this.chunkZ = Utils.mapToCenterOreChunkCoord(chunkZ);
         this.veinType = veinType;
         this.depleted = depleted;
-        this.source = (byte) source.ordinal();
+        this.source = source.toByte();
     }
 
     public int getBlockX() {
