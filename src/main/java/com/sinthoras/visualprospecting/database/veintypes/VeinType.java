@@ -11,6 +11,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.google.common.collect.ImmutableList;
 import com.sinthoras.visualprospecting.Tags;
 
+import galacticgreg.api.enums.DimensionDef.DimNames;
 import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.OreMixBuilder;
 
@@ -61,6 +62,14 @@ public class VeinType {
         minBlockY = Math.max(0, oreMix.minY - 6);
         maxBlockY = Math.min(255, oreMix.maxY - 6);
         allowedDims.addAll(oreMix.dimsEnabled);
+
+        // Fuse entries for "The End" and "EndAsteroid" since they are both about same dimension.
+        // World gen swap which one is used around 16 chunks from central point.
+        final boolean inEnd = allowedDims.contains(DimNames.THE_END);
+        final boolean inEndAsteroid = allowedDims.contains(DimNames.ENDASTEROID);
+        if (inEnd != inEndAsteroid) {
+            allowedDims.add(inEnd ? DimNames.ENDASTEROID : DimNames.THE_END);
+        }
     }
 
     public boolean containsAllFoundOres(Collection<IOreMaterial> foundOres, String dimName, IOreMaterial specific,
