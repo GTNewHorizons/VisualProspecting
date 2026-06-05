@@ -81,7 +81,7 @@ public class WorldAnalysis {
     public IntSet getDimensionIds() throws IOException {
         IntSet dimensionIds = new IntOpenHashSet();
         dimensionIds.addAll(Arrays.asList(DimensionManager.getIDs()));
-        try (Stream<Path> files = Files.walk(worldFolder.toPath(), 1)) {
+        try (Stream<Path> files = Files.list(worldFolder.toPath())) {
             files.filter(Files::isDirectory).map(path -> path.getFileName().toString())
                     .filter(path -> path.startsWith("DIM")).map(path -> path.substring(3)).forEach(dim -> {
                         try {
@@ -98,8 +98,8 @@ public class WorldAnalysis {
         if (world != null) {
             dimRegionDir = new File(world.getChunkSaveLocation(), "region");
         } else {
-            final String subfolder = dimensionId == 0 ? "" : "/DIM" + dimensionId;
-            dimRegionDir = new File(worldFolder, subfolder + "/region");
+            final File dimFolder = dimensionId == 0 ? worldFolder : new File(worldFolder, "DIM" + dimensionId);
+            dimRegionDir = new File(dimFolder, "region");
         }
 
         if (dimRegionDir.exists()) {

@@ -27,6 +27,8 @@ import micdoodle8.mods.galacticraft.api.prefab.world.gen.WorldProviderSpace;
 
 public class DimensionAnalysis {
 
+    private static final Pattern REGION_FILE_NAME = Pattern.compile("^r\\.-?\\d+\\.-?\\d+\\.mca$");
+
     public final int dimensionId;
     public final String dimensionName;
 
@@ -132,7 +134,7 @@ public class DimensionAnalysis {
 
     private void executeForEachGeneratedOreChunk(File regionFile, IChunkHandler chunkHandler) {
         try {
-            if (!Pattern.matches("^r\\.-?\\d+\\.-?\\d+\\.mca$", regionFile.getName())) {
+            if (!REGION_FILE_NAME.matcher(regionFile.getName()).matches()) {
                 VP.warn("Invalid region file found! " + regionFile.getCanonicalPath() + " continuing");
                 return;
             }

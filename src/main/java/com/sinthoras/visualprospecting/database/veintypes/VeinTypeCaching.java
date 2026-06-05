@@ -2,6 +2,7 @@ package com.sinthoras.visualprospecting.database.veintypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -13,10 +14,13 @@ import org.jetbrains.annotations.Nullable;
 import com.sinthoras.visualprospecting.Tags;
 
 import gregtech.api.enums.OreMixes;
+import gregtech.api.interfaces.IOreMaterial;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
 public class VeinTypeCaching {
 
@@ -24,6 +28,9 @@ public class VeinTypeCaching {
 
     // Dimensions without registered OreMixes are not expected to match anything
     private static final ObjectSet<String> dimensionsWithVeins = new ObjectOpenHashSet<>();
+
+    // VeinTypes indexed by primary/secondary Ore in OreMix. For faster matching
+    private static final Reference2ObjectMap<IOreMaterial, List<VeinType>> veinTypesByPrimaryOrSecondary = new Reference2ObjectOpenHashMap<>();
 
     public static void init() {
         veinTypes.put(Tags.ORE_MIX_NONE_NAME, VeinType.NO_VEIN);
@@ -33,10 +40,25 @@ public class VeinTypeCaching {
         }
 
         dimensionsWithVeins.clear();
+        veinTypesByPrimaryOrSecondary.clear();
         for (VeinType veinType : veinTypes.values()) {
             if (veinType == VeinType.NO_VEIN) continue;
             dimensionsWithVeins.addAll(veinType.getAllowedDimensions());
+            indexByOre(veinType.primaryOre, veinType);
+            if (veinType.secondaryOre != veinType.primaryOre) {
+                indexByOre(veinType.secondaryOre, veinType);
+            }
         }
+    }
+
+    private static void indexByOre(IOreMaterial ore, VeinType veinType) {
+        if (ore == null) return;
+        List<VeinType> matchingVeinTypes = veinTypesByPrimaryOrSecondary.get(ore);
+        if (matchingVeinTypes == null) {
+            matchingVeinTypes = new ArrayList<>();
+            veinTypesByPrimaryOrSecondary.put(ore, matchingVeinTypes);
+        }
+        matchingVeinTypes.add(veinType);
     }
 
     public static boolean hasVeinsInDimension(String dimensionName) {
@@ -49,6 +71,11 @@ public class VeinTypeCaching {
 
     public static Collection<VeinType> getVeinTypes() {
         return veinTypes.values();
+    }
+
+    public static List<VeinType> getVeinTypesForOre(IOreMaterial dominantOre) {
+        final List<VeinType> matchingVeinTypes = veinTypesByPrimaryOrSecondary.get(dominantOre);
+        return matchingVeinTypes == null ? Collections.emptyList() : matchingVeinTypes;
     }
 
     public static void recalculateSearch(@Nullable Pattern filterPattern) {

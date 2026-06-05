@@ -1,9 +1,5 @@
 package com.sinthoras.visualprospecting.database.cachebuilder;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
@@ -35,24 +31,23 @@ public class ChunkAnalysis {
             }
         });
 
-        // spotless:off
-        var byCount = oreCounts.reference2IntEntrySet()
-            .stream()
-            .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-            .collect(Collectors.toList());
-        // spotless:on
-
-        if (!byCount.isEmpty()) mostCommonOre = byCount.get(0).getKey();
+        int highestOreCount = -1;
+        for (var entry : oreCounts.reference2IntEntrySet()) {
+            if (entry.getIntValue() > highestOreCount) {
+                highestOreCount = entry.getIntValue();
+                mostCommonOre = entry.getKey();
+            }
+        }
     }
 
     public boolean matchesSingleVein() {
         if (oreCounts.isEmpty()) return true;
         if (oreCounts.size() > 4) return false;
-        // spotless:off
-        VeinTypeCaching.getVeinTypes().stream()
-                .filter(vein -> vein.containsAllFoundOres(oreCounts.keySet(), dimName, mostCommonOre, minVeinBlockY))
-                .forEach(matchedVeins::add);
-        // spotless:on
+        for (VeinType vein : VeinTypeCaching.getVeinTypesForOre(mostCommonOre)) {
+            if (vein.containsAllFoundOres(oreCounts.keySet(), dimName, mostCommonOre, minVeinBlockY)) {
+                matchedVeins.add(vein);
+            }
+        }
         return matchedVeins.size() == 1;
     }
 

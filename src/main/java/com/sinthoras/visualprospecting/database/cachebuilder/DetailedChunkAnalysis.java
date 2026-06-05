@@ -1,9 +1,7 @@
 package com.sinthoras.visualprospecting.database.cachebuilder;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -27,6 +25,10 @@ public class DetailedChunkAnalysis {
     private final Reference2IntOpenHashMap<IOreMaterial>[] oresPerY = new Reference2IntOpenHashMap[VP.minecraftWorldHeight];
     private final String dimName;
 
+    // Surrounding ore-chunk neighbours, to resolve overlap
+    private static final int[][] NEIGHBOR_OFFSETS = { { -3, 3 }, { 0, 3 }, { 3, 3 }, { 3, 0 }, { 3, -3 }, { 0, -3 },
+            { -3, -3 }, { -3, 0 } };
+
     public DetailedChunkAnalysis(int dimensionId, String dimName, int chunkX, int chunkZ) {
         this.dimensionId = dimensionId;
         this.chunkX = chunkX;
@@ -45,56 +47,18 @@ public class DetailedChunkAnalysis {
     }
 
     public void cleanUpWithNeighbors(final Map<Long, Integer> veinChunkY) {
-        final OreVeinPosition[] neighbors = new OreVeinPosition[] {
-                ServerCache.instance.getOreVein(dimensionId, chunkX - 3, chunkZ + 3),
-                ServerCache.instance.getOreVein(dimensionId, chunkX, chunkZ + 3),
-                ServerCache.instance.getOreVein(dimensionId, chunkX + 3, chunkZ + 3),
-                ServerCache.instance.getOreVein(dimensionId, chunkX + 3, chunkZ),
-                ServerCache.instance.getOreVein(dimensionId, chunkX + 3, chunkZ - 3),
-                ServerCache.instance.getOreVein(dimensionId, chunkX, chunkZ - 3),
-                ServerCache.instance.getOreVein(dimensionId, chunkX - 3, chunkZ - 3),
-                ServerCache.instance.getOreVein(dimensionId, chunkX - 3, chunkZ) };
-        final int[] neighborVeinBlockY = new int[] {
-                veinChunkY.getOrDefault(
-                        Utils.chunkCoordsToKey(
-                                Utils.mapToCenterOreChunkCoord(chunkX - 3),
-                                Utils.mapToCenterOreChunkCoord(chunkZ + 3)),
-                        0),
-                veinChunkY.getOrDefault(
-                        Utils.chunkCoordsToKey(
-                                Utils.mapToCenterOreChunkCoord(chunkX),
-                                Utils.mapToCenterOreChunkCoord(chunkZ + 3)),
-                        0),
-                veinChunkY.getOrDefault(
-                        Utils.chunkCoordsToKey(
-                                Utils.mapToCenterOreChunkCoord(chunkX + 3),
-                                Utils.mapToCenterOreChunkCoord(chunkZ + 3)),
-                        0),
-                veinChunkY.getOrDefault(
-                        Utils.chunkCoordsToKey(
-                                Utils.mapToCenterOreChunkCoord(chunkX + 3),
-                                Utils.mapToCenterOreChunkCoord(chunkZ)),
-                        0),
-                veinChunkY.getOrDefault(
-                        Utils.chunkCoordsToKey(
-                                Utils.mapToCenterOreChunkCoord(chunkX + 3),
-                                Utils.mapToCenterOreChunkCoord(chunkZ - 3)),
-                        0),
-                veinChunkY.getOrDefault(
-                        Utils.chunkCoordsToKey(
-                                Utils.mapToCenterOreChunkCoord(chunkX),
-                                Utils.mapToCenterOreChunkCoord(chunkZ - 3)),
-                        0),
-                veinChunkY.getOrDefault(
-                        Utils.chunkCoordsToKey(
-                                Utils.mapToCenterOreChunkCoord(chunkX - 3),
-                                Utils.mapToCenterOreChunkCoord(chunkZ - 3)),
-                        0),
-                veinChunkY.getOrDefault(
-                        Utils.chunkCoordsToKey(
-                                Utils.mapToCenterOreChunkCoord(chunkX - 3),
-                                Utils.mapToCenterOreChunkCoord(chunkZ)),
-                        0) };
+        final OreVeinPosition[] neighbors = new OreVeinPosition[NEIGHBOR_OFFSETS.length];
+        final int[] neighborVeinBlockY = new int[NEIGHBOR_OFFSETS.length];
+        for (int neighborId = 0; neighborId < NEIGHBOR_OFFSETS.length; neighborId++) {
+            final int neighborChunkX = chunkX + NEIGHBOR_OFFSETS[neighborId][0];
+            final int neighborChunkZ = chunkZ + NEIGHBOR_OFFSETS[neighborId][1];
+            neighbors[neighborId] = ServerCache.instance.getOreVein(dimensionId, neighborChunkX, neighborChunkZ);
+            neighborVeinBlockY[neighborId] = veinChunkY.getOrDefault(
+                    Utils.chunkCoordsToKey(
+                            Utils.mapToCenterOreChunkCoord(neighborChunkX),
+                            Utils.mapToCenterOreChunkCoord(neighborChunkZ)),
+                    0);
+        }
 
         // Remove all generated ores from neighbors. They could also be generated in the same chunk,
         // but that case is rare and therefore, neglected
@@ -142,18 +106,19 @@ public class DetailedChunkAnalysis {
 
         if (allOres.isEmpty()) return VeinType.NO_VEIN;
 
-        // spotless:off
-        final Optional<IOreMaterial> dominantOre = allOres.reference2IntEntrySet()
-            .stream()
-            .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-            .map(Map.Entry::getKey)
-            .findFirst();
-        // spotless:on
+        IOreMaterial dominantOre = null;
+        int highestOreCount = -1;
+        for (var entry : allOres.reference2IntEntrySet()) {
+            if (entry.getIntValue() > highestOreCount) {
+                highestOreCount = entry.getIntValue();
+                dominantOre = entry.getKey();
+            }
+        }
 
-        if (!dominantOre.isPresent()) return VeinType.NO_VEIN;
+        if (dominantOre == null) return VeinType.NO_VEIN;
 
-        for (VeinType veinType : VeinTypeCaching.getVeinTypes()) {
-            if (veinType.matchesWithSpecificPrimaryOrSecondary(allOres.keySet(), dimName, dominantOre.get())) {
+        for (VeinType veinType : VeinTypeCaching.getVeinTypesForOre(dominantOre)) {
+            if (veinType.matchesWithSpecificPrimaryOrSecondary(allOres.keySet(), dimName, dominantOre)) {
                 matchedVeins.add(veinType);
             }
         }
