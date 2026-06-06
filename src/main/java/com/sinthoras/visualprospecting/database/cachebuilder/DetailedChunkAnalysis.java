@@ -1,7 +1,5 @@
 package com.sinthoras.visualprospecting.database.cachebuilder;
 
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -13,6 +11,9 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
 import gregtech.api.interfaces.IOreMaterial;
+import it.unimi.dsi.fastutil.longs.Long2IntMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 
 // Slower, but more sophisticated approach to identify overlapping veins
@@ -24,6 +25,7 @@ public class DetailedChunkAnalysis {
     // For each height we count how often a ore (short) has occured
     private final Reference2IntOpenHashMap<IOreMaterial>[] oresPerY = new Reference2IntOpenHashMap[VP.minecraftWorldHeight];
     private final String dimName;
+    private VeinType resolvedVeinType = VeinType.NO_VEIN;
 
     // Surrounding ore-chunk neighbours, to resolve overlap
     private static final int[][] NEIGHBOR_OFFSETS = { { -3, 3 }, { 0, 3 }, { 3, 3 }, { 3, 0 }, { 3, -3 }, { 0, -3 },
@@ -46,24 +48,30 @@ public class DetailedChunkAnalysis {
         });
     }
 
-    public void cleanUpWithNeighbors(final Map<Long, Integer> veinChunkY) {
-        final OreVeinPosition[] neighbors = new OreVeinPosition[NEIGHBOR_OFFSETS.length];
-        final int[] neighborVeinBlockY = new int[NEIGHBOR_OFFSETS.length];
-        for (int neighborId = 0; neighborId < NEIGHBOR_OFFSETS.length; neighborId++) {
-            final int neighborChunkX = chunkX + NEIGHBOR_OFFSETS[neighborId][0];
-            final int neighborChunkZ = chunkZ + NEIGHBOR_OFFSETS[neighborId][1];
-            neighbors[neighborId] = ServerCache.instance.getOreVein(dimensionId, neighborChunkX, neighborChunkZ);
-            neighborVeinBlockY[neighborId] = veinChunkY.getOrDefault(
-                    Utils.chunkCoordsToKey(
-                            Utils.mapToCenterOreChunkCoord(neighborChunkX),
-                            Utils.mapToCenterOreChunkCoord(neighborChunkZ)),
-                    0);
-        }
+    // Resolve chunk vein against its neighbours and cache the result.
+    public void resolve(final Long2IntMap veinChunkY) {
+        cleanUpWithNeighbors(veinChunkY);
+        resolvedVeinType = getMatchedVein();
+    }
 
-        // Remove all generated ores from neighbors. They could also be generated in the same chunk,
-        // but that case is rare and therefore, neglected
-        for (int neighborId = 0; neighborId < neighbors.length; neighborId++) {
-            final OreVeinPosition neighbor = neighbors[neighborId];
+    public VeinType getResolvedVeinType() {
+        return resolvedVeinType;
+    }
+
+    private void cleanUpWithNeighbors(final Long2IntMap veinChunkY) {
+        // Remove ores that spilled over from neighbouring veins.
+        for (int[] neighborOffset : NEIGHBOR_OFFSETS) {
+            final int neighborChunkX = chunkX + neighborOffset[0];
+            final int neighborChunkZ = chunkZ + neighborOffset[1];
+
+            final long neighborKey = Utils.chunkCoordsToKey(
+                    Utils.mapToCenterOreChunkCoord(neighborChunkX),
+                    Utils.mapToCenterOreChunkCoord(neighborChunkZ));
+            if (!veinChunkY.containsKey(neighborKey)) continue;
+            final int neighborVeinBlockY = veinChunkY.get(neighborKey);
+
+            final OreVeinPosition neighbor = ServerCache.instance
+                    .getOreVein(dimensionId, neighborChunkX, neighborChunkZ);
             if (neighbor.veinType == VeinType.NO_VEIN) continue;
 
             final boolean atCoordinateAxis = Math.abs(neighbor.chunkX - chunkX) < 3
@@ -71,28 +79,23 @@ public class DetailedChunkAnalysis {
             final boolean canOverlap = atCoordinateAxis
                     ? neighbor.veinType.canOverlapIntoNeighborOreChunkAtCoordinateAxis()
                     : neighbor.veinType.canOverlapIntoNeighborOreChunk();
-            if (canOverlap) {
-                final int veinBlockY = neighborVeinBlockY[neighborId];
+            if (!canOverlap) continue;
 
-                for (int layerBlockY = 0; layerBlockY < VeinType.veinHeight; layerBlockY++) {
-                    final int blockY = veinBlockY + layerBlockY;
+            for (int layerBlockY = 0; layerBlockY < VeinType.veinHeight; layerBlockY++) {
+                final int blockY = neighborVeinBlockY + layerBlockY;
+                if (blockY > 255) break;
 
-                    if (blockY > 255) {
-                        break;
-                    }
-
-                    if (oresPerY[blockY] != null) {
-                        for (IOreMaterial ore : neighbor.veinType.getOresAtLayer(layerBlockY)) {
-                            oresPerY[blockY].removeInt(ore);
-                        }
+                if (oresPerY[blockY] != null) {
+                    for (IOreMaterial ore : neighbor.veinType.getOresAtLayer(layerBlockY)) {
+                        oresPerY[blockY].removeInt(ore);
                     }
                 }
             }
         }
     }
 
-    public VeinType getMatchedVein() {
-        final Set<VeinType> matchedVeins = new HashSet<>();
+    private VeinType getMatchedVein() {
+        final ObjectSet<VeinType> matchedVeins = new ObjectOpenHashSet<>();
 
         final Reference2IntOpenHashMap<IOreMaterial> allOres = new Reference2IntOpenHashMap<>();
 
@@ -125,16 +128,27 @@ public class DetailedChunkAnalysis {
 
         if (matchedVeins.size() == 1) {
             return matchedVeins.iterator().next();
-        } else if (matchedVeins.size() >= 2) {
+        }
+        if (matchedVeins.size() >= 2) {
             matchedVeins.removeIf(
                     veinType -> IntStream.range(veinType.minBlockY, veinType.maxBlockY)
                             .noneMatch(blockY -> isOreVeinGeneratedAtHeight(veinType, blockY)));
+            return matchedVeins.size() == 1 ? matchedVeins.iterator().next() : VeinType.NO_VEIN;
+        }
+        return matchIgnoringSporadic(allOres.keySet(), dominantOre);
+    }
 
-            if (matchedVeins.size() == 1) {
-                return matchedVeins.iterator().next();
+    private VeinType matchIgnoringSporadic(Set<IOreMaterial> foundOres, IOreMaterial dominantOre) {
+        VeinType onlyMatch = VeinType.NO_VEIN;
+        for (VeinType veinType : VeinTypeCaching.getVeinTypesForOre(dominantOre)) {
+            if (veinType.matchesIgnoringSporadic(foundOres, dimName, dominantOre)) {
+                if (onlyMatch != VeinType.NO_VEIN) {
+                    return VeinType.NO_VEIN;
+                }
+                onlyMatch = veinType;
             }
         }
-        return VeinType.NO_VEIN;
+        return onlyMatch;
     }
 
     private boolean isOreVeinGeneratedAtHeight(VeinType veinType, int blockY) {

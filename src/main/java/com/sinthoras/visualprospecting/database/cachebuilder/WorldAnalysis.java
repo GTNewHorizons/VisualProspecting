@@ -28,7 +28,8 @@ import it.unimi.dsi.fastutil.ints.IntSets;
 
 public class WorldAnalysis {
 
-    private static final EnumSet<VeinSource> RESCAN_PROTECTED = EnumSet.of(VeinSource.GENERATED, VeinSource.API);
+    private static final EnumSet<VeinSource> RESCAN_PROTECTED = EnumSet
+            .of(VeinSource.GENERATED, VeinSource.API, VeinSource.UNKNOWN);
 
     private final File worldFolder;
 
@@ -38,7 +39,7 @@ public class WorldAnalysis {
 
     public void cacheOverworldSpawnVeins(ChunkCoordinates spawn) throws IOException, DataFormatException {
 
-        VP.info("Starting to parse world save to cache GT vein locations near spawn. This might take some time...");
+        VP.LOG.info("Starting to parse world save to cache GT vein locations near spawn. This might take some time...");
         ServerCache.instance.resetSpawnChunks(spawn, 0, RESCAN_PROTECTED);
 
         cacheVeins(IntSets.singleton(0));
@@ -46,7 +47,7 @@ public class WorldAnalysis {
 
     public void cacheVeins() throws IOException, DataFormatException {
 
-        VP.info("Starting to parse world save to cache GT vein locations. This might take some time...");
+        VP.LOG.info("Starting to parse world save to cache GT vein locations. This might take some time...");
         ServerCache.instance.resetExcept(RESCAN_PROTECTED);
 
         cacheVeins(getDimensionIds());
@@ -74,7 +75,7 @@ public class WorldAnalysis {
         }
 
         AnalysisProgressTracker.processingFinished();
-        VP.info("Saving ore vein cache...");
+        VP.LOG.info("Saving ore vein cache...");
         ServerCache.instance.saveVeinCache();
     }
 
