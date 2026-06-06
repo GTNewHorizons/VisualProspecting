@@ -12,6 +12,7 @@ import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.hooks.ProspectingNotificationEvent;
+import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
@@ -50,7 +51,7 @@ public class VoxelMapEventHandler {
         UndergroundFluidPosition pos = event.getPosition();
         int x = Utils.coordChunkToBlock(pos.chunkX);
         int z = Utils.coordChunkToBlock(pos.chunkZ);
-        int color = pos.fluid.getColor();
+        int color = UndergroundFluidLocation.resolveColor(pos.fluid);
         TreeSet<Integer> dim = new TreeSet<>();
         dim.add(pos.dimensionId);
 
