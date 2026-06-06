@@ -16,6 +16,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.DimensionManager;
 
+import com.github.bsideup.jabel.Desugar;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
@@ -205,15 +206,8 @@ public class DimensionAnalysis {
         return regionFiles.stream().mapToLong(File::length).sum() >> 20;
     }
 
-    private static final class RegionRowResult {
-
-        private final Collection<DetailedChunkAnalysis> heldAmbiguousChunks;
-        private final List<File> rowRegionFiles;
-
-        private RegionRowResult(Collection<DetailedChunkAnalysis> heldAmbiguousChunks, List<File> rowRegionFiles) {
-            this.heldAmbiguousChunks = heldAmbiguousChunks;
-            this.rowRegionFiles = rowRegionFiles;
-        }
+    @Desugar
+    private record RegionRowResult(Collection<DetailedChunkAnalysis> heldAmbiguousChunks, List<File> rowRegionFiles) {
 
         static RegionRowResult held(Collection<DetailedChunkAnalysis> heldAmbiguousChunks) {
             return new RegionRowResult(heldAmbiguousChunks, null);
@@ -224,19 +218,9 @@ public class DimensionAnalysis {
         }
     }
 
-    private static final class PendingOreVein {
+    @Desugar
+    private record PendingOreVein(int chunkX, int chunkZ, VeinType veinType, int veinBlockY) {
 
-        final int chunkX;
-        final int chunkZ;
-        final VeinType veinType;
-        final int veinBlockY;
-
-        PendingOreVein(int chunkX, int chunkZ, VeinType veinType, int veinBlockY) {
-            this.chunkX = chunkX;
-            this.chunkZ = chunkZ;
-            this.veinType = veinType;
-            this.veinBlockY = veinBlockY;
-        }
     }
 
     private void executeForEachGeneratedOreChunk(File regionFile, IChunkHandler chunkHandler) {
