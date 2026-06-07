@@ -20,7 +20,7 @@ public class Config {
         public static final int uploadBandwidthBytes = 2000000;
         public static final int maxTransferCacheSizeMB = 50;
         public static final boolean enableVoxelMapWaypointsByDefault = false;
-        public static final int maxDimensionSizeMBForFastScanning = 10000;
+        public static final int maxRegionRowFileMBForInMemoryScan = 10000;
     }
 
     private static class Categories {
@@ -43,7 +43,7 @@ public class Config {
     public static int uploadPacketsPerSecond = uploadBandwidthBytes / VP.uploadSizePerPacketInBytes;
     public static int maxTransferCacheSizeMB = Defaults.maxTransferCacheSizeMB;
     public static boolean enableVoxelMapWaypointsByDefault = Defaults.enableVoxelMapWaypointsByDefault;
-    public static int maxDimensionSizeMBForFastScanning = Defaults.maxDimensionSizeMBForFastScanning;
+    public static int maxRegionRowFileMBForInMemoryScan = Defaults.maxRegionRowFileMBForInMemoryScan;
 
     public static void syncronizeConfiguration(File configFile) {
         Configuration configuration = new Configuration(configFile);
@@ -134,14 +134,13 @@ public class Config {
                 "[CLIENT / VoxelMap] Enable waypoints added by prospecting GT ore veins or underground fluids by default");
         enableVoxelMapWaypointsByDefault = enableVoxelMapWaypointsByDefaultProperty.getBoolean();
 
-        Property maxDimensionSizeMBForFastScanningProperty = configuration.get(
+        Property maxRegionRowFileMBForInMemoryScanProperty = configuration.get(
                 Categories.caching,
-                "maxDimensionSizeMBForFastScanning",
-                Defaults.maxDimensionSizeMBForFastScanning,
-                "[Client + Server] Define the maximum size of a "
-                        + "dimension in MB that can be processed in a single pass. Reduce this number if you run into "
-                        + "memory issues during the initial world scan (OutOfMemoryException).");
-        maxDimensionSizeMBForFastScanning = maxDimensionSizeMBForFastScanningProperty.getInt();
+                "maxRegionRowFileMBForInMemoryScan",
+                Defaults.maxRegionRowFileMBForInMemoryScan,
+                "[CLIENT + SERVER] Limit total region file size the recache vein job can keep open at once. "
+                        + "This is about size on disk and not actual RAM usage. Reduce this if you get a OutOfMemoryException during recache.");
+        maxRegionRowFileMBForInMemoryScan = maxRegionRowFileMBForInMemoryScanProperty.getInt();
 
         if (configuration.hasChanged()) {
             configuration.save();

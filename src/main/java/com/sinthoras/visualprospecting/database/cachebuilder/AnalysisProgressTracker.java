@@ -31,17 +31,9 @@ public class AnalysisProgressTracker {
         updateLog();
     }
 
-    public static synchronized void announceFastDimension(int dimensionId) {
-        final String message = "Processing dimension with id " + dimensionId + " with fast scanning.";
-        VP.info(message);
-        if (Utils.isLogicalClient()) {
-            ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message);
-        }
-    }
-
-    public static synchronized void announceSlowDimension(int dimensionId) {
-        final String message = "Processing dimension with id " + dimensionId + " with slow (safe) scanning.";
-        VP.info(message);
+    public static synchronized void announceDimension(int dimensionId) {
+        final String message = "Processing dimension with id " + dimensionId + ".";
+        VP.LOG.info(message);
         if (Utils.isLogicalClient()) {
             ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message);
         }
@@ -68,7 +60,7 @@ public class AnalysisProgressTracker {
                     + ")  "
                     + (numberOfRegionFiles == 0 ? 0 : ((regionFilesProcessed * 100) / numberOfRegionFiles))
                     + "%";
-            VP.info(message);
+            VP.LOG.info(message);
             if (Utils.isLogicalClient()) {
                 // Escape % for String.format
                 ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message + "%");
@@ -84,7 +76,7 @@ public class AnalysisProgressTracker {
         final String message = "Parsing complete! Thank you for your patience.  - Duration: "
                 + format.format(elapsedTimeMS / 1000)
                 + "sec";
-        VP.info(message);
+        VP.LOG.info(message);
         if (Utils.isLogicalClient()) {
             ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message);
         }
@@ -92,7 +84,7 @@ public class AnalysisProgressTracker {
 
     public static synchronized void notifyCorruptFile(File regionFile) {
         final String message = "Encountered corrupt/malformed/modified save file: " + regionFile;
-        VP.info(message);
+        VP.LOG.info(message);
         if (Utils.isLogicalClient()) {
             ((MinecraftServerAccessor) MinecraftServer.getServer()).setUserMessage(message);
         }

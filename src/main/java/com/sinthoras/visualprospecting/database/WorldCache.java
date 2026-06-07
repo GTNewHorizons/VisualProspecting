@@ -2,6 +2,7 @@ package com.sinthoras.visualprospecting.database;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -104,6 +105,15 @@ public abstract class WorldCache {
     }
 
     /**
+     * Remove ore-vein entries across all dimensions whose source is not in {@code protectedSources}.
+     */
+    public void resetExcept(EnumSet<VeinSource> protectedSources) {
+        for (DimensionCache dim : dimensions.values()) {
+            dim.clearOreVeinsExcept(protectedSources);
+        }
+    }
+
+    /**
      * Reset some chunks. Not all, and (usually) not none - but some. Input coords are in chunk coordinates, NOT block
      * coords.
      *
@@ -114,16 +124,26 @@ public abstract class WorldCache {
      * @param endZ   The Z coord of the ending chunk.
      */
     public void resetSome(int dimID, int startX, int startZ, int endX, int endZ) {
+        resetSome(dimID, startX, startZ, endX, endZ, EnumSet.noneOf(VeinSource.class));
+    }
 
+    /**
+     * Same as {@link #resetSome(int, int, int, int, int)} but preserves entries whose source is in
+     * {@code protectedSources}.
+     */
+    public void resetSome(int dimID, int startX, int startZ, int endX, int endZ, EnumSet<VeinSource> protectedSources) {
         DimensionCache dim = dimensions.get(dimID);
         if (dim != null) {
-            dim.clearOreVeins(startX, startZ, endX, endZ);
+            dim.clearOreVeins(startX, startZ, endX, endZ, protectedSources);
             isLoaded = false;
         }
     }
 
     public void resetSpawnChunks(ChunkCoordinates spawn, int dimID) {
+        resetSpawnChunks(spawn, dimID, EnumSet.noneOf(VeinSource.class));
+    }
 
+    public void resetSpawnChunks(ChunkCoordinates spawn, int dimID, EnumSet<VeinSource> protectedSources) {
         int spawnChunkX = Utils.coordBlockToChunk(spawn.posX);
         int spawnChunkZ = Utils.coordBlockToChunk(spawn.posZ);
 
@@ -133,7 +153,7 @@ public abstract class WorldCache {
         int endX = spawnChunkX + spawnChunksRadius;
         int endZ = spawnChunkZ + spawnChunksRadius;
 
-        resetSome(dimID, startX, startZ, endX, endZ);
+        resetSome(dimID, startX, startZ, endX, endZ, protectedSources);
     }
 
     protected DimensionCache.UpdateResult putOreVein(final OreVeinPosition oreVeinPosition) {
