@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.database;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -371,10 +372,23 @@ public class DimensionCache {
             markDirty();
             return UpdateResult.New;
         }
+
+        // Stop update if lower trusted VeinSource
+        if (!oreVeinPosition.getSource().canOverwrite(storedOreVeinPosition.getSource())) {
+            return UpdateResult.AlreadyKnown;
+        }
+
         if (storedOreVeinPosition.veinType != oreVeinPosition.veinType) {
             oreChunks.put(key, oreVeinPosition.joinDepletedState(storedOreVeinPosition));
             markDirty();
             return UpdateResult.New;
+        }
+
+        // If identical entry but "better" source we update it
+        if (storedOreVeinPosition.getSourceByte() != oreVeinPosition.getSourceByte()) {
+            oreChunks.put(key, oreVeinPosition.joinDepletedState(storedOreVeinPosition));
+            markDirty();
+            return UpdateResult.Updated;
         }
         return UpdateResult.AlreadyKnown;
     }
@@ -426,6 +440,14 @@ public class DimensionCache {
      * respective endChunks.
      */
     public void clearOreVeins(int startChunkX, int startChunkZ, int endChunkX, int endChunkZ) {
+        clearOreVeins(startChunkX, startChunkZ, endChunkX, endChunkZ, EnumSet.noneOf(VeinSource.class));
+    }
+
+    /**
+     * Reset selected veins within the area whose source is not in {@code protectedSources}.
+     */
+    public void clearOreVeins(int startChunkX, int startChunkZ, int endChunkX, int endChunkZ,
+            EnumSet<VeinSource> protectedSources) {
         // This method iterates for each chunk mapped. In many cases, it is probably faster to iterate over chunks in
         // the area to be cleared instead. i.e. if (chunksInClearArea < totalChunksMapped) {useAltIterator()}. If
         // someone calls this enough to make it a problem, they can add that.
@@ -433,8 +455,20 @@ public class DimensionCache {
             OreVeinPosition val = entry.getValue();
             final boolean withinX = val.chunkX >= startChunkX && val.chunkX <= endChunkX;
             final boolean withinZ = val.chunkZ >= startChunkZ && val.chunkZ <= endChunkZ;
-            return withinX && withinZ;
+            if (!withinX || !withinZ) return false;
+            return !protectedSources.contains(val.getSource());
         });
+        if (removedAny) {
+            markDirty();
+        }
+    }
+
+    /**
+     * Remove all ore veins from this dimension whose source is not in {@code protectedSources}.
+     */
+    public void clearOreVeinsExcept(EnumSet<VeinSource> protectedSources) {
+        boolean removedAny = oreChunks.long2ObjectEntrySet()
+                .removeIf(entry -> !protectedSources.contains(entry.getValue().getSource()));
         if (removedAny) {
             markDirty();
         }

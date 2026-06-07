@@ -2,7 +2,7 @@ package com.sinthoras.visualprospecting.database.veintypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,12 +11,15 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.google.common.collect.ImmutableList;
 import com.sinthoras.visualprospecting.Tags;
 
+import galacticgreg.api.enums.DimensionDef.DimNames;
 import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.OreMixBuilder;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 @ParametersAreNonnullByDefault
 public class VeinType {
 
+    // A vein spans 9 block layers in GT WorldgenGTOreLayer.
     public static final int veinHeight = 9;
 
     public final String name;
@@ -28,7 +31,9 @@ public class VeinType {
     public final IOreMaterial sporadicOre;
     public final int minBlockY;
     public final int maxBlockY;
-    private final HashSet<IOreMaterial> oresAsSet = new HashSet<IOreMaterial>();
+    private final ReferenceOpenHashSet<IOreMaterial> oresAsSet = new ReferenceOpenHashSet<>();
+    private final ReferenceOpenHashSet<IOreMaterial> nonSporadicOres = new ReferenceOpenHashSet<>();
+    private final List<List<IOreMaterial>> oresByLayer;
     private final List<String> allowedDims = new ArrayList<>();
     private boolean isHighlighted = true;
     private final String localizedName;
@@ -47,6 +52,7 @@ public class VeinType {
         this.inBetweenOre = null;
         this.sporadicOre = null;
         this.localizedName = this.name;
+        this.oresByLayer = buildOresByLayer();
     }
 
     public VeinType(OreMixBuilder oreMix) {
@@ -58,9 +64,21 @@ public class VeinType {
         oresAsSet.add(secondaryOre = oreMix.secondary);
         oresAsSet.add(inBetweenOre = oreMix.between);
         oresAsSet.add(sporadicOre = oreMix.sporadic);
+        nonSporadicOres.add(primaryOre);
+        nonSporadicOres.add(secondaryOre);
+        nonSporadicOres.add(inBetweenOre);
+        oresByLayer = buildOresByLayer();
         minBlockY = Math.max(0, oreMix.minY - 6);
         maxBlockY = Math.min(255, oreMix.maxY - 6);
         allowedDims.addAll(oreMix.dimsEnabled);
+
+        // Fuse entries for "The End" and "EndAsteroid" since they are both about same dimension.
+        // World gen swap which one is used around 16 chunks from central point.
+        final boolean inEnd = allowedDims.contains(DimNames.THE_END);
+        final boolean inEndAsteroid = allowedDims.contains(DimNames.ENDASTEROID);
+        if (inEnd != inEndAsteroid) {
+            allowedDims.add(inEnd ? DimNames.ENDASTEROID : DimNames.THE_END);
+        }
     }
 
     public boolean containsAllFoundOres(Collection<IOreMaterial> foundOres, String dimName, IOreMaterial specific,
@@ -75,6 +93,16 @@ public class VeinType {
         return (primaryOre == specific || secondaryOre == specific)
                 && (dimName.isEmpty() || allowedDims.contains(dimName))
                 && foundOres.containsAll(oresAsSet);
+    }
+
+    public boolean matchesIgnoringSporadic(Collection<IOreMaterial> foundOres, String dimName, IOreMaterial specific) {
+        return (primaryOre == specific || secondaryOre == specific)
+                && (dimName.isEmpty() || allowedDims.contains(dimName))
+                && foundOres.containsAll(nonSporadicOres);
+    }
+
+    public List<String> getAllowedDimensions() {
+        return allowedDims;
     }
 
     public boolean canOverlapIntoNeighborOreChunk() {
@@ -100,40 +128,44 @@ public class VeinType {
     }
 
     public List<IOreMaterial> getOresAtLayer(int layerBlockY) {
-        final List<IOreMaterial> result = new ArrayList<>();
-
-        switch (layerBlockY) {
-            case 0, 1, 2 -> {
-                result.add(secondaryOre);
-                result.add(sporadicOre);
-                return result;
-            }
-            case 3 -> {
-                result.add(secondaryOre);
-                result.add(inBetweenOre);
-                result.add(sporadicOre);
-                return result;
-            }
-            case 4 -> {
-                result.add(inBetweenOre);
-                result.add(sporadicOre);
-                return result;
-            }
-            case 5, 6 -> {
-                result.add(primaryOre);
-                result.add(inBetweenOre);
-                result.add(sporadicOre);
-                return result;
-            }
-            case 7, 8 -> {
-                result.add(primaryOre);
-                result.add(sporadicOre);
-                return result;
-            }
-            default -> {
-                return result;
-            }
+        if (layerBlockY < 0 || layerBlockY >= veinHeight) {
+            return Collections.emptyList();
         }
+        return oresByLayer.get(layerBlockY);
+    }
+
+    // Layer -> ores mirrors GT WorldgenGTOreLayer placement
+    private List<List<IOreMaterial>> buildOresByLayer() {
+        final List<List<IOreMaterial>> layers = new ArrayList<>(veinHeight);
+        for (int layer = 0; layer < veinHeight; layer++) {
+            final List<IOreMaterial> ores = new ArrayList<>(3);
+            switch (layer) {
+                case 0, 1, 2 -> {
+                    ores.add(secondaryOre);
+                    ores.add(sporadicOre);
+                }
+                case 3 -> {
+                    ores.add(secondaryOre);
+                    ores.add(inBetweenOre);
+                    ores.add(sporadicOre);
+                }
+                case 4 -> {
+                    ores.add(inBetweenOre);
+                    ores.add(sporadicOre);
+                }
+                case 5, 6 -> {
+                    ores.add(primaryOre);
+                    ores.add(inBetweenOre);
+                    ores.add(sporadicOre);
+                }
+                case 7, 8 -> {
+                    ores.add(primaryOre);
+                    ores.add(sporadicOre);
+                }
+            }
+            layers.add(ores);
+        }
+        return layers;
     }
 
     public boolean isHighlighted() {
