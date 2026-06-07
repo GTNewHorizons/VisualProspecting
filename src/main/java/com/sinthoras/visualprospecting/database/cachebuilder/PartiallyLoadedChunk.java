@@ -62,8 +62,7 @@ public class PartiallyLoadedChunk {
                 // bits 0x00F0 — "Data1High" nibble array (EndlessIDs extension)
                 // bits 0xFF00 — "Data2" byte array (EndlessIDs extension, 1 byte per block)
                 //
-                // "Add", "BlocksB2Hi", "BlocksB3", "Data1High", and "Data2" are all optional —
-                // absent arrays mean those bits are zero, preserving backwards compatibility.
+                // "Add", "BlocksB2Hi", "BlocksB3", "Data1High", and "Data2" are all optional
                 // Reference:
                 // https://github.com/GTMEGA/EndlessIDs/blob/master/src/main/java/com/falsepattern/endlessids/managers/BlockIDManager.java
                 // https://github.com/GTMEGA/EndlessIDs/blob/master/src/main/java/com/falsepattern/endlessids/managers/BlockMetaManager.java
@@ -126,9 +125,9 @@ public class PartiallyLoadedChunk {
      * optional and treated as all-zero when absent. A corrupt mandatory array zeroes the whole section.
      */
     private void loadEndlessIds(NBTTagCompound section, int chunkX, byte y, int chunkZ) {
-        ByteBuffer blockLo = loadOptionalArray(section, "Blocks", BLOCKS_PER_EBS, chunkX, y, chunkZ);
-        ByteBuffer metaLo = loadOptionalArray(section, "Data", NIBBLE_ARRAY_SIZE, chunkX, y, chunkZ);
-        if (blockLo == null || metaLo == null) {
+        ByteBuffer blockB1 = loadOptionalArray(section, "Blocks", BLOCKS_PER_EBS, chunkX, y, chunkZ);
+        ByteBuffer metaM1Lo = loadOptionalArray(section, "Data", NIBBLE_ARRAY_SIZE, chunkX, y, chunkZ);
+        if (blockB1 == null || metaM1Lo == null) {
             VP.LOG.error(
                     "Corrupt EndlessIDs section at X={}, Y={}, Z={}: missing or invalid mandatory Blocks/Data array",
                     chunkX,
@@ -139,27 +138,27 @@ public class PartiallyLoadedChunk {
             return;
         }
 
-        ByteBuffer blockMid = loadOptionalArray(section, "Add", NIBBLE_ARRAY_SIZE, chunkX, y, chunkZ);
-        ByteBuffer blockHi = loadOptionalArray(section, "BlocksB2Hi", NIBBLE_ARRAY_SIZE, chunkX, y, chunkZ);
+        ByteBuffer blockB2Lo = loadOptionalArray(section, "Add", NIBBLE_ARRAY_SIZE, chunkX, y, chunkZ);
+        ByteBuffer blockB2Hi = loadOptionalArray(section, "BlocksB2Hi", NIBBLE_ARRAY_SIZE, chunkX, y, chunkZ);
         ByteBuffer blockB3 = loadOptionalArray(section, "BlocksB3", BLOCKS_PER_EBS, chunkX, y, chunkZ);
 
         this.blocks[y] = i -> {
             int nibbleShift = (i & 1) * 4;
-            int id = blockLo.get(i) & 0xFF;
-            if (blockMid != null) id |= ((blockMid.get(i >> 1) >> nibbleShift) & 0xF) << 8;
-            if (blockHi != null) id |= ((blockHi.get(i >> 1) >> nibbleShift) & 0xF) << 12;
+            int id = blockB1.get(i) & 0xFF;
+            if (blockB2Lo != null) id |= ((blockB2Lo.get(i >> 1) >> nibbleShift) & 0xF) << 8;
+            if (blockB2Hi != null) id |= ((blockB2Hi.get(i >> 1) >> nibbleShift) & 0xF) << 12;
             if (blockB3 != null) id |= (blockB3.get(i) & 0xFF) << 16;
             return id;
         };
 
-        ByteBuffer metaMid = loadOptionalArray(section, "Data1High", NIBBLE_ARRAY_SIZE, chunkX, y, chunkZ);
-        ByteBuffer metaHi = loadOptionalArray(section, "Data2", BLOCKS_PER_EBS, chunkX, y, chunkZ);
+        ByteBuffer metaM1Hi = loadOptionalArray(section, "Data1High", NIBBLE_ARRAY_SIZE, chunkX, y, chunkZ);
+        ByteBuffer metaM2 = loadOptionalArray(section, "Data2", BLOCKS_PER_EBS, chunkX, y, chunkZ);
 
         this.metas[y] = i -> {
             int nibbleShift = (i & 1) * 4;
-            int meta = (metaLo.get(i >> 1) >> nibbleShift) & 0xF;
-            if (metaMid != null) meta |= ((metaMid.get(i >> 1) >> nibbleShift) & 0xF) << 4;
-            if (metaHi != null) meta |= (metaHi.get(i) & 0xFF) << 8;
+            int meta = (metaM1Lo.get(i >> 1) >> nibbleShift) & 0xF;
+            if (metaM1Hi != null) meta |= ((metaM1Hi.get(i >> 1) >> nibbleShift) & 0xF) << 4;
+            if (metaM2 != null) meta |= (metaM2.get(i) & 0xFF) << 8;
             return meta;
         };
     }
