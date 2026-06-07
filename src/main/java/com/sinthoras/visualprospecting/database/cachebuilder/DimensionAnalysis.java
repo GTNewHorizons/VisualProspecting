@@ -65,12 +65,7 @@ public class DimensionAnalysis {
                 VP.LOG.warn("Invalid region file found! {} continuing", regionFile.getAbsolutePath());
                 malformedRegionFileCount++;
             } else {
-                List<File> rowRegionFiles = regionFilesByRow.get(regionZ);
-                if (rowRegionFiles == null) {
-                    rowRegionFiles = new ArrayList<>();
-                    regionFilesByRow.put(regionZ, rowRegionFiles);
-                }
-                rowRegionFiles.add(regionFile);
+                regionFilesByRow.computeIfAbsent(regionZ, value -> new ArrayList<>()).add(regionFile);
             }
         }
 
