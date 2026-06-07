@@ -33,6 +33,7 @@ public class VeinTypeCaching {
     private static final Reference2ObjectMap<IOreMaterial, List<VeinType>> veinTypesByPrimaryOrSecondary = new Reference2ObjectOpenHashMap<>();
 
     public static void init() {
+        veinTypes.clear();
         veinTypes.put(Tags.ORE_MIX_NONE_NAME, VeinType.NO_VEIN);
 
         for (OreMixes mix : OreMixes.values()) {
