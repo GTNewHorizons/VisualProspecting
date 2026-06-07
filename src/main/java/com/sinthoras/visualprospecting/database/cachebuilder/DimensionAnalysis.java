@@ -56,13 +56,14 @@ public class DimensionAnalysis {
 
         AnalysisProgressTracker.announceDimension(dimensionId);
 
-        // Group region files by rows
+        // Group region files by rows, skipping any with malformed names
         final Int2ObjectAVLTreeMap<List<File>> regionFilesByRow = new Int2ObjectAVLTreeMap<>();
-        final List<File> malformedRegionFiles = new ArrayList<>();
+        int malformedRegionFileCount = 0;
         for (File regionFile : regionFiles) {
             final int regionZ = parseRegionZ(regionFile);
             if (regionZ == INVALID_REGION_COORD) {
-                malformedRegionFiles.add(regionFile);
+                VP.LOG.warn("Invalid region file found! {} continuing", regionFile.getAbsolutePath());
+                malformedRegionFileCount++;
             } else {
                 List<File> rowRegionFiles = regionFilesByRow.get(regionZ);
                 if (rowRegionFiles == null) {
@@ -74,7 +75,7 @@ public class DimensionAnalysis {
         }
 
         final long maxRowSizeMBForHolding = Config.maxRegionRowFileMBForInMemoryScan;
-        int totalRegionFilePasses = regionFiles.size() - malformedRegionFiles.size();
+        int totalRegionFilePasses = regionFiles.size() - malformedRegionFileCount;
         for (List<File> row : regionFilesByRow.values()) {
             if (rowSizeMB(row) > maxRowSizeMBForHolding) {
                 totalRegionFilePasses += row.size();
@@ -83,11 +84,6 @@ public class DimensionAnalysis {
         AnalysisProgressTracker.setNumberOfRegionFiles(totalRegionFilePasses);
 
         final Long2IntOpenHashMap veinBlockY = new Long2IntOpenHashMap();
-
-        // Get rid of region files with malformed names
-        for (File regionFile : malformedRegionFiles) {
-            executeForEachGeneratedOreChunk(regionFile, (chunk, chunkX, chunkZ) -> {});
-        }
 
         final int[] rows = regionFilesByRow.keySet().toIntArray();
         final Int2ObjectOpenHashMap<RegionRowResult> heldRows = new Int2ObjectOpenHashMap<>();
@@ -225,10 +221,6 @@ public class DimensionAnalysis {
 
     private void executeForEachGeneratedOreChunk(File regionFile, IChunkHandler chunkHandler) {
         try {
-            if (!REGION_FILE_NAME.matcher(regionFile.getName()).matches()) {
-                VP.LOG.warn("Invalid region file found! {} continuing", regionFile.getCanonicalPath());
-                return;
-            }
             final String[] parts = regionFile.getName().split("\\.");
             final int regionChunkX = Integer.parseInt(parts[1]) << 5;
             final int regionChunkZ = Integer.parseInt(parts[2]) << 5;
