@@ -2,12 +2,16 @@ package com.sinthoras.visualprospecting.database.cachebuilder;
 
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.common.util.Constants.NBT;
 
 import com.gtnewhorizon.gtnhlib.util.data.ImmutableBlockMeta;
@@ -77,6 +81,32 @@ public class PartiallyLoadedChunk {
         }
 
         tiles = chunk.getCompoundTag("Level").getTagList("TileEntities", NBT.TAG_COMPOUND).tagList;
+    }
+
+    /**
+     * Populates this chunk from an in-memory Chunk, to allow for real time debug command.
+     */
+    public void loadFromLiveChunk(Chunk chunk) {
+        final ExtendedBlockStorage[] storage = chunk.getBlockStorageArray();
+        for (int section = 0; section < SECTIONS_PER_CHUNK; section++) {
+            final ExtendedBlockStorage ebs = section < storage.length ? storage[section] : null;
+            if (ebs == null) {
+                this.blocks[section] = i -> 0;
+                this.metas[section] = i -> 0;
+                continue;
+            }
+            // withinSection index layout (matches forEachOre): bits 0-3 = x, 4-7 = z, 8-11 = y
+            this.blocks[section] = i -> Block
+                    .getIdFromBlock(ebs.getBlockByExtId(i & 0xF, (i >> 8) & 0xF, (i >> 4) & 0xF));
+            this.metas[section] = i -> ebs.getExtBlockMetadata(i & 0xF, (i >> 8) & 0xF, (i >> 4) & 0xF);
+        }
+
+        this.tiles = new ArrayList<>();
+        for (TileEntity tileEntity : chunk.chunkTileEntityMap.values()) {
+            final NBTTagCompound tag = new NBTTagCompound();
+            tileEntity.writeToNBT(tag);
+            this.tiles.add(tag);
+        }
     }
 
     /**

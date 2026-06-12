@@ -109,7 +109,7 @@ public class Utils {
                 files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            VP.LOG.error("Failed to delete directory recursively: {}", targetDirectory, e);
         }
     }
 
@@ -124,7 +124,7 @@ public class Utils {
             reader.close();
             return map;
         } catch (IOException e) {
-            e.printStackTrace();
+            VP.LOG.error("Failed to read map from file: {}", file, e);
             return new HashMap<>();
         }
     }
@@ -139,7 +139,7 @@ public class Utils {
             gson.toJson(map, new TypeToken<Map<String, Short>>() {}.getType(), writer);
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            VP.LOG.error("Failed to write map to file: {}", file, e);
         }
     }
 
@@ -148,7 +148,7 @@ public class Utils {
             try (FileOutputStream stream = new FileOutputStream(newFile(file))) {
                 CompressedStreamTools.writeCompressed(tag, stream);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                VP.LOG.error("Failed to write NBT to file: {}", file, ex);
             }
             return false;
         });
@@ -163,7 +163,7 @@ public class Utils {
                 }
                 file.createNewFile();
             } catch (Exception e) {
-                e.printStackTrace();
+                VP.LOG.error("Failed to create new file: {}", file, e);
             }
         }
 
@@ -207,7 +207,7 @@ public class Utils {
             return dimensionFiles;
 
         } catch (IOException e) {
-            e.printStackTrace();
+            VP.LOG.error("Failed to scan legacy dim files in: {}", directory, e);
             return new HashMap<>();
         }
     }
@@ -229,7 +229,7 @@ public class Utils {
 
             return buffer;
         } catch (IOException e) {
-            e.printStackTrace();
+            VP.LOG.error("Failed to read file to buffer: {}", file, e);
             return null;
         }
     }
