@@ -12,26 +12,20 @@ import java.util.regex.Pattern;
 import java.util.zip.DataFormatException;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.WorldProvider;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.DimensionManager;
 
 import com.github.bsideup.jabel.Desugar;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
+import com.sinthoras.visualprospecting.database.DimensionNameResolver;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.VeinSource;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 
-import cpw.mods.fml.common.Optional;
-import gregtech.api.enums.Mods;
 import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
-import micdoodle8.mods.galacticraft.api.galaxies.CelestialBody;
-import micdoodle8.mods.galacticraft.api.prefab.world.gen.WorldProviderSpace;
 
 public class DimensionAnalysis {
 
@@ -43,7 +37,7 @@ public class DimensionAnalysis {
 
     public DimensionAnalysis(int dimensionId) {
         this.dimensionId = dimensionId;
-        this.dimensionName = getDimensionName();
+        this.dimensionName = DimensionNameResolver.resolve(dimensionId);
     }
 
     private interface IChunkHandler {
@@ -250,34 +244,5 @@ public class DimensionAnalysis {
         } catch (DataFormatException | IOException e) {
             AnalysisProgressTracker.notifyCorruptFile(regionFile);
         }
-    }
-
-    // Resolves the dimension name which will help filter ore veins
-    private String getDimensionName() {
-        final WorldServer world = DimensionManager.getWorld(dimensionId);
-        WorldProvider provider = world != null ? world.provider : null;
-        if (provider == null) {
-            try {
-                provider = DimensionManager.createProviderFor(dimensionId);
-            } catch (Throwable t) {
-                VP.LOG.warn("Could not resolve a provider for dimensionId={}: {}", dimensionId, t);
-                return "";
-            }
-        }
-
-        final String celestialName = Mods.GalacticraftCore.isModLoaded() ? getCelestialBodyName(provider) : null;
-        if (celestialName != null) return celestialName;
-
-        final String name = provider.getDimensionName();
-        return name == null ? "" : name;
-    }
-
-    @Optional.Method(modid = Mods.ModIDs.GALACTICRAFT_CORE)
-    private static String getCelestialBodyName(WorldProvider provider) {
-        if (provider instanceof WorldProviderSpace space) {
-            final CelestialBody body = space.getCelestialBody();
-            return body == null ? null : body.getName();
-        }
-        return null;
     }
 }
