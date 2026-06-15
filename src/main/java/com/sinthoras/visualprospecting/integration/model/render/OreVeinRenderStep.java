@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
@@ -65,10 +64,10 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
                     getFontScale());
         }
 
-        final IIcon blockIcon = Blocks.stone.getIcon(0, 0);
+        final IIcon blockIcon = DimensionStoneBackground.getBackgroundIcon(location.getDimensionId());
         DrawUtils.drawQuad(blockIcon, topX, topY, width, height, 0xFFFFFF, 255);
 
-        final IIconContainer oreIconContainer = location.getIconFromRepresentativeOre();
+        final IIconContainer oreIconContainer = location.getIconFromPrimaryOre();
         final IIcon oreIcon = oreIconContainer.getIcon();
         DrawUtils.drawQuad(oreIcon, topX, topY, width, height, location.getColor(), 255);
         final IIcon oreIconOverlay = oreIconContainer.getOverlayIcon();
