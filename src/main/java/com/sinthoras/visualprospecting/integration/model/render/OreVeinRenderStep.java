@@ -68,7 +68,7 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
         final IIcon blockIcon = Blocks.stone.getIcon(0, 0);
         DrawUtils.drawQuad(blockIcon, topX, topY, width, height, 0xFFFFFF, 255);
 
-        final IIconContainer oreIconContainer = location.getIconFromRepresentativeOre();
+        final IIconContainer oreIconContainer = location.getIconFromPrimaryOre();
         final IIcon oreIcon = oreIconContainer.getIcon();
         DrawUtils.drawQuad(oreIcon, topX, topY, width, height, location.getColor(), 255);
         final IIcon oreIconOverlay = oreIconContainer.getOverlayIcon();

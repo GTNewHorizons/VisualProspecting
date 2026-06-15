@@ -41,10 +41,10 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
         name = EnumChatFormatting.WHITE + oreVeinPosition.veinType.getVeinName();
         materialNames = oreVeinPosition.veinType.getOreMaterialNames().stream()
                 .map(materialName -> EnumChatFormatting.GRAY + materialName).collect(Collectors.toList());
-        final IOreMaterial representativeOre = oreVeinPosition.veinType.representativeOre;
-        final TextureSet textureSet = representativeOre.getTextureSet();
+        final IOreMaterial primaryOre = oreVeinPosition.veinType.primaryOre;
+        final TextureSet textureSet = primaryOre.getTextureSet();
         iconContainer = textureSet.mTextures[OrePrefixes.ore.getTextureIndex()];
-        color = LightingHelper.getColor(representativeOre.getRGBA());
+        color = LightingHelper.getColor(primaryOre.getRGBA());
     }
 
     @Override
@@ -126,7 +126,7 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
         return color;
     }
 
-    public IIconContainer getIconFromRepresentativeOre() {
+    public IIconContainer getIconFromPrimaryOre() {
         return iconContainer;
     }
 
