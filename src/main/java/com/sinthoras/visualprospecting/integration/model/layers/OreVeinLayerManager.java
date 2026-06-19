@@ -31,7 +31,7 @@ public class OreVeinLayerManager extends InteractableLayerManager {
 
     @Override
     public void onOpenMap() {
-        VeinTypeCaching.recalculateSearch(Utils.getNEISearchPattern());
+        VeinTypeCaching.recalculateSearch(Utils.getNEISearchPattern(), Utils.getNEISearchItemFilter());
     }
 
     @Nullable
@@ -68,6 +68,6 @@ public class OreVeinLayerManager extends InteractableLayerManager {
 
     @Override
     public void onSearch(@NotNull String searchString) {
-        VeinTypeCaching.recalculateSearch(Utils.getSearchPattern(searchString));
+        VeinTypeCaching.recalculateSearch(Utils.getSearchPattern(searchString), Utils.getItemFilter(searchString));
     }
 }
