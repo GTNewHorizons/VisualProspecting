@@ -62,7 +62,7 @@ public class Utils {
     }
 
     public static int mapToCenterOreChunkCoord(final int chunkCoord) {
-        if (GTWorldgenerator.oregenPattern == GTWorldgenerator.OregenPattern.EQUAL_SPACING) {
+        if (GTWorldgenerator.getClientOregenPattern() == GTWorldgenerator.OregenPattern.EQUAL_SPACING) {
             // new evenly spaced ore pattern
             return chunkCoord - Math.floorMod(chunkCoord, 3) + 1;
         } else {
