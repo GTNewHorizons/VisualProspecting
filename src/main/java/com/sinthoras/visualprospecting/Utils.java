@@ -39,6 +39,7 @@ import com.sinthoras.visualprospecting.hooks.HooksClient;
 
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.SearchField;
+import codechicken.nei.api.ItemFilter;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.Side;
@@ -260,6 +261,23 @@ public class Utils {
         try {
             return Pattern.compile(unquotedRegex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
         } catch (PatternSyntaxException e) {
+            return null;
+        }
+    }
+
+    public static @Nullable ItemFilter getNEISearchItemFilter() {
+        final String searchString = NEIClientConfig.getSearchExpression();
+        if (!SearchField.searchInventories() || searchString.isEmpty()) {
+            return null;
+        }
+        return getItemFilter(searchString);
+    }
+
+    public static @Nullable ItemFilter getItemFilter(@NotNull String searchString) {
+        if (searchString.isEmpty()) return null;
+        try {
+            return SearchField.getFilter(searchString);
+        } catch (Exception e) {
             return null;
         }
     }

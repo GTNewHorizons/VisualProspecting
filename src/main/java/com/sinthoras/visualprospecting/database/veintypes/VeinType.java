@@ -4,14 +4,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumChatFormatting;
 
 import com.google.common.collect.ImmutableList;
 import com.sinthoras.visualprospecting.Tags;
 
+import codechicken.nei.api.ItemFilter;
 import galacticgreg.api.enums.DimensionDef.DimNames;
+import gregtech.api.enums.OrePrefixes;
 import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.OreMixBuilder;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -37,6 +44,10 @@ public class VeinType {
     private final List<String> allowedDims = new ArrayList<>();
     private boolean isHighlighted = true;
     private final String localizedName;
+    private static final OrePrefixes[] SEARCH_PREFIXES = { OrePrefixes.dust, OrePrefixes.gem, OrePrefixes.ingot,
+            OrePrefixes.crushed, OrePrefixes.ore };
+    @Nullable
+    private List<ItemStack> oreSearchStacks;
 
     // Available after VisualProspecting post GT initialization
     public static final VeinType NO_VEIN = new VeinType();
@@ -125,6 +136,37 @@ public class VeinType {
 
     public String getVeinName() {
         return localizedName;
+    }
+
+    public boolean matchesPattern(Pattern pattern) {
+        final List<String> searchableStrings = new ArrayList<>(getOreMaterialNames());
+        searchableStrings.add(getVeinName());
+        return searchableStrings.stream().map(EnumChatFormatting::getTextWithoutFormattingCodes)
+                .map(String::toLowerCase).anyMatch(searchableString -> pattern.matcher(searchableString).find());
+    }
+
+    public boolean matchesItemFilter(ItemFilter filter) {
+        for (ItemStack stack : getOreSearchStacks()) {
+            if (filter.matches(stack)) return true;
+        }
+        return false;
+    }
+
+    private List<ItemStack> getOreSearchStacks() {
+        if (oreSearchStacks == null) {
+            oreSearchStacks = new ArrayList<>();
+            for (IOreMaterial ore : oresAsSet) {
+                if (ore == null) continue;
+                for (OrePrefixes prefix : SEARCH_PREFIXES) {
+                    final ItemStack stack = ore.getPart(prefix, 1);
+                    if (stack != null) {
+                        oreSearchStacks.add(stack);
+                        break;
+                    }
+                }
+            }
+        }
+        return oreSearchStacks;
     }
 
     public List<IOreMaterial> getOresAtLayer(int layerBlockY) {

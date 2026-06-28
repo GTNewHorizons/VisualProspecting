@@ -6,13 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import net.minecraft.util.EnumChatFormatting;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.sinthoras.visualprospecting.Tags;
 
+import codechicken.nei.api.ItemFilter;
 import gregtech.api.enums.OreMixes;
 import gregtech.api.interfaces.IOreMaterial;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -79,20 +78,18 @@ public class VeinTypeCaching {
         return matchingVeinTypes == null ? Collections.emptyList() : matchingVeinTypes;
     }
 
-    public static void recalculateSearch(@Nullable Pattern filterPattern) {
+    public static void recalculateSearch(@Nullable Pattern filterPattern, @Nullable ItemFilter itemFilter) {
         for (VeinType veinType : veinTypes.values()) {
             if (veinType == VeinType.NO_VEIN) continue;
-            if (filterPattern != null) {
-                List<String> searchableStrings = new ArrayList<>(veinType.getOreMaterialNames());
-                searchableStrings.add(veinType.getVeinName());
-                final boolean match = searchableStrings.stream().map(EnumChatFormatting::getTextWithoutFormattingCodes)
-                        .map(String::toLowerCase)
-                        .anyMatch(searchableString -> filterPattern.matcher(searchableString).find());
-
-                veinType.setNEISearchHighlight(match);
-            } else {
+            if (filterPattern == null && itemFilter == null) {
                 veinType.setNEISearchHighlight(true);
+                continue;
             }
+
+            final boolean match = (filterPattern != null && veinType.matchesPattern(filterPattern))
+                    || (itemFilter != null && veinType.matchesItemFilter(itemFilter));
+
+            veinType.setNEISearchHighlight(match);
         }
     }
 }
