@@ -39,8 +39,10 @@ import com.sinthoras.visualprospecting.hooks.HooksClient;
 
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.SearchField;
+import cpw.mods.fml.common.FMLCommonHandler;
 import codechicken.nei.api.ItemFilter;
 import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.relauncher.Side;
 import gregtech.common.GTWorldgenerator;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -63,7 +65,10 @@ public class Utils {
     }
 
     public static int mapToCenterOreChunkCoord(final int chunkCoord) {
-        if (GTWorldgenerator.oregenPattern == GTWorldgenerator.OregenPattern.EQUAL_SPACING) {
+        GTWorldgenerator.OregenPattern pattern = FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER
+                ? GTWorldgenerator.getServerOregenPattern()
+                : GTWorldgenerator.getClientOregenPattern();
+        if (pattern == GTWorldgenerator.OregenPattern.EQUAL_SPACING) {
             // new evenly spaced ore pattern
             return chunkCoord - Math.floorMod(chunkCoord, 3) + 1;
         } else {
