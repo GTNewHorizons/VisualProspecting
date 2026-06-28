@@ -39,8 +39,8 @@ import com.sinthoras.visualprospecting.hooks.HooksClient;
 
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.SearchField;
-import cpw.mods.fml.common.FMLCommonHandler;
 import codechicken.nei.api.ItemFilter;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.relauncher.Side;
 import gregtech.common.GTWorldgenerator;
