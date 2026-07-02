@@ -10,6 +10,8 @@ import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.integration.model.layers.UndergroundFluidLayerManager;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
 
+import gregtech.common.UndergroundOil;
+
 public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundFluidLocation> {
 
     public UndergroundFluidRenderStep(UndergroundFluidLocation location) {
@@ -41,9 +43,9 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         if (!isMinimap()) {
             String label = I18n.format("visualprospecting.empty");
             if (maxAmountInField > 0) {
-                label = location.getMinProduction() + "L - "
-                        + maxAmountInField
-                        + "L  "
+                label = getFluidAmountFormatted(location.getMinProduction()) + " - "
+                        + getFluidAmountFormatted(maxAmountInField)
+                        + "  "
                         + location.getFluid().getLocalizedName();
             }
 
@@ -114,9 +116,26 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
     }
 
     private String getFluidAmountFormatted(int amount) {
-        if (amount >= 1000) {
-            return (amount / 1000) + "kL";
+        final long litres = (long) amount * UndergroundOil.DIVIDER;
+        if (litres >= 1_000_000_000) {
+            return getRoundedAmountFormatted(litres, 1_000_000_000, "GL");
         }
-        return amount + "L";
+        if (litres >= 1_000_000) {
+            return getRoundedAmountFormatted(litres, 1_000_000, "ML");
+        }
+        if (litres >= 1_000) {
+            return getRoundedAmountFormatted(litres, 1_000, "kL");
+        }
+        return litres + " L";
+    }
+
+    private String getRoundedAmountFormatted(long litres, long scale, String unit) {
+        final long roundedTenths = (litres * 10 + scale / 2) / scale;
+        final long integerPart = roundedTenths / 10;
+        final long decimalDigit = roundedTenths % 10;
+        if (decimalDigit == 0) {
+            return integerPart + " " + unit;
+        }
+        return integerPart + "." + decimalDigit + " " + unit;
     }
 }
