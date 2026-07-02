@@ -116,10 +116,7 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
     }
 
     private String getFluidAmountFormatted(int amount) {
-        return getLitresFormatted((long) amount * UndergroundOil.DIVIDER);
-    }
-
-    private String getLitresFormatted(long litres) {
+        final long litres = (long) amount * UndergroundOil.DIVIDER;
         if (litres >= 1_000_000_000) {
             return getRoundedAmountFormatted(litres, 1_000_000_000, "GL");
         }
