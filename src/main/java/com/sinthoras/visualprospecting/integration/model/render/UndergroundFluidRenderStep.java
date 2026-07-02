@@ -130,12 +130,12 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
     }
 
     private String getRoundedAmountFormatted(long litres, long scale, String unit) {
-        final long tenths = (litres * 10 + scale / 2) / scale;
-        final long whole = tenths / 10;
-        final long decimal = tenths % 10;
-        if (decimal == 0) {
-            return whole + " " + unit;
+        final long roundedTenths = (litres * 10 + scale / 2) / scale;
+        final long integerPart = roundedTenths / 10;
+        final long decimalDigit = roundedTenths % 10;
+        if (decimalDigit == 0) {
+            return integerPart + " " + unit;
         }
-        return whole + "." + decimal + " " + unit;
+        return integerPart + "." + decimalDigit + " " + unit;
     }
 }
