@@ -120,6 +120,9 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
     }
 
     private String getLitresFormatted(long litres) {
+        if (litres >= 1_000_000_000) {
+            return getRoundedAmountFormatted(litres, 1_000_000_000, "GL");
+        }
         if (litres >= 1_000_000) {
             return getRoundedAmountFormatted(litres, 1_000_000, "ML");
         }
