@@ -1,5 +1,7 @@
 package com.sinthoras.visualprospecting.integration.model.render;
 
+import java.text.MessageFormat;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 
@@ -41,10 +43,11 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         if (!isMinimap()) {
             String label = I18n.format("visualprospecting.empty");
             if (maxAmountInField > 0) {
-                label = getFluidAmountFormatted(location.getMinProduction()) + " - "
-                        + getFluidAmountFormatted(maxAmountInField)
-                        + "  "
-                        + location.getFluid().getLocalizedName();
+                label = MessageFormat.format(
+                        "{0}-{1} L/Op {2}",
+                        formatAmount(location.getMinProduction()),
+                        formatAmount(maxAmountInField),
+                        location.getFluid().getLocalizedName());
             }
 
             int textColor = 0xFFFFFFFF;
@@ -101,7 +104,7 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
 
                 if (drawLabels) {
                     DrawUtils.drawLabel(
-                            getFluidAmountFormatted(amount),
+                            MessageFormat.format("{0} L/Op", formatAmount(amount)),
                             cellX + cellW / 2,
                             cellY + cellH / 2,
                             0xFFFFFFFF,
@@ -113,10 +116,14 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         }
     }
 
-    private String getFluidAmountFormatted(int amount) {
-        if (amount >= 1000) {
-            return (amount / 1000) + " kL/op";
+    private String formatAmount(int amount) {
+        if (amount < 1000) {
+            return String.valueOf(amount);
         }
-        return amount + " L/op";
+        final int roundedTenths = (amount + 50) / 100;
+        if (roundedTenths % 10 == 0) {
+            return (roundedTenths / 10) + "k";
+        }
+        return (roundedTenths / 10) + "." + (roundedTenths % 10) + "k";
     }
 }
