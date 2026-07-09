@@ -44,6 +44,8 @@ public final class TeamProspectionDispatcher {
 
     public static void deliverProspectingResults(EntityPlayerMP player, ProspectingNotification notification,
             boolean notifySelf) {
+        if (player == null || player.playerNetServerHandler == null) return;
+
         if (notifySelf) {
             VP.network.sendTo(notification, player);
         }
