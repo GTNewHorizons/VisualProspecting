@@ -65,7 +65,7 @@ public class Utils {
     }
 
     public static int mapToCenterOreChunkCoord(final int chunkCoord) {
-        GTWorldgenerator.OregenPattern pattern = FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER
+        GTWorldgenerator.OregenPattern pattern = FMLCommonHandler.instance().getSide() == Side.SERVER
                 ? GTWorldgenerator.getServerOregenPattern()
                 : GTWorldgenerator.getClientOregenPattern();
         if (pattern == GTWorldgenerator.OregenPattern.EQUAL_SPACING) {
