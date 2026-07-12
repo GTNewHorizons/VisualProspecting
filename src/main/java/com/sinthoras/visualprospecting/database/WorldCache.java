@@ -35,6 +35,7 @@ public abstract class WorldCache {
         if (dimensionFiles == null || dimensionFiles.length == 0) return false;
 
         boolean loadedAny = false;
+        boolean requiresOreRescan = false;
         for (File dimensionFile : dimensionFiles) {
             final String fileName = dimensionFile.getName();
             if (!dimensionFile.isFile() || !fileName.endsWith(".dat")) {
@@ -47,10 +48,11 @@ public abstract class WorldCache {
             final int dimensionId = dimCompound.getInteger("dim");
             final DimensionCache dimension = dimensions.computeIfAbsent(dimensionId, DimensionCache::new);
             dimension.loadFromNbt(dimCompound);
+            requiresOreRescan |= dimension.requiresOreRescan();
             loadedAny = true;
         }
 
-        return loadedAny;
+        return loadedAny && !requiresOreRescan;
     }
 
     private boolean loadLegacyVeinCache(File worldCacheDirectory) {

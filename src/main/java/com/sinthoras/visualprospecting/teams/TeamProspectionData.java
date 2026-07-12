@@ -19,6 +19,7 @@ import com.gtnewhorizon.gtnhlib.teams.ITeamData;
 import com.gtnewhorizon.gtnhlib.teams.Team;
 import com.gtnewhorizon.gtnhlib.teams.TeamDataTransferReason;
 import com.sinthoras.visualprospecting.Config;
+import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -57,6 +58,7 @@ public class TeamProspectionData implements ITeamData {
     private Int2ObjectMap<LongSet> depletedVeins;
     // Team Data - Status
     private boolean expanded;
+    private boolean repairedVeinCoordinates;
     private byte[] unknownVersionBlob;
     private int unknownVersion;
 
@@ -75,7 +77,41 @@ public class TeamProspectionData implements ITeamData {
             }
             pendingBlob = null;
         }
+        repairedVeinCoordinates = normalizeVeinCoordinates(discoveredVeins) | normalizeVeinCoordinates(depletedVeins);
         expanded = true;
+    }
+
+    public boolean consumeRepairedVeinCoordinates() {
+        ensureExpanded();
+        boolean repaired = repairedVeinCoordinates;
+        repairedVeinCoordinates = false;
+        return repaired;
+    }
+
+    private static boolean normalizeVeinCoordinates(Int2ObjectMap<LongSet> veins) {
+        boolean repaired = false;
+        for (LongSet keys : veins.values()) {
+            long[] oldKeys = keys.toLongArray();
+            boolean changed = false;
+            for (long key : oldKeys) {
+                if (veinChunkX(key) != Utils.mapToCenterOreChunkCoord(veinChunkX(key))
+                        || veinChunkZ(key) != Utils.mapToCenterOreChunkCoord(veinChunkZ(key))) {
+                    changed = true;
+                    break;
+                }
+            }
+            if (!changed) continue;
+
+            keys.clear();
+            for (long key : oldKeys) {
+                keys.add(
+                        packVein(
+                                Utils.mapToCenterOreChunkCoord(veinChunkX(key)),
+                                Utils.mapToCenterOreChunkCoord(veinChunkZ(key))));
+            }
+            repaired = true;
+        }
+        return repaired;
     }
 
     // Pack an Ore vein position
@@ -135,6 +171,7 @@ public class TeamProspectionData implements ITeamData {
         discoveredVeins = new Int2ObjectOpenHashMap<>();
         discoveredFluids = new Int2ObjectOpenHashMap<>();
         depletedVeins = new Int2ObjectOpenHashMap<>();
+        repairedVeinCoordinates = false;
         expanded = true;
     }
 
@@ -203,6 +240,7 @@ public class TeamProspectionData implements ITeamData {
         discoveredVeins = null;
         discoveredFluids = null;
         depletedVeins = null;
+        repairedVeinCoordinates = false;
 
         if (!tag.hasKey(TAG_BLOB, Constants.NBT.TAG_STRING)) return;
         int version = tag.getInteger(TAG_VERSION);

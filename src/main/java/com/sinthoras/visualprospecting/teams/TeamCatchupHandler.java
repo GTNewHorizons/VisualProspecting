@@ -87,6 +87,7 @@ public final class TeamCatchupHandler {
 
         TeamProspectionData data = (TeamProspectionData) surviving.getData(TeamProspectionData.DATA_KEY);
         if (data == null) return;
+        markRepairedTeamDataDirty(surviving, data);
 
         // Update every player with new merged data, only for dimensions they visited since login
         TeamManager.forEachOnlineTeamMember(surviving, member -> {
@@ -111,6 +112,7 @@ public final class TeamCatchupHandler {
         if (team == null) return;
         TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
         if (data == null) return;
+        markRepairedTeamDataDirty(team, data);
 
         sendDimVeins(player, data, dim);
         sendDimFluids(player, data, dim);
@@ -186,5 +188,12 @@ public final class TeamCatchupHandler {
     private static void flushFluids(EntityPlayerMP player, List<UndergroundFluidPosition> batch) {
         if (batch.isEmpty()) return;
         VP.network.sendTo(TeamCatchupNotification.fluids(batch), player);
+    }
+
+    private static void markRepairedTeamDataDirty(Team team, TeamProspectionData data) {
+        if (data.consumeRepairedVeinCoordinates()) {
+            team.markDirty();
+            VP.LOG.warn("Repaired ore vein coordinates in team prospection data for the current oregen pattern.");
+        }
     }
 }
