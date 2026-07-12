@@ -71,6 +71,7 @@ public class DimensionCache {
     public final int dimensionId;
     private boolean isDirty = false;
     private boolean preventSaving = false;
+    private boolean requiresOreRescan = false;
 
     public DimensionCache(int dimensionId) {
         this.dimensionId = dimensionId;
@@ -127,6 +128,9 @@ public class DimensionCache {
         oreChunks.ensureCapacity(oreChunks.size() + size);
 
         int unknownVeinTypes = 0;
+        int repairedCoordinates = 0;
+        int discardedRescans = 0;
+        int collapsedDuplicates = 0;
         for (int i = 0; i < size; i++) {
             int index = veinTypeIndexArray[i];
             if (index < 0 || index >= palette.length) {
@@ -139,21 +143,50 @@ public class DimensionCache {
                 continue;
             }
             VeinSource source = VeinSource.fromByte(sourceArray[i]);
-            oreChunks.put(
-                    getOreVeinKey(chunkXArray[i], chunkZArray[i]),
-                    new OreVeinPosition(
-                            dimensionId,
-                            chunkXArray[i],
-                            chunkZArray[i],
-                            veinType,
-                            depletedArray[i] == 1,
-                            source));
+            OreVeinPosition position = new OreVeinPosition(
+                    dimensionId,
+                    chunkXArray[i],
+                    chunkZArray[i],
+                    veinType,
+                    depletedArray[i] == 1,
+                    source);
+            if (position.chunkX != chunkXArray[i] || position.chunkZ != chunkZArray[i]) {
+                repairedCoordinates++;
+                if (source == VeinSource.RESCAN) {
+                    discardedRescans++;
+                    requiresOreRescan = true;
+                    continue;
+                }
+            }
+            long key = getOreVeinKey(position.chunkX, position.chunkZ);
+            OreVeinPosition stored = oreChunks.get(key);
+            if (stored == null) {
+                oreChunks.put(key, position);
+            } else {
+                collapsedDuplicates++;
+                if (position.getSource().canOverwrite(stored.getSource())) {
+                    oreChunks.put(key, position.joinDepletedState(stored));
+                } else {
+                    stored.joinDepletedState(position);
+                }
+            }
         }
         if (unknownVeinTypes > 0) {
             VP.LOG.warn(
                     "Dimension {}: skipped {} entries with unknown vein type names while loading cache.",
                     dimensionId,
                     unknownVeinTypes);
+        }
+        if (repairedCoordinates > 0) {
+            markDirty();
+            VP.LOG.warn(
+                    "Dimension {}: found {} misaligned ore vein cache coordinates, repaired {}, discarded {} entries "
+                            + "that require a rescan, and collapsed {} duplicates. The cache will be rewritten.",
+                    dimensionId,
+                    repairedCoordinates,
+                    repairedCoordinates - discardedRescans,
+                    discardedRescans,
+                    collapsedDuplicates);
         }
     }
 
@@ -335,6 +368,10 @@ public class DimensionCache {
 
     boolean hasFluids() {
         return !undergroundFluids.isEmpty();
+    }
+
+    boolean requiresOreRescan() {
+        return requiresOreRescan;
     }
 
     void markPreventSaving() {
