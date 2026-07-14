@@ -25,7 +25,9 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         final Minecraft mc = Minecraft.getMinecraft();
         final double regionW = VP.undergroundFluidSizeChunkX * VP.chunkWidth * blockSize;
         final double regionH = VP.undergroundFluidSizeChunkZ * VP.chunkWidth * blockSize;
-        if (topX + regionW < 0 || topY + regionH < 0 || topX > mc.displayWidth || topY > mc.displayHeight) {
+        // Xaero culling relies on Navigator's visible cache; add centered bounds if that cache grows costly.
+        if (!isXaero
+                && (topX + regionW < 0 || topY + regionH < 0 || topX > mc.displayWidth || topY > mc.displayHeight)) {
             return;
         }
 
@@ -89,10 +91,10 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         final double cellH = getAdjustedHeight();
         for (int chunkX = 0; chunkX < VP.undergroundFluidSizeChunkX; chunkX++) {
             final double cellX = x + chunkX * cellW;
-            if (cellX + cellW < 0 || cellX > screenW) continue;
+            if (!isXaero && (cellX + cellW < 0 || cellX > screenW)) continue;
             for (int chunkZ = 0; chunkZ < VP.undergroundFluidSizeChunkZ; chunkZ++) {
                 final double cellY = y + chunkZ * cellH;
-                if (cellY + cellH < 0 || cellY > screenH) continue;
+                if (!isXaero && (cellY + cellH < 0 || cellY > screenH)) continue;
                 int amount = chunks[chunkX][chunkZ];
                 if (amount <= 0) continue;
                 int alpha = productionRange > 1 ? (int) ((amount - minProduction) / productionRange * 255) : 10;
