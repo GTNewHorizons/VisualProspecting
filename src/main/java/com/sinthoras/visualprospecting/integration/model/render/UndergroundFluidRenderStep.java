@@ -21,6 +21,11 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
     }
 
     @Override
+    public void preRender(double topX, double topY, float drawScale, double zoom) {
+        setOffset(isJourneyMap ? -blockSize / 2 : 0);
+    }
+
+    @Override
     public void draw(double topX, double topY, float drawScale, double zoom) {
         final Minecraft mc = Minecraft.getMinecraft();
         final double regionW = VP.undergroundFluidSizeChunkX * VP.chunkWidth * blockSize;

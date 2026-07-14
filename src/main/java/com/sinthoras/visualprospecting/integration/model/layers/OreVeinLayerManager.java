@@ -18,6 +18,7 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.integration.model.buttons.OreVeinButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocation;
+import com.sinthoras.visualprospecting.integration.model.render.OreVeinMapMarker;
 import com.sinthoras.visualprospecting.integration.model.render.OreVeinRenderStep;
 
 public class OreVeinLayerManager extends InteractableLayerManager {
@@ -38,7 +39,8 @@ public class OreVeinLayerManager extends InteractableLayerManager {
     @Override
     protected LayerRenderer addLayerRenderer(InteractableLayerManager manager, SupportedMods mod) {
         return new UniversalInteractableRenderer(manager)
-                .withRenderStep(location -> new OreVeinRenderStep((OreVeinLocation) location));
+                .withRenderStep(location -> new OreVeinRenderStep((OreVeinLocation) location))
+                .withMapMarker(location -> OreVeinMapMarker.create((OreVeinLocation) location));
     }
 
     @Nullable

@@ -15,12 +15,14 @@ import com.gtnewhorizons.navigator.api.model.layers.LayerManager;
 import com.gtnewhorizons.navigator.api.model.layers.LayerRenderer;
 import com.gtnewhorizons.navigator.api.model.layers.UniversalLayerRenderer;
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
+import com.gtnewhorizons.navigator.api.util.Util;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
+import com.sinthoras.visualprospecting.integration.model.render.UndergroundFluidImageOverlay;
 import com.sinthoras.visualprospecting.integration.model.render.UndergroundFluidRenderStep;
 
 import gregtech.api.enums.UndergroundFluidNames;
@@ -40,8 +42,13 @@ public class UndergroundFluidLayerManager extends LayerManager {
     @Nullable
     @Override
     protected LayerRenderer addLayerRenderer(LayerManager manager, SupportedMods mod) {
-        return new UniversalLayerRenderer(manager)
+        UniversalLayerRenderer renderer = new UniversalLayerRenderer(manager)
                 .withRenderStep(location -> new UndergroundFluidRenderStep((UndergroundFluidLocation) location));
+        if (Util.isJourneyMapV6Installed()) {
+            renderer.withJourneyMapV6Overlays(
+                    location -> UndergroundFluidImageOverlay.create((UndergroundFluidLocation) location));
+        }
+        return renderer;
     }
 
     @Override
