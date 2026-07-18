@@ -43,7 +43,7 @@ public final class OreVeinMapMarker {
         if (!location.isDepleted()) {
             marker.setLabel(location.getName()).setLabelColor(location.drawSearchHighlight() ? 0xFFFFFF : 0x7F7F7F)
                     .setLabelScale(1.2F).setLabelOffsetY(24).setLabelMinZoom(Config.minZoomLevelForOreLabel)
-                    .setLabelOnMinimap(false);
+                    .setLabelOnMinimap(Config.showOreLabelsOnJourneyMap6Minimap);
         }
         return marker;
     }

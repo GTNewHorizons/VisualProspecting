@@ -20,6 +20,7 @@ public class Config {
         public static final int uploadBandwidthBytes = 2000000;
         public static final int maxTransferCacheSizeMB = 50;
         public static final boolean enableVoxelMapWaypointsByDefault = false;
+        public static final boolean showOreLabelsOnJourneyMap6Minimap = false;
         public static final int maxRegionRowFileMBForInMemoryScan = 10000;
     }
 
@@ -43,6 +44,7 @@ public class Config {
     public static int uploadPacketsPerSecond = uploadBandwidthBytes / VP.uploadSizePerPacketInBytes;
     public static int maxTransferCacheSizeMB = Defaults.maxTransferCacheSizeMB;
     public static boolean enableVoxelMapWaypointsByDefault = Defaults.enableVoxelMapWaypointsByDefault;
+    public static boolean showOreLabelsOnJourneyMap6Minimap = Defaults.showOreLabelsOnJourneyMap6Minimap;
     public static int maxRegionRowFileMBForInMemoryScan = Defaults.maxRegionRowFileMBForInMemoryScan;
 
     public static void syncronizeConfiguration(File configFile) {
@@ -133,6 +135,13 @@ public class Config {
                 Defaults.enableVoxelMapWaypointsByDefault,
                 "[CLIENT / VoxelMap] Enable waypoints added by prospecting GT ore veins or underground fluids by default");
         enableVoxelMapWaypointsByDefault = enableVoxelMapWaypointsByDefaultProperty.getBoolean();
+
+        Property showOreLabelsOnJourneyMap6MinimapProperty = configuration.get(
+                Categories.integration,
+                "showOreLabelsOnJourneyMap6Minimap",
+                Defaults.showOreLabelsOnJourneyMap6Minimap,
+                "[CLIENT / JourneyMap 6] Show ore vein labels on the minimap. Labels may extend beyond the minimap edge.");
+        showOreLabelsOnJourneyMap6Minimap = showOreLabelsOnJourneyMap6MinimapProperty.getBoolean();
 
         Property maxRegionRowFileMBForInMemoryScanProperty = configuration.get(
                 Categories.caching,
