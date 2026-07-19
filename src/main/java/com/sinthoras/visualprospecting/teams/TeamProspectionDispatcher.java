@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.teams;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 
@@ -40,6 +41,40 @@ public final class TeamProspectionDispatcher {
 
     public static void deliverProspectingResults(EntityPlayerMP player, ProspectingNotification notification) {
         deliverProspectingResults(player, notification, true);
+    }
+
+    /**
+     * Send prospection results to {@code player}'s team through UUID.
+     *
+     * @param player   the player's team whose action produced these results
+     * @param oreVeins ore veins to deliver. May be empty; must not be {@code null}.
+     * @param fluids   underground fluid positions to deliver. May be empty; must not be {@code null}.
+     */
+    public static void deliverProspectingResults(UUID player, List<OreVeinPosition> oreVeins,
+            List<UndergroundFluidPosition> fluids) {
+        deliverProspectingResults(player, new ProspectingNotification(oreVeins, fluids));
+    }
+
+    public static void deliverProspectingResults(UUID player, ProspectingNotification notification) {
+        if (player == null) return;
+
+        if (!Config.enableTeamSharing) return;
+
+        Team team = TeamManager.getTeamByPlayer(player);
+        if (team == null) return;
+        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
+        if (data == null) return;
+
+        // Update the team's record
+        List<OreVeinPosition> newVeins = filterNewVeins(data, notification.getOreVeins());
+        List<UndergroundFluidPosition> newFluids = filterNewFluids(data, notification.getUndergroundFluids());
+        if (newVeins.isEmpty() && newFluids.isEmpty()) return;
+
+        team.markDirty();
+
+        // Broadcast to other online teammates.
+        ProspectingNotification broadcast = new ProspectingNotification(newVeins, newFluids);
+        TeamManager.forEachOnlineTeamMember(team, member -> VP.network.sendTo(broadcast, member));
     }
 
     public static void deliverProspectingResults(EntityPlayerMP player, ProspectingNotification notification,
