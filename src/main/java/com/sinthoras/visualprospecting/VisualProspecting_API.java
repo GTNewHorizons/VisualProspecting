@@ -100,6 +100,11 @@ public class VisualProspecting_API {
             TeamProspectionDispatcher.deliverProspectingResults(player, oreVeins, undergroundFluids);
         }
 
+        public static void sendProspectionResultsToClient(UUID player, List<OreVeinPosition> oreVeins,
+                List<UndergroundFluidPosition> undergroundFluids) {
+            TeamProspectionDispatcher.deliverProspectingResults(player, oreVeins, undergroundFluids);
+        }
+
         public static List<OreVeinPosition> prospectOreVeinsWithinRadius(int dimensionId, int blockX, int blockZ,
                 int blockRadius) {
             return ServerCache.instance.prospectOreBlockRadius(dimensionId, blockX, blockZ, blockRadius);
