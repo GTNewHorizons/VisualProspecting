@@ -1,7 +1,12 @@
 package com.sinthoras.visualprospecting.database;
 
+import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalClient.setOreVeinDepleted;
+import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalServer.isVeinDepleted;
+import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalServer.sendProspectionResultsToClient;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,6 +26,7 @@ import com.sinthoras.visualprospecting.network.ProspectingRequest;
 import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import gregtech.api.events.DrillChunkDiscoveryEvent;
 import gregtech.api.events.OreInteractEvent;
 import gregtech.api.events.VeinGenerateEvent;
 import gregtech.api.interfaces.IOreMaterial;
@@ -80,6 +86,27 @@ public class ServerCache extends WorldCache {
                 TeamProspectionDispatcher.deliverProspectingResults((EntityPlayerMP) player, response);
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onDrillChunkDiscovery(DrillChunkDiscoveryEvent event) {
+        final boolean depleted = isVeinDepleted(
+                event.world,
+                event.world.provider.dimensionId,
+                event.chunkX,
+                event.chunkZ,
+                1);
+
+        final OreVeinPosition vein = getOreVein(event.world.provider.dimensionId, event.chunkX, event.chunkZ);
+
+        if (depleted && !vein.isDepleted()) vein.toggleDepleted();
+
+        sendProspectionResultsToClient(event.owner, Collections.singletonList(vein), Collections.emptyList());
+
+        if (depleted) {
+            setOreVeinDepleted(event.world.provider.dimensionId, event.chunkX << 4, event.chunkZ << 4);
+        }
+
     }
 
     public List<OreVeinPosition> prospectOreChunks(int dimensionId, int minChunkX, int minChunkZ, int maxChunkX,
