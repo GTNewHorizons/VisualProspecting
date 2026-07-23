@@ -88,8 +88,8 @@ public class VisualProspecting_API {
         }
 
         public static boolean isVeinDepleted(World world, int dimensionId, int chunkX, int chunkZ, int chunkRadius) {
-            final int centerX = Utils.mapToCenterOreChunkCoord(chunkX << 4) >> 4;
-            final int centerZ = Utils.mapToCenterOreChunkCoord(chunkZ << 4) >> 4;
+            final int centerX = Utils.mapToCenterOreChunkCoord(chunkX);
+            final int centerZ = Utils.mapToCenterOreChunkCoord(chunkZ);
 
             final ReferenceOpenHashSet<IOreMaterial> presentOreMaterials = new ReferenceOpenHashSet<>();
             final VeinType veinType = ServerCache.instance.getOreVein(dimensionId, chunkX, chunkZ).veinType;

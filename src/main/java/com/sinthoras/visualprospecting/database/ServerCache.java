@@ -14,8 +14,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
-import com.gtnewhorizon.gtnhlib.teams.Team;
-import com.gtnewhorizon.gtnhlib.teams.TeamManager;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
@@ -24,7 +22,6 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
-import com.sinthoras.visualprospecting.teams.TeamProspectionData;
 import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -92,27 +89,24 @@ public class ServerCache extends WorldCache {
 
     @SubscribeEvent
     public void onDrillChunkDiscovery(DrillChunkDiscoveryEvent event) {
+        if (!event.discovery) return;
+        final OreVeinPosition vein = getOreVein(event.world.provider.dimensionId, event.chunkX, event.chunkZ);
+        sendProspectionResultsToClient(event.owner, Collections.singletonList(vein), Collections.emptyList());
+    }
+
+    @SubscribeEvent
+    public void onDrillChunkDepletion(DrillChunkDiscoveryEvent event) {
+        if (event.discovery) return;
         final boolean depleted = isVeinDepleted(
                 event.world,
                 event.world.provider.dimensionId,
                 event.chunkX,
                 event.chunkZ,
                 1);
-
-        final OreVeinPosition vein = getOreVein(event.world.provider.dimensionId, event.chunkX, event.chunkZ);
-
-        if (depleted && !vein.isDepleted()) vein.toggleDepleted();
-
-        sendProspectionResultsToClient(event.owner, Collections.singletonList(vein), Collections.emptyList());
-
-        if (!depleted) return;
-
-        Team team = TeamManager.getTeamByPlayer(event.owner);
-        if (team == null) return;
-        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
-        if (data == null) return;
-
-        data.setVeinDepleted(event.world.provider.dimensionId, event.chunkX, event.chunkZ, true);
+        final int centerX = Utils.mapToCenterOreChunkCoord(event.chunkX);
+        final int centerZ = Utils.mapToCenterOreChunkCoord(event.chunkZ);
+        TeamProspectionDispatcher
+                .handleDepletionToggle(event.owner, event.world.provider.dimensionId, centerX, centerZ, depleted);
     }
 
     public List<OreVeinPosition> prospectOreChunks(int dimensionId, int minChunkX, int minChunkZ, int maxChunkX,

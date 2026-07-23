@@ -141,6 +141,27 @@ public final class TeamProspectionDispatcher {
         });
     }
 
+    public static void handleDepletionToggle(UUID player, int dim, int chunkX, int chunkZ, boolean depleted) {
+        if (!Config.enableTeamSharing) return;
+
+        Team team = TeamManager.getTeamByPlayer(player);
+        if (team == null) return;
+        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
+        if (data == null) return;
+
+        // Require the vein to be in the team's discovered set.
+        if (!data.isVeinDiscovered(dim, chunkX, chunkZ)) return;
+
+        // Stop here if the team's depletion state already matches.
+        if (!data.setVeinDepleted(dim, chunkX, chunkZ, depleted)) return;
+
+        team.markDirty();
+
+        // Broadcast to other online teammates.
+        VeinDepletionMessage broadcast = new VeinDepletionMessage(dim, chunkX, chunkZ, depleted);
+        TeamManager.forEachOnlineTeamMember(team, member -> VP.network.sendTo(broadcast, member));
+    }
+
     private static List<OreVeinPosition> filterNewVeins(TeamProspectionData data, List<OreVeinPosition> veins) {
         if (veins == null || veins.isEmpty()) return Collections.emptyList();
         List<OreVeinPosition> newVeins = new ArrayList<>(veins.size());
