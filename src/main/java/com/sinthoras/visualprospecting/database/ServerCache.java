@@ -1,6 +1,5 @@
 package com.sinthoras.visualprospecting.database;
 
-import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalClient.setOreVeinDepleted;
 import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalServer.isVeinDepleted;
 import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalServer.sendProspectionResultsToClient;
 
@@ -9,15 +8,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.gtnewhorizon.gtnhlib.teams.Team;
-import com.gtnewhorizon.gtnhlib.teams.TeamManager;
-import com.sinthoras.visualprospecting.teams.TeamProspectionData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.gtnewhorizon.gtnhlib.teams.Team;
+import com.gtnewhorizon.gtnhlib.teams.TeamManager;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
@@ -26,6 +24,7 @@ import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.network.ProspectingNotification;
 import com.sinthoras.visualprospecting.network.ProspectingRequest;
+import com.sinthoras.visualprospecting.teams.TeamProspectionData;
 import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
