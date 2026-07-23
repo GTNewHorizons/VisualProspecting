@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.gtnewhorizon.gtnhlib.teams.Team;
+import com.gtnewhorizon.gtnhlib.teams.TeamManager;
+import com.sinthoras.visualprospecting.teams.TeamProspectionData;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
@@ -103,10 +106,14 @@ public class ServerCache extends WorldCache {
 
         sendProspectionResultsToClient(event.owner, Collections.singletonList(vein), Collections.emptyList());
 
-        if (depleted) {
-            setOreVeinDepleted(event.world.provider.dimensionId, event.chunkX << 4, event.chunkZ << 4);
-        }
+        Team team = TeamManager.getTeamByPlayer(event.owner);
+        if (team == null) return;
+        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
+        if (data == null) return;
 
+        if (depleted) {
+            data.setVeinDepleted(event.world.provider.dimensionId, event.chunkX << 4, event.chunkZ << 4, true);
+        }
     }
 
     public List<OreVeinPosition> prospectOreChunks(int dimensionId, int minChunkX, int minChunkZ, int maxChunkX,
