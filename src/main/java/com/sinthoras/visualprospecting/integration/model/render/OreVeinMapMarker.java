@@ -39,10 +39,12 @@ public final class OreVeinMapMarker {
         BufferedImage icon = createIcon(location);
         if (icon == null) return null;
 
-        MapMarker marker = new MapMarker(icon).setDisplaySize(ICON_SIZE, ICON_SIZE);
+        MapMarker marker = new MapMarker(icon).setDisplaySize(ICON_SIZE, ICON_SIZE).setDisplayZoomScale(1, 2, 3, 5);
         if (!location.isDepleted()) {
             marker.setLabel(location.getName()).setLabelColor(location.drawSearchHighlight() ? 0xFFFFFF : 0x7F7F7F)
-                    .setLabelScale(1.2F).setLabelOffsetY(24).setLabelMinZoom(Config.minZoomLevelForOreLabel)
+                    .setLabelScale(1.2F).setLabelZoomScale(1, 2.5, Math.min(Config.minZoomLevelForOreLabel, 4), 5)
+                    .setLabelOffsetY(28).setLabelBackgroundOpacity(0.35F)
+                    .setLabelMinZoom(Config.minZoomLevelForOreLabel)
                     .setLabelOnMinimap(Config.showOreLabelsOnJourneyMap6Minimap);
         }
         return marker;
