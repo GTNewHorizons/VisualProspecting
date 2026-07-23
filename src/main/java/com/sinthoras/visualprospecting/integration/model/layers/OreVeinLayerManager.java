@@ -57,7 +57,7 @@ public class OreVeinLayerManager extends InteractableLayerManager {
     protected ILocationProvider generateLocation(int chunkX, int chunkZ, int dim) {
         int oreChunkX = Utils.mapToCenterOreChunkCoord(chunkX);
         int oreChunkZ = Utils.mapToCenterOreChunkCoord(chunkZ);
-        if (chunkX % oreChunkX != 0 || chunkZ % oreChunkZ != 0) {
+        if (chunkX != oreChunkX || chunkZ != oreChunkZ) {
             return null;
         }
         OreVeinPosition oreVeinPosition = ClientCache.instance.getOreVein(dim, oreChunkX, oreChunkZ);
