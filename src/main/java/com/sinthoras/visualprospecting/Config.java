@@ -20,7 +20,7 @@ public class Config {
         public static final int uploadBandwidthBytes = 2000000;
         public static final int maxTransferCacheSizeMB = 50;
         public static final boolean enableVoxelMapWaypointsByDefault = false;
-        public static final boolean showOreLabelsOnJourneyMap6Minimap = false;
+        public static final boolean showOreLabelsOnJourneyMap6Minimap = true;
         public static final int maxRegionRowFileMBForInMemoryScan = 10000;
     }
 
@@ -140,7 +140,7 @@ public class Config {
                 Categories.integration,
                 "showOreLabelsOnJourneyMap6Minimap",
                 Defaults.showOreLabelsOnJourneyMap6Minimap,
-                "[CLIENT / JourneyMap 6] Show ore vein labels on the minimap. Labels may extend beyond the minimap edge.");
+                "[CLIENT / JourneyMap 6] Show ore vein labels on the minimap.");
         showOreLabelsOnJourneyMap6Minimap = showOreLabelsOnJourneyMap6MinimapProperty.getBoolean();
 
         Property maxRegionRowFileMBForInMemoryScanProperty = configuration.get(
