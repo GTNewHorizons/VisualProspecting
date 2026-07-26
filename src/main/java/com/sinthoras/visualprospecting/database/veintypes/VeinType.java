@@ -39,7 +39,6 @@ public class VeinType {
     public final int minBlockY;
     public final int maxBlockY;
     private final ReferenceOpenHashSet<IOreMaterial> oresAsSet = new ReferenceOpenHashSet<>();
-    private final ReferenceOpenHashSet<IOreMaterial> nonSporadicOres = new ReferenceOpenHashSet<>();
     private final List<List<IOreMaterial>> oresByLayer;
     private final List<String> allowedDims = new ArrayList<>();
     private boolean isHighlighted = true;
@@ -75,9 +74,6 @@ public class VeinType {
         oresAsSet.add(secondaryOre = oreMix.secondary);
         oresAsSet.add(inBetweenOre = oreMix.between);
         oresAsSet.add(sporadicOre = oreMix.sporadic);
-        nonSporadicOres.add(primaryOre);
-        nonSporadicOres.add(secondaryOre);
-        nonSporadicOres.add(inBetweenOre);
         oresByLayer = buildOresByLayer();
         minBlockY = Math.max(0, oreMix.minY - 6);
         maxBlockY = Math.min(255, oreMix.maxY - 6);
@@ -106,10 +102,13 @@ public class VeinType {
                 && foundOres.containsAll(oresAsSet);
     }
 
-    public boolean matchesIgnoringSporadic(Collection<IOreMaterial> foundOres, String dimName, IOreMaterial specific) {
-        return (primaryOre == specific || secondaryOre == specific)
-                && (dimName.isEmpty() || allowedDims.contains(dimName))
-                && foundOres.containsAll(nonSporadicOres);
+    public boolean matchesWithOneMissingOre(Collection<IOreMaterial> foundOres, String dimName,
+            IOreMaterial dominantOre) {
+        // Only match veins with four distinct ores when exactly three were found.
+        if (oresAsSet.size() != 4 || foundOres.size() != 3) return false;
+        if (primaryOre != dominantOre && secondaryOre != dominantOre) return false;
+        if (!dimName.isEmpty() && !allowedDims.contains(dimName)) return false;
+        return oresAsSet.containsAll(foundOres);
     }
 
     public List<String> getAllowedDimensions() {

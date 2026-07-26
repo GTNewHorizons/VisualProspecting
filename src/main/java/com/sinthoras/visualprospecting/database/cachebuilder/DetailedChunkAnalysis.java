@@ -135,13 +135,16 @@ public class DetailedChunkAnalysis {
                             .noneMatch(blockY -> isOreVeinGeneratedAtHeight(veinType, blockY)));
             return matchedVeins.size() == 1 ? matchedVeins.iterator().next() : VeinType.NO_VEIN;
         }
-        return matchIgnoringSporadic(allOres.keySet(), dominantOre);
+        if (ServerCache.instance.getOreVein(dimensionId, chunkX, chunkZ).veinType != VeinType.NO_VEIN) {
+            return VeinType.NO_VEIN;
+        }
+        return matchWithOneMissingOre(allOres.keySet(), dominantOre);
     }
 
-    private VeinType matchIgnoringSporadic(Set<IOreMaterial> foundOres, IOreMaterial dominantOre) {
+    private VeinType matchWithOneMissingOre(Set<IOreMaterial> foundOres, IOreMaterial dominantOre) {
         VeinType onlyMatch = VeinType.NO_VEIN;
         for (VeinType veinType : VeinTypeCaching.getVeinTypesForOre(dominantOre)) {
-            if (veinType.matchesIgnoringSporadic(foundOres, dimName, dominantOre)) {
+            if (veinType.matchesWithOneMissingOre(foundOres, dimName, dominantOre)) {
                 if (onlyMatch != VeinType.NO_VEIN) {
                     return VeinType.NO_VEIN;
                 }

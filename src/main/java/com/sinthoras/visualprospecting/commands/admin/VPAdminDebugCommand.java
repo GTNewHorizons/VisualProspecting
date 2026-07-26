@@ -150,15 +150,15 @@ public class VPAdminDebugCommand {
 
         CommandHelpers.plain(sender, ANALYZE + "candidates_header", dominant.getLocalizedName(), candidates.size());
         int fullMatches = 0;
-        int sporadicIgnoredMatches = 0;
+        int oneMissingMatches = 0;
         for (VeinType candidate : candidates) {
             final boolean full = candidate.matchesWithSpecificPrimaryOrSecondary(oreCounts.keySet(), dimName, dominant);
-            final boolean ignoreSporadic = candidate.matchesIgnoringSporadic(oreCounts.keySet(), dimName, dominant);
+            final boolean oneMissing = candidate.matchesWithOneMissingOre(oreCounts.keySet(), dimName, dominant);
             if (full) fullMatches++;
-            if (ignoreSporadic) sporadicIgnoredMatches++;
-            CommandHelpers.plain(sender, ANALYZE + "candidate_line", candidate.name, full, ignoreSporadic);
+            if (oneMissing) oneMissingMatches++;
+            CommandHelpers.plain(sender, ANALYZE + "candidate_line", candidate.name, full, oneMissing);
         }
-        CommandHelpers.plain(sender, ANALYZE + "match_summary", fullMatches, sporadicIgnoredMatches);
+        CommandHelpers.plain(sender, ANALYZE + "match_summary", fullMatches, oneMissingMatches);
     }
 
     // Print Verdict
