@@ -102,9 +102,11 @@ public class VeinType {
                 && foundOres.containsAll(oresAsSet);
     }
 
-    public boolean matchesWithOneMissingOre(Collection<IOreMaterial> foundOres, String dimName, IOreMaterial specific) {
+    public boolean matchesWithOneMissingOre(Collection<IOreMaterial> foundOres, String dimName,
+            IOreMaterial dominantOre) {
+        // Only match veins with four distinct ores when exactly three were found.
         if (oresAsSet.size() != 4 || foundOres.size() != 3) return false;
-        if (primaryOre != specific && secondaryOre != specific) return false;
+        if (primaryOre != dominantOre && secondaryOre != dominantOre) return false;
         if (!dimName.isEmpty() && !allowedDims.contains(dimName)) return false;
         return oresAsSet.containsAll(foundOres);
     }
