@@ -17,7 +17,6 @@ import com.gtnewhorizons.navigator.api.model.layers.UniversalLayerRenderer;
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
 import com.gtnewhorizons.navigator.api.util.Util;
 import com.sinthoras.visualprospecting.Utils;
-import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
@@ -77,17 +76,21 @@ public class UndergroundFluidLayerManager extends LayerManager {
     }
 
     @Override
-    protected ILocationProvider generateLocation(int chunkX, int chunkZ, int dim) {
-        if (chunkX % VP.undergroundFluidSizeChunkX != 0 || chunkZ % VP.undergroundFluidSizeChunkZ != 0) {
-            return null;
+    protected List<? extends ILocationProvider> generateVisibleLocations(int minBlockX, int minBlockZ, int maxBlockX,
+            int maxBlockZ, int dimension) {
+        List<UndergroundFluidLocation> locations = new ArrayList<>();
+        for (UndergroundFluidPosition fluid : ClientCache.instance.getAllUndergroundFluids()) {
+            int blockX = fluid.getBlockX();
+            int blockZ = fluid.getBlockZ();
+            if (fluid.isProspected() && fluid.dimensionId == dimension
+                    && blockX >= minBlockX
+                    && blockX <= maxBlockX
+                    && blockZ >= minBlockZ
+                    && blockZ <= maxBlockZ) {
+                locations.add(new UndergroundFluidLocation(fluid));
+            }
         }
-
-        UndergroundFluidPosition undergroundFluid = ClientCache.instance.getUndergroundFluid(dim, chunkX, chunkZ);
-        if (undergroundFluid.isProspected()) {
-            return new UndergroundFluidLocation(undergroundFluid);
-        }
-
-        return null;
+        return locations;
     }
 
     private void computeSearch(@Nullable Pattern filterPattern) {

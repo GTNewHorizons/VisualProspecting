@@ -1,5 +1,8 @@
 package com.sinthoras.visualprospecting.integration.model.layers;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,18 +57,21 @@ public class OreVeinLayerManager extends InteractableLayerManager {
     }
 
     @Override
-    protected ILocationProvider generateLocation(int chunkX, int chunkZ, int dim) {
-        int oreChunkX = Utils.mapToCenterOreChunkCoord(chunkX);
-        int oreChunkZ = Utils.mapToCenterOreChunkCoord(chunkZ);
-        if (chunkX != oreChunkX || chunkZ != oreChunkZ) {
-            return null;
+    protected Collection<? extends ILocationProvider> generateVisibleLocations(int minBlockX, int minBlockZ,
+            int maxBlockX, int maxBlockZ, int dimension) {
+        Collection<OreVeinLocation> locations = new ArrayList<>();
+        for (OreVeinPosition vein : ClientCache.instance.getAllOreVeins()) {
+            int blockX = vein.getBlockX();
+            int blockZ = vein.getBlockZ();
+            if (vein.veinType != VeinType.NO_VEIN && vein.dimensionId == dimension
+                    && blockX >= minBlockX
+                    && blockX <= maxBlockX
+                    && blockZ >= minBlockZ
+                    && blockZ <= maxBlockZ) {
+                locations.add(new OreVeinLocation(vein));
+            }
         }
-        OreVeinPosition oreVeinPosition = ClientCache.instance.getOreVein(dim, oreChunkX, oreChunkZ);
-        if (oreVeinPosition.veinType != VeinType.NO_VEIN) {
-            return new OreVeinLocation(oreVeinPosition);
-        }
-
-        return null;
+        return locations;
     }
 
     @Override
