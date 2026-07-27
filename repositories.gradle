@@ -3,5 +3,4 @@ repositories {
         name = "JourneyMap"
         url = "https://maven.blamejared.com"
     }
-    mavenLocal()
 }
