@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.server.MinecraftServer;
 
 import com.gtnewhorizon.gtnhlib.teams.Team;
 import com.gtnewhorizon.gtnhlib.teams.TeamManager;
@@ -57,24 +58,12 @@ public final class TeamProspectionDispatcher {
 
     public static void deliverProspectingResults(UUID player, ProspectingNotification notification) {
         if (player == null) return;
-
-        if (!Config.enableTeamSharing) return;
-
-        Team team = TeamManager.getTeamByPlayer(player);
-        if (team == null) return;
-        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
-        if (data == null) return;
-
-        // Update the team's record
-        List<OreVeinPosition> newVeins = filterNewVeins(data, notification.getOreVeins());
-        List<UndergroundFluidPosition> newFluids = filterNewFluids(data, notification.getUndergroundFluids());
-        if (newVeins.isEmpty() && newFluids.isEmpty()) return;
-
-        team.markDirty();
-
-        // Broadcast to other online teammates.
-        ProspectingNotification broadcast = new ProspectingNotification(newVeins, newFluids);
-        TeamManager.forEachOnlineTeamMember(team, member -> VP.network.sendTo(broadcast, member));
+        if (!Config.enableTeamSharing) {
+            EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
+            if (onlinePlayer != null) VP.network.sendTo(notification, onlinePlayer);
+            return;
+        }
+        shareProspectingResults(player, notification, null);
     }
 
     public static void deliverProspectingResults(EntityPlayerMP player, ProspectingNotification notification,
@@ -85,30 +74,7 @@ public final class TeamProspectionDispatcher {
             VP.network.sendTo(notification, player);
         }
 
-        if (!Config.enableTeamSharing) return;
-
-        Team team = TeamManager.getTeamByPlayer(player.getUniqueID());
-        if (team == null) return;
-        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
-        if (data == null) return;
-
-        // Update the team's record
-        List<OreVeinPosition> newVeins = filterNewVeins(data, notification.getOreVeins());
-        List<UndergroundFluidPosition> newFluids = filterNewFluids(data, notification.getUndergroundFluids());
-        if (newVeins.isEmpty() && newFluids.isEmpty()) return;
-
-        team.markDirty();
-
-        // No one to broadcast to if solo team
-        if (team.getMembers().size() <= 1) return;
-
-        // Broadcast to other online teammates.
-        ProspectingNotification broadcast = new ProspectingNotification(newVeins, newFluids);
-        TeamManager.forEachOnlineTeamMember(team, member -> {
-            if (!member.getUniqueID().equals(player.getUniqueID())) {
-                VP.network.sendTo(broadcast, member);
-            }
-        });
+        shareProspectingResults(player.getUniqueID(), notification, player.getUniqueID());
     }
 
     /**
@@ -117,31 +83,21 @@ public final class TeamProspectionDispatcher {
      * Toggles are only accepted for veins the team has actually discovered.
      */
     public static void handleDepletionToggle(EntityPlayerMP player, int dim, int chunkX, int chunkZ, boolean depleted) {
-        if (!Config.enableTeamSharing) return;
-
-        Team team = TeamManager.getTeamByPlayer(player.getUniqueID());
-        if (team == null) return;
-        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
-        if (data == null) return;
-
-        // Require the vein to be in the team's discovered set.
-        if (!data.isVeinDiscovered(dim, chunkX, chunkZ)) return;
-
-        // Stop here if the team's depletion state already matches.
-        if (!data.setVeinDepleted(dim, chunkX, chunkZ, depleted)) return;
-
-        team.markDirty();
-
-        // Broadcast to other online teammates.
-        VeinDepletionMessage broadcast = new VeinDepletionMessage(dim, chunkX, chunkZ, depleted);
-        TeamManager.forEachOnlineTeamMember(team, member -> {
-            if (!member.getUniqueID().equals(player.getUniqueID())) {
-                VP.network.sendTo(broadcast, member);
-            }
-        });
+        updateTeamDepletion(player.getUniqueID(), dim, chunkX, chunkZ, depleted, player.getUniqueID());
     }
 
     public static void handleDepletionToggle(UUID player, int dim, int chunkX, int chunkZ, boolean depleted) {
+        if (!Config.enableTeamSharing) {
+            EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
+            if (onlinePlayer != null)
+                VP.network.sendTo(new VeinDepletionMessage(dim, chunkX, chunkZ, depleted), onlinePlayer);
+            return;
+        }
+        updateTeamDepletion(player, dim, chunkX, chunkZ, depleted, null);
+    }
+
+    private static void shareProspectingResults(UUID player, ProspectingNotification notification,
+            UUID excludedPlayer) {
         if (!Config.enableTeamSharing) return;
 
         Team team = TeamManager.getTeamByPlayer(player);
@@ -149,17 +105,50 @@ public final class TeamProspectionDispatcher {
         TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
         if (data == null) return;
 
-        // Require the vein to be in the team's discovered set.
-        if (!data.isVeinDiscovered(dim, chunkX, chunkZ)) return;
+        List<OreVeinPosition> newVeins = filterNewVeins(data, notification.getOreVeins());
+        List<UndergroundFluidPosition> newFluids = filterNewFluids(data, notification.getUndergroundFluids());
+        if (newVeins.isEmpty() && newFluids.isEmpty()) return;
 
-        // Stop here if the team's depletion state already matches.
+        team.markDirty();
+
+        ProspectingNotification broadcast = new ProspectingNotification(newVeins, newFluids);
+        TeamManager.forEachOnlineTeamMember(team, member -> {
+            if (excludedPlayer == null || !member.getUniqueID().equals(excludedPlayer)) {
+                VP.network.sendTo(broadcast, member);
+            }
+        });
+    }
+
+    private static void updateTeamDepletion(UUID player, int dim, int chunkX, int chunkZ, boolean depleted,
+            UUID excludedPlayer) {
+        if (!Config.enableTeamSharing) return;
+
+        Team team = TeamManager.getTeamByPlayer(player);
+        if (team == null) return;
+        TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
+        if (data == null || !data.isVeinDiscovered(dim, chunkX, chunkZ)) return;
+
         if (!data.setVeinDepleted(dim, chunkX, chunkZ, depleted)) return;
 
         team.markDirty();
 
-        // Broadcast to other online teammates.
         VeinDepletionMessage broadcast = new VeinDepletionMessage(dim, chunkX, chunkZ, depleted);
-        TeamManager.forEachOnlineTeamMember(team, member -> VP.network.sendTo(broadcast, member));
+        TeamManager.forEachOnlineTeamMember(team, member -> {
+            if (excludedPlayer == null || !member.getUniqueID().equals(excludedPlayer)) {
+                VP.network.sendTo(broadcast, member);
+            }
+        });
+    }
+
+    private static EntityPlayerMP getOnlinePlayer(UUID player) {
+        MinecraftServer server = MinecraftServer.getServer();
+        if (server == null) return null;
+        for (EntityPlayerMP onlinePlayer : server.getConfigurationManager().playerEntityList) {
+            if (onlinePlayer.getUniqueID().equals(player) && onlinePlayer.playerNetServerHandler != null) {
+                return onlinePlayer;
+            }
+        }
+        return null;
     }
 
     private static List<OreVeinPosition> filterNewVeins(TeamProspectionData data, List<OreVeinPosition> veins) {
