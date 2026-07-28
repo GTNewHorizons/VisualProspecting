@@ -86,7 +86,7 @@ public final class TeamProspectionDispatcher {
     public static void handleDepletionToggle(EntityPlayerMP player, int dim, int chunkX, int chunkZ, boolean depleted) {
         if (!Config.enableTeamSharing) return;
         updateTeamDepletion(
-                TeamManager.getTeamByPlayer(player.getUniqueID()),
+                TeamManager.getOrCreateTeam(ServerPlayerUtils.getPlayerName(player), player.getUniqueID()),
                 dim,
                 chunkX,
                 chunkZ,
@@ -110,7 +110,9 @@ public final class TeamProspectionDispatcher {
             UUID excludedPlayer) {
         if (!Config.enableTeamSharing) return;
 
-        Team team = TeamManager.getOrCreateTeam(ServerPlayerUtils.getPlayerName(player), player);
+        String playerName = ServerPlayerUtils.getPlayerName(player);
+        if (playerName == null) return;
+        Team team = TeamManager.getOrCreateTeam(playerName, player);
         TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
         if (data == null) return;
 
