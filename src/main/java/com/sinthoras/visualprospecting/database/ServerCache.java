@@ -6,10 +6,8 @@ import static com.gtnewhorizon.gtnhlib.util.CoordinatePacker.unpackZ;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -38,6 +36,10 @@ import gregtech.common.UndergroundOil;
 import gregtech.common.WorldgenGTOreLayer;
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.Long2IntMap;
+import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 
@@ -47,7 +49,7 @@ public class ServerCache extends WorldCache {
 
     public static final ServerCache instance = new ServerCache();
 
-    private final Map<Integer, Map<Long, Integer>> emptyOreChunkMasks = new HashMap<>();
+    private final Int2ObjectMap<Long2IntMap> emptyOreChunkMasks = new Int2ObjectOpenHashMap<>();
 
     private ServerCache() {}
 
@@ -137,8 +139,8 @@ public class ServerCache extends WorldCache {
         final int offsetZ = chunkZ - vein.chunkZ + 1;
         if (offsetX < 0 || offsetX > 2 || offsetZ < 0 || offsetZ > 2) return;
 
-        final Map<Long, Integer> dimensionMasks = emptyOreChunkMasks
-                .computeIfAbsent(dimensionId, ignored -> new HashMap<>());
+        final Long2IntMap dimensionMasks = emptyOreChunkMasks
+                .computeIfAbsent(dimensionId, ignored -> new Long2IntOpenHashMap());
         final long veinKey = Utils.chunkCoordsToKey(vein.chunkX, vein.chunkZ);
         final int chunkBit = 1 << (offsetX * 3 + offsetZ);
         final int oldMask = dimensionMasks.getOrDefault(veinKey, 0);
