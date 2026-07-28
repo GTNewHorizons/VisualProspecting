@@ -152,7 +152,7 @@ public class ServerCache extends WorldCache {
         }
 
         if (newMask == ALL_VEIN_CHUNKS_EMPTY) {
-            TeamProspectionDispatcher.handleDepletionToggle(event.owner, dimensionId, vein.chunkX, vein.chunkZ, true);
+            TeamProspectionDispatcher.markVeinDepleted(event.owner, dimensionId, vein.chunkX, vein.chunkZ);
         }
     }
 

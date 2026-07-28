@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 
 import com.gtnewhorizon.gtnhlib.teams.Team;
 import com.gtnewhorizon.gtnhlib.teams.TeamManager;
+import com.gtnewhorizon.gtnhlib.util.ServerPlayerUtils;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -94,15 +95,14 @@ public final class TeamProspectionDispatcher {
     }
 
     /** Apply drill-observed depletion to every team that has discovered the vein. */
-    public static void handleDepletionToggle(UUID player, int dim, int chunkX, int chunkZ, boolean depleted) {
+    public static void markVeinDepleted(UUID player, int dim, int chunkX, int chunkZ) {
         if (player == null) return;
         EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
-        if (onlinePlayer != null)
-            VP.network.sendTo(new VeinDepletionMessage(dim, chunkX, chunkZ, depleted), onlinePlayer);
+        if (onlinePlayer != null) VP.network.sendTo(new VeinDepletionMessage(dim, chunkX, chunkZ, true), onlinePlayer);
         if (!Config.enableTeamSharing) return;
         UUID excludedPlayer = onlinePlayer == null ? null : player;
         for (Team team : TeamManager.getTeamMap().values()) {
-            updateTeamDepletion(team, dim, chunkX, chunkZ, depleted, excludedPlayer);
+            updateTeamDepletion(team, dim, chunkX, chunkZ, true, excludedPlayer);
         }
     }
 
@@ -110,8 +110,7 @@ public final class TeamProspectionDispatcher {
             UUID excludedPlayer) {
         if (!Config.enableTeamSharing) return;
 
-        Team team = TeamManager.getTeamByPlayer(player);
-        if (team == null) return;
+        Team team = TeamManager.getOrCreateTeam(ServerPlayerUtils.getPlayerName(player), player);
         TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
         if (data == null) return;
 
