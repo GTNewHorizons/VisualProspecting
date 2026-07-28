@@ -13,6 +13,7 @@ import javax.imageio.ImageIO;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
 
@@ -125,13 +126,19 @@ public final class OreVeinMapMarker {
     private static @Nullable BufferedImage atlasSpriteImage(IIcon icon) {
         if (!(icon instanceof TextureAtlasSprite sprite) || sprite.getFrameCount() == 0) return null;
 
-        int width = sprite.getIconWidth();
-        int height = sprite.getIconHeight();
+        int sourceWidth = sprite.getIconWidth();
+        int sourceHeight = sprite.getIconHeight();
         int[][] frame = sprite.getFrameTextureData(0);
-        if (frame.length == 0 || frame[0] == null || frame[0].length < width * height) return null;
+        if (frame.length == 0 || frame[0] == null || frame[0].length < sourceWidth * sourceHeight) return null;
 
+        // The atlas location is irrelevant here; reuse MapMarker's normalized sprite region to exclude padding.
+        MapMarker spriteRegion = new MapMarker(TextureMap.locationBlocksTexture, sprite);
+        int width = spriteRegion.getTextureWidth();
+        int height = spriteRegion.getTextureHeight();
+        int offsetX = spriteRegion.getTextureX() - sprite.getOriginX();
+        int offsetY = spriteRegion.getTextureY() - sprite.getOriginY();
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        image.setRGB(0, 0, width, height, frame[0], 0, width);
+        image.setRGB(0, 0, width, height, frame[0], offsetY * sourceWidth + offsetX, sourceWidth);
         return image;
     }
 
