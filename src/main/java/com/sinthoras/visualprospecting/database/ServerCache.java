@@ -1,12 +1,16 @@
 package com.sinthoras.visualprospecting.database;
 
+import static com.gtnewhorizon.gtnhlib.util.CoordinatePacker.unpackX;
+import static com.gtnewhorizon.gtnhlib.util.CoordinatePacker.unpackZ;
 import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalServer.isVeinDepleted;
 import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalServer.sendProspectionResultsToClient;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -25,7 +29,7 @@ import com.sinthoras.visualprospecting.network.ProspectingRequest;
 import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import gregtech.api.events.DrillChunkDiscoveryEvent;
+import gregtech.api.events.OreDrillScanEvent;
 import gregtech.api.events.OreInteractEvent;
 import gregtech.api.events.VeinGenerateEvent;
 import gregtech.api.interfaces.IOreMaterial;
@@ -88,25 +92,29 @@ public class ServerCache extends WorldCache {
     }
 
     @SubscribeEvent
-    public void onDrillChunkDiscovery(DrillChunkDiscoveryEvent event) {
-        if (!event.discovery) return;
-        final OreVeinPosition vein = getOreVein(event.world.provider.dimensionId, event.chunkX, event.chunkZ);
-        sendProspectionResultsToClient(event.owner, Collections.singletonList(vein), Collections.emptyList());
-    }
+    public void onOreDrillScan(OreDrillScanEvent event) {
+        final int dimensionId = event.world.provider.dimensionId;
+        if (!event.orePositions.isEmpty()) {
+            final Set<OreVeinPosition> foundVeins = new LinkedHashSet<>();
+            for (long position : event.orePositions) {
+                final OreVeinPosition vein = getOreVein(dimensionId, unpackX(position) >> 4, unpackZ(position) >> 4);
+                if (vein.veinType != VeinType.NO_VEIN) foundVeins.add(vein);
+            }
+            if (!foundVeins.isEmpty()) {
+                sendProspectionResultsToClient(event.owner, new ArrayList<>(foundVeins), Collections.emptyList());
+            }
+            return;
+        }
 
-    @SubscribeEvent
-    public void onDrillChunkDepletion(DrillChunkDiscoveryEvent event) {
-        if (event.discovery) return;
-        final boolean depleted = isVeinDepleted(
-                event.world,
-                event.world.provider.dimensionId,
-                event.chunkX,
-                event.chunkZ,
-                1);
-        final int centerX = Utils.mapToCenterOreChunkCoord(event.chunkX);
-        final int centerZ = Utils.mapToCenterOreChunkCoord(event.chunkZ);
-        TeamProspectionDispatcher
-                .handleDepletionToggle(event.owner, event.world.provider.dimensionId, centerX, centerZ, depleted);
+        // A single layer cannot prove that a whole vein is depleted.
+        if (event.maxX - event.minX != 16 || event.maxZ - event.minZ != 16 || event.maxY - event.minY <= 1) return;
+
+        final int chunkX = event.minX >> 4;
+        final int chunkZ = event.minZ >> 4;
+        final OreVeinPosition vein = getOreVein(dimensionId, chunkX, chunkZ);
+        if (vein.veinType == VeinType.NO_VEIN) return;
+        final boolean depleted = isVeinDepleted(event.world, dimensionId, chunkX, chunkZ, 1);
+        TeamProspectionDispatcher.handleDepletionToggle(event.owner, dimensionId, vein.chunkX, vein.chunkZ, depleted);
     }
 
     public List<OreVeinPosition> prospectOreChunks(int dimensionId, int minChunkX, int minChunkZ, int maxChunkX,
