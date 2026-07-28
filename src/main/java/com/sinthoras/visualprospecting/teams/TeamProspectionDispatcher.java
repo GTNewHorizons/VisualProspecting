@@ -83,15 +83,27 @@ public final class TeamProspectionDispatcher {
      * Toggles are only accepted for veins the team has actually discovered.
      */
     public static void handleDepletionToggle(EntityPlayerMP player, int dim, int chunkX, int chunkZ, boolean depleted) {
-        updateTeamDepletion(player.getUniqueID(), dim, chunkX, chunkZ, depleted, player.getUniqueID());
+        if (!Config.enableTeamSharing) return;
+        updateTeamDepletion(
+                TeamManager.getTeamByPlayer(player.getUniqueID()),
+                dim,
+                chunkX,
+                chunkZ,
+                depleted,
+                player.getUniqueID());
     }
 
+    /** Apply drill-observed depletion to every team that has discovered the vein. */
     public static void handleDepletionToggle(UUID player, int dim, int chunkX, int chunkZ, boolean depleted) {
         if (player == null) return;
         EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
         if (onlinePlayer != null)
             VP.network.sendTo(new VeinDepletionMessage(dim, chunkX, chunkZ, depleted), onlinePlayer);
-        updateTeamDepletion(player, dim, chunkX, chunkZ, depleted, onlinePlayer == null ? null : player);
+        if (!Config.enableTeamSharing) return;
+        UUID excludedPlayer = onlinePlayer == null ? null : player;
+        for (Team team : TeamManager.getTeamMap().values()) {
+            updateTeamDepletion(team, dim, chunkX, chunkZ, depleted, excludedPlayer);
+        }
     }
 
     private static void shareProspectingResults(UUID player, ProspectingNotification notification,
@@ -117,11 +129,8 @@ public final class TeamProspectionDispatcher {
         });
     }
 
-    private static void updateTeamDepletion(UUID player, int dim, int chunkX, int chunkZ, boolean depleted,
+    private static void updateTeamDepletion(Team team, int dim, int chunkX, int chunkZ, boolean depleted,
             UUID excludedPlayer) {
-        if (!Config.enableTeamSharing) return;
-
-        Team team = TeamManager.getTeamByPlayer(player);
         if (team == null) return;
         TeamProspectionData data = (TeamProspectionData) team.getData(TeamProspectionData.DATA_KEY);
         if (data == null || !data.isVeinDiscovered(dim, chunkX, chunkZ)) return;
