@@ -94,18 +94,6 @@ public final class TeamProspectionDispatcher {
                 player.getUniqueID());
     }
 
-    /** Apply drill-observed depletion to every team that has discovered the vein. */
-    public static void markVeinDepleted(UUID player, int dim, int chunkX, int chunkZ) {
-        if (player == null) return;
-        EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
-        if (onlinePlayer != null) VP.network.sendTo(new VeinDepletionMessage(dim, chunkX, chunkZ, true), onlinePlayer);
-        if (!Config.enableTeamSharing) return;
-        UUID excludedPlayer = onlinePlayer == null ? null : player;
-        for (Team team : TeamManager.getTeamMap().values()) {
-            updateTeamDepletion(team, dim, chunkX, chunkZ, true, excludedPlayer);
-        }
-    }
-
     private static void shareProspectingResults(UUID player, ProspectingNotification notification,
             UUID excludedPlayer) {
         if (!Config.enableTeamSharing) return;

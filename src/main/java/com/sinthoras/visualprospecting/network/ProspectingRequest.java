@@ -12,6 +12,7 @@ import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
+import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -113,43 +114,11 @@ public class ProspectingRequest implements IMessage {
 
         try (OreInfo<IOreMaterial> info = OreManager
                 .getOreInfo(world, message.blockX, message.blockY, message.blockZ)) {
-            if (info == null || info.isSmall || info.material != message.foundOre) return null;
+            if (info == null || !info.isNatural || info.isSmall || info.material != message.foundOre) return null;
 
-            // Prioritise center vein
-            final OreVeinPosition centerOreVeinPosition = ServerCache.instance
-                    .getOreVein(message.dimensionId, chunkX, chunkZ);
-
-            if (centerOreVeinPosition.veinType.containsOre(message.foundOre)) {
-                return new ProspectingNotification(centerOreVeinPosition);
-            }
-
-            // Check if neighboring veins could fit
-            final int centerChunkX = Utils.mapToCenterOreChunkCoord(chunkX);
-            final int centerChunkZ = Utils.mapToCenterOreChunkCoord(chunkZ);
-
-            for (int offsetChunkX = -3; offsetChunkX <= 3; offsetChunkX += 3) {
-                for (int offsetChunkZ = -3; offsetChunkZ <= 3; offsetChunkZ += 3) {
-                    if (offsetChunkX != 0 || offsetChunkZ != 0) {
-
-                        final int neighborChunkX = centerChunkX + offsetChunkX;
-                        final int neighborChunkZ = centerChunkZ + offsetChunkZ;
-
-                        final int distanceBlocks = Math
-                                .max(Math.abs(neighborChunkX - chunkX), Math.abs(neighborChunkZ - chunkZ));
-
-                        final OreVeinPosition neighborOreVeinPosition = ServerCache.instance
-                                .getOreVein(message.dimensionId, neighborChunkX, neighborChunkZ);
-
-                        // Equals to: ceil(blockSize / 16.0) + 1
-                        final int maxDistance = ((neighborOreVeinPosition.veinType.blockSize + 16) >> 4) + 1;
-
-                        if (neighborOreVeinPosition.veinType.containsOre(message.foundOre)
-                                && distanceBlocks <= maxDistance) {
-                            return new ProspectingNotification(neighborOreVeinPosition);
-                        }
-                    }
-                }
-            }
+            final OreVeinPosition vein = ServerCache.instance
+                    .resolveVeinForOre(message.dimensionId, chunkX, chunkZ, message.foundOre);
+            if (vein.veinType != VeinType.NO_VEIN) return new ProspectingNotification(vein);
         }
 
         return null;
