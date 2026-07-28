@@ -58,9 +58,9 @@ public final class TeamProspectionDispatcher {
 
     public static void deliverProspectingResults(UUID player, ProspectingNotification notification) {
         if (player == null) return;
-        if (!Config.enableTeamSharing) {
-            EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
-            if (onlinePlayer != null) VP.network.sendTo(notification, onlinePlayer);
+        EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
+        if (onlinePlayer != null) {
+            deliverProspectingResults(onlinePlayer, notification, true);
             return;
         }
         shareProspectingResults(player, notification, null);
@@ -87,13 +87,11 @@ public final class TeamProspectionDispatcher {
     }
 
     public static void handleDepletionToggle(UUID player, int dim, int chunkX, int chunkZ, boolean depleted) {
-        if (!Config.enableTeamSharing) {
-            EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
-            if (onlinePlayer != null)
-                VP.network.sendTo(new VeinDepletionMessage(dim, chunkX, chunkZ, depleted), onlinePlayer);
-            return;
-        }
-        updateTeamDepletion(player, dim, chunkX, chunkZ, depleted, null);
+        if (player == null) return;
+        EntityPlayerMP onlinePlayer = getOnlinePlayer(player);
+        if (onlinePlayer != null)
+            VP.network.sendTo(new VeinDepletionMessage(dim, chunkX, chunkZ, depleted), onlinePlayer);
+        updateTeamDepletion(player, dim, chunkX, chunkZ, depleted, onlinePlayer == null ? null : player);
     }
 
     private static void shareProspectingResults(UUID player, ProspectingNotification notification,
@@ -113,7 +111,7 @@ public final class TeamProspectionDispatcher {
 
         ProspectingNotification broadcast = new ProspectingNotification(newVeins, newFluids);
         TeamManager.forEachOnlineTeamMember(team, member -> {
-            if (excludedPlayer == null || !member.getUniqueID().equals(excludedPlayer)) {
+            if (!member.getUniqueID().equals(excludedPlayer)) {
                 VP.network.sendTo(broadcast, member);
             }
         });
@@ -134,7 +132,7 @@ public final class TeamProspectionDispatcher {
 
         VeinDepletionMessage broadcast = new VeinDepletionMessage(dim, chunkX, chunkZ, depleted);
         TeamManager.forEachOnlineTeamMember(team, member -> {
-            if (excludedPlayer == null || !member.getUniqueID().equals(excludedPlayer)) {
+            if (!member.getUniqueID().equals(excludedPlayer)) {
                 VP.network.sendTo(broadcast, member);
             }
         });

@@ -49,6 +49,7 @@ public class ServerCache extends WorldCache {
 
     public static final ServerCache instance = new ServerCache();
 
+    // World-level scan evidence is intentionally transient. A restart can delay automatic depletion, never cause it.
     private final Int2ObjectMap<Long2IntMap> emptyOreChunkMasks = new Int2ObjectOpenHashMap<>();
 
     private ServerCache() {}
@@ -137,7 +138,6 @@ public class ServerCache extends WorldCache {
 
         final int offsetX = chunkX - vein.chunkX + 1;
         final int offsetZ = chunkZ - vein.chunkZ + 1;
-        if (offsetX < 0 || offsetX > 2 || offsetZ < 0 || offsetZ > 2) return;
 
         final Long2IntMap dimensionMasks = emptyOreChunkMasks
                 .computeIfAbsent(dimensionId, ignored -> new Long2IntOpenHashMap());
