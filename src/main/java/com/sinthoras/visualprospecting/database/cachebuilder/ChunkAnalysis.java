@@ -1,19 +1,19 @@
 package com.sinthoras.visualprospecting.database.cachebuilder;
 
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
-import gregtech.api.interfaces.IOreMaterial;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 
 // A slim, but faster version to identify >90% of veins
 public class ChunkAnalysis {
 
     private VeinType matchedVein = VeinType.NO_VEIN;
-    private final Reference2IntOpenHashMap<IOreMaterial> oreCounts = new Reference2IntOpenHashMap<>();
+    private final Reference2IntOpenHashMap<Material> oreCounts = new Reference2IntOpenHashMap<>();
     private int minVeinBlockY = VP.minecraftWorldHeight;
-    private IOreMaterial mostCommonOre;
+    private Material mostCommonOre;
     private final String dimName;
 
     public ChunkAnalysis(String dimName) {

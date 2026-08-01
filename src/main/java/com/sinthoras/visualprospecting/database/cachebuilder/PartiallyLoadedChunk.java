@@ -14,12 +14,8 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.common.util.Constants.NBT;
 
-import com.gtnewhorizon.gtnhlib.util.data.ImmutableBlockMeta;
 import com.sinthoras.visualprospecting.VP;
 
-import bartworks.system.material.Werkstoff;
-import gregtech.api.enums.Materials;
-import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.ores.BWOreAdapter;
 import gregtech.common.ores.GTOreAdapter;
 import gregtech.common.ores.OreInfo;
@@ -217,10 +213,9 @@ public class PartiallyLoadedChunk {
 
     public interface OreConsumer {
 
-        void visit(int x, int y, int z, OreInfo<IOreMaterial> ore);
+        void visit(int x, int y, int z, OreInfo ore);
     }
 
-    @SuppressWarnings("unchecked")
     public void forEachOre(OreConsumer consumer) {
         for (PartiallyLoadedChunk.TileEntityInfo te : tileEntities()) {
             if (!te.getId().equals("GT_TileEntity_Ores")) continue;
@@ -230,12 +225,10 @@ public class PartiallyLoadedChunk {
 
             if (!natural) continue;
 
-            ImmutableBlockMeta bm = GTOreAdapter.INSTANCE.transform(meta, true);
-
-            try (OreInfo<Materials> info = GTOreAdapter.INSTANCE.getOreInfo(bm.getBlock(), bm.getBlockMeta())) {
+            try (OreInfo info = GTOreAdapter.INSTANCE.getLegacyOreInfo(meta)) {
                 if (info == null || info.isSmall || info.material == null) continue;
 
-                consumer.visit(te.getX(), te.getY(), te.getZ(), (OreInfo<IOreMaterial>) (OreInfo<?>) info);
+                consumer.visit(te.getX(), te.getY(), te.getZ(), info);
             }
         }
 
@@ -247,12 +240,10 @@ public class PartiallyLoadedChunk {
 
             if (!natural) continue;
 
-            ImmutableBlockMeta bm = BWOreAdapter.INSTANCE.transform(meta, true, false);
-
-            try (OreInfo<Werkstoff> info = BWOreAdapter.INSTANCE.getOreInfo(bm.getBlock(), bm.getBlockMeta())) {
+            try (OreInfo info = BWOreAdapter.INSTANCE.getLegacyOreInfo(meta, false)) {
                 if (info == null || info.isSmall || info.material == null) continue;
 
-                consumer.visit(te.getX(), te.getY(), te.getZ(), (OreInfo<IOreMaterial>) (OreInfo<?>) info);
+                consumer.visit(te.getX(), te.getY(), te.getZ(), info);
             }
         }
 
@@ -271,7 +262,7 @@ public class PartiallyLoadedChunk {
                         int meta = metas == null ? 0 : metas.get(withinSection);
                         Block block = Block.getBlockById(id);
 
-                        try (OreInfo<IOreMaterial> info = OreManager.getOreInfo(block, meta)) {
+                        try (OreInfo info = OreManager.getOreInfo(block, meta)) {
                             if (info == null || info.isSmall || !info.isNatural || info.material == null) continue;
 
                             consumer.visit(x, y, z, info);

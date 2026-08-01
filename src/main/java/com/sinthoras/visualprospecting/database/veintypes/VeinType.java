@@ -14,12 +14,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 
 import com.google.common.collect.ImmutableList;
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.Tags;
 
 import codechicken.nei.api.ItemFilter;
 import galacticgreg.api.enums.DimensionDef.DimNames;
 import gregtech.api.enums.OrePrefixes;
-import gregtech.api.interfaces.IOreMaterial;
+import gregtech.api.material.MaterialParts;
+import gregtech.api.material.MaterialUtils;
 import gregtech.common.OreMixBuilder;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
@@ -31,15 +33,15 @@ public class VeinType {
 
     public final String name;
     public final int blockSize;
-    public final IOreMaterial representativeOre;
-    public final IOreMaterial primaryOre;
-    public final IOreMaterial secondaryOre;
-    public final IOreMaterial inBetweenOre;
-    public final IOreMaterial sporadicOre;
+    public final Material representativeOre;
+    public final Material primaryOre;
+    public final Material secondaryOre;
+    public final Material inBetweenOre;
+    public final Material sporadicOre;
     public final int minBlockY;
     public final int maxBlockY;
-    private final ReferenceOpenHashSet<IOreMaterial> oresAsSet = new ReferenceOpenHashSet<>();
-    private final List<List<IOreMaterial>> oresByLayer;
+    private final ReferenceOpenHashSet<Material> oresAsSet = new ReferenceOpenHashSet<>();
+    private final List<List<Material>> oresByLayer;
     private final List<String> allowedDims = new ArrayList<>();
     private boolean isHighlighted = true;
     private final String localizedName;
@@ -88,22 +90,20 @@ public class VeinType {
         }
     }
 
-    public boolean containsAllFoundOres(Collection<IOreMaterial> foundOres, String dimName, IOreMaterial specific,
-            int minY) {
+    public boolean containsAllFoundOres(Collection<Material> foundOres, String dimName, Material specific, int minY) {
         return minY >= minBlockY && (primaryOre == specific || secondaryOre == specific)
                 && (dimName.isEmpty() || allowedDims.contains(dimName))
                 && foundOres.containsAll(oresAsSet);
     }
 
-    public boolean matchesWithSpecificPrimaryOrSecondary(Collection<IOreMaterial> foundOres, String dimName,
-            IOreMaterial specific) {
+    public boolean matchesWithSpecificPrimaryOrSecondary(Collection<Material> foundOres, String dimName,
+            Material specific) {
         return (primaryOre == specific || secondaryOre == specific)
                 && (dimName.isEmpty() || allowedDims.contains(dimName))
                 && foundOres.containsAll(oresAsSet);
     }
 
-    public boolean matchesWithOneMissingOre(Collection<IOreMaterial> foundOres, String dimName,
-            IOreMaterial dominantOre) {
+    public boolean matchesWithOneMissingOre(Collection<Material> foundOres, String dimName, Material dominantOre) {
         // Only match veins with four distinct ores when exactly three were found.
         if (oresAsSet.size() != 4 || foundOres.size() != 3) return false;
         if (primaryOre != dominantOre && secondaryOre != dominantOre) return false;
@@ -124,13 +124,12 @@ public class VeinType {
         return blockSize > 16;
     }
 
-    public boolean containsOre(IOreMaterial ore) {
+    public boolean containsOre(Material ore) {
         return primaryOre == ore || secondaryOre == ore || inBetweenOre == ore || sporadicOre == ore;
     }
 
     public ImmutableList<String> getOreMaterialNames() {
-        return ImmutableList
-                .copyOf(oresAsSet.stream().map(IOreMaterial::getLocalizedName).collect(Collectors.toList()));
+        return ImmutableList.copyOf(oresAsSet.stream().map(MaterialUtils::localizedName).collect(Collectors.toList()));
     }
 
     public String getVeinName() {
@@ -154,10 +153,10 @@ public class VeinType {
     private List<ItemStack> getOreSearchStacks() {
         if (oreSearchStacks == null) {
             oreSearchStacks = new ArrayList<>();
-            for (IOreMaterial ore : oresAsSet) {
+            for (Material ore : oresAsSet) {
                 if (ore == null) continue;
                 for (OrePrefixes prefix : SEARCH_PREFIXES) {
-                    final ItemStack stack = ore.getPart(prefix, 1);
+                    final ItemStack stack = MaterialParts.partOf(ore, prefix, 1);
                     if (stack != null) {
                         oreSearchStacks.add(stack);
                         break;
@@ -168,7 +167,7 @@ public class VeinType {
         return oreSearchStacks;
     }
 
-    public List<IOreMaterial> getOresAtLayer(int layerBlockY) {
+    public List<Material> getOresAtLayer(int layerBlockY) {
         if (layerBlockY < 0 || layerBlockY >= veinHeight) {
             return Collections.emptyList();
         }
@@ -176,10 +175,10 @@ public class VeinType {
     }
 
     // Layer -> ores mirrors GT WorldgenGTOreLayer placement
-    private List<List<IOreMaterial>> buildOresByLayer() {
-        final List<List<IOreMaterial>> layers = new ArrayList<>(veinHeight);
+    private List<List<Material>> buildOresByLayer() {
+        final List<List<Material>> layers = new ArrayList<>(veinHeight);
         for (int layer = 0; layer < veinHeight; layer++) {
-            final List<IOreMaterial> ores = new ArrayList<>(3);
+            final List<Material> ores = new ArrayList<>(3);
             switch (layer) {
                 case 0, 1, 2 -> {
                     ores.add(secondaryOre);

@@ -7,7 +7,6 @@ import com.gtnewhorizon.gtnhmixins.builders.TargetModBuilder;
 
 public enum TargetedMod implements ITargetMod {
 
-    BARTWORKS("com.github.bartimaeusnek.bartworks.ASM.BWCorePlugin", "bartworks"),
     GALACTICGREG(null, "galacticgreg"),
     GT5U(null, "gregtech"); // Also matches GT6.
 

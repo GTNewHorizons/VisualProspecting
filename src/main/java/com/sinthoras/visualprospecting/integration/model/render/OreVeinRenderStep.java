@@ -16,7 +16,6 @@ import com.sinthoras.visualprospecting.integration.model.locations.OreVeinLocati
 
 import codechicken.nei.api.ShortcutInputHandler;
 import gregtech.api.interfaces.IIconContainer;
-import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
 
@@ -124,7 +123,7 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
 
         final ItemStack itemStack;
 
-        try (OreInfo<IOreMaterial> info = OreInfo.getNewInfo()) {
+        try (OreInfo info = OreInfo.getNewInfo()) {
             info.material = location.getRepresentativeOre();
 
             itemStack = OreManager.getStack(info, 1);
