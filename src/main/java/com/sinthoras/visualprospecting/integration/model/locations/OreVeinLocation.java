@@ -15,9 +15,8 @@ import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 
-import gregtech.api.enums.OrePrefixes;
-import gregtech.api.enums.TextureSet;
 import gregtech.api.interfaces.IIconContainer;
+import gregtech.api.material.GTMaterialIcons;
 import gregtech.api.material.MaterialUtils;
 import gregtech.api.util.LightingHelper;
 
@@ -45,8 +44,7 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
         materialNames = oreVeinPosition.veinType.getOreMaterialNames().stream()
                 .map(materialName -> EnumChatFormatting.GRAY + materialName).collect(Collectors.toList());
         final Material primaryOre = oreVeinPosition.veinType.primaryOre;
-        final TextureSet textureSet = MaterialUtils.iconSet(primaryOre);
-        iconContainer = textureSet == null ? null : textureSet.mTextures[OrePrefixes.ore.getTextureIndex()];
+        iconContainer = primaryOre == null ? null : GTMaterialIcons.oreBlock("ore", primaryOre);
         final short[] rgba = MaterialUtils.rgba(primaryOre);
         color = LightingHelper.getColor(rgba == null ? WHITE : rgba);
     }
