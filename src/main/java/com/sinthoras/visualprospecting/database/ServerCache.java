@@ -1,7 +1,11 @@
 package com.sinthoras.visualprospecting.database;
 
+import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalServer.isVeinDepleted;
+import static com.sinthoras.visualprospecting.VisualProspecting_API.LogicalServer.sendProspectionResultsToClient;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,6 +25,7 @@ import com.sinthoras.visualprospecting.network.ProspectingRequest;
 import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import gregtech.api.events.DrillChunkDiscoveryEvent;
 import gregtech.api.events.OreInteractEvent;
 import gregtech.api.events.VeinGenerateEvent;
 import gregtech.api.interfaces.IOreMaterial;
@@ -80,6 +85,28 @@ public class ServerCache extends WorldCache {
                 TeamProspectionDispatcher.deliverProspectingResults((EntityPlayerMP) player, response);
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onDrillChunkDiscovery(DrillChunkDiscoveryEvent event) {
+        if (!event.discovery) return;
+        final OreVeinPosition vein = getOreVein(event.world.provider.dimensionId, event.chunkX, event.chunkZ);
+        sendProspectionResultsToClient(event.owner, Collections.singletonList(vein), Collections.emptyList());
+    }
+
+    @SubscribeEvent
+    public void onDrillChunkDepletion(DrillChunkDiscoveryEvent event) {
+        if (event.discovery) return;
+        final boolean depleted = isVeinDepleted(
+                event.world,
+                event.world.provider.dimensionId,
+                event.chunkX,
+                event.chunkZ,
+                1);
+        final int centerX = Utils.mapToCenterOreChunkCoord(event.chunkX);
+        final int centerZ = Utils.mapToCenterOreChunkCoord(event.chunkZ);
+        TeamProspectionDispatcher
+                .handleDepletionToggle(event.owner, event.world.provider.dimensionId, centerX, centerZ, depleted);
     }
 
     public List<OreVeinPosition> prospectOreChunks(int dimensionId, int minChunkX, int minChunkZ, int maxChunkX,
