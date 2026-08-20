@@ -35,16 +35,26 @@ import org.jetbrains.annotations.NotNull;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.hooks.HooksClient;
 
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.SearchField;
 import codechicken.nei.api.ItemFilter;
 import cpw.mods.fml.common.Loader;
+import gregtech.api.material.MaterialUtils;
 import gregtech.common.GTWorldgenerator;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class Utils {
+
+    private static final short[] UNTINTED = { 255, 255, 255, 0 };
+
+    /// The material's `[r, g, b, a]` tint, or `{255, 255, 255, 0}` for a material that declares none.
+    public static short[] materialRgba(@Nullable Material material) {
+        final short[] rgba = MaterialUtils.rgba(material);
+        return rgba == null ? UNTINTED : rgba;
+    }
 
     public static boolean isNavigatorInstalled() {
         return Loader.isModLoaded("navigator");

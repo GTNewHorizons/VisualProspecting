@@ -12,17 +12,15 @@ import com.gtnewhorizons.navigator.api.NavigatorApi;
 import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
 import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
 import com.ruling_0.materiallib.api.Material;
+import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 
 import gregtech.api.interfaces.IIconContainer;
 import gregtech.api.material.GTMaterialIcons;
-import gregtech.api.material.MaterialUtils;
 import gregtech.api.util.LightingHelper;
 
 public class OreVeinLocation implements IWaypointAndLocationProvider {
-
-    private static final short[] WHITE = { 255, 255, 255, 0 };
 
     private static final String depletedHint = EnumChatFormatting.RED + I18n.format("visualprospecting.depleted");
     private static final String activeWaypointHint = EnumChatFormatting.GOLD
@@ -45,8 +43,7 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
                 .map(materialName -> EnumChatFormatting.GRAY + materialName).collect(Collectors.toList());
         final Material primaryOre = oreVeinPosition.veinType.primaryOre;
         iconContainer = primaryOre == null ? null : GTMaterialIcons.oreBlock("ore", primaryOre);
-        final short[] rgba = MaterialUtils.rgba(primaryOre);
-        color = LightingHelper.getColor(rgba == null ? WHITE : rgba);
+        color = LightingHelper.getColor(Utils.materialRgba(primaryOre));
     }
 
     @Override
