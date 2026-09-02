@@ -22,6 +22,7 @@ import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 
+import gregtech.common.GTWorldgenerator;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -77,7 +78,13 @@ public class TeamProspectionData implements ITeamData {
             }
             pendingBlob = null;
         }
-        repairedVeinCoordinates = normalizeVeinCoordinates(discoveredVeins) | normalizeVeinCoordinates(depletedVeins);
+        // Moving every stored key onto a pattern GregTech has not confirmed would relocate the whole team's veins
+        if (GTWorldgenerator.isOregenPatternKnown()) {
+            repairedVeinCoordinates = normalizeVeinCoordinates(discoveredVeins)
+                    | normalizeVeinCoordinates(depletedVeins);
+        } else {
+            VP.LOG.warn("Ore vein pattern not known yet, leaving team prospection coordinates untouched.");
+        }
         expanded = true;
     }
 

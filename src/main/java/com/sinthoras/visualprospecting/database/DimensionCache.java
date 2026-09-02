@@ -19,6 +19,7 @@ import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
+import gregtech.common.GTWorldgenerator;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 /**
@@ -127,6 +128,14 @@ public class DimensionCache {
         int size = chunkXArray.length;
         oreChunks.ensureCapacity(oreChunks.size() + size);
 
+        // Stored coordinates sit on the world's ore grid. Repairing them against a pattern GregTech has not confirmed
+        // would discard good scans and rewrite the file on a guess, so leave the data alone until it is known.
+        final boolean patternKnown = GTWorldgenerator.isOregenPatternKnown();
+        if (!patternKnown) {
+            preventSaving = true;
+            VP.LOG.warn("Dimension {}: ore vein pattern not known yet, data will not be modified.", dimensionId);
+        }
+
         int unknownVeinTypes = 0;
         int repairedCoordinates = 0;
         int discardedRescans = 0;
@@ -150,7 +159,7 @@ public class DimensionCache {
                     veinType,
                     depletedArray[i] == 1,
                     source);
-            if (position.chunkX != chunkXArray[i] || position.chunkZ != chunkZArray[i]) {
+            if (patternKnown && (position.chunkX != chunkXArray[i] || position.chunkZ != chunkZArray[i])) {
                 repairedCoordinates++;
                 if (source == VeinSource.RESCAN) {
                     discardedRescans++;
