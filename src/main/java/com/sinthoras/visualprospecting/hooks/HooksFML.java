@@ -1,6 +1,5 @@
 package com.sinthoras.visualprospecting.hooks;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 
 import com.sinthoras.visualprospecting.VP;
@@ -42,10 +41,9 @@ public class HooksFML {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onEvent(PlayerEvent.PlayerLoggedInEvent event) {
+        // Only ever fires server side, the client loads its cache when the WorldIdNotification arrives
         if (event.player instanceof EntityPlayerMP playerMP) {
             VP.network.sendTo(new WorldIdNotification(WorldIdHandler.getWorldId()), playerMP);
-        } else if (event.player instanceof EntityPlayer) {
-            ClientCache.instance.loadVeinCache(WorldIdHandler.getWorldId());
         }
     }
 }
