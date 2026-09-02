@@ -39,6 +39,9 @@ public class HooksFML {
         TaskManager.CLIENT_INSTANCE.onTick();
     }
 
+    // LOW keeps this after GregTech's own PlayerLoggedInEvent handler, so its ore vein pattern packet reaches the
+    // client first over the shared connection. loadVeinCache repairs stored coordinates against that pattern, and
+    // raising the priority here would have it repair against whatever the client held from a previous server.
     @SubscribeEvent(priority = EventPriority.LOW)
     public void onEvent(PlayerEvent.PlayerLoggedInEvent event) {
         // Only ever fires server side, the client loads its cache when the WorldIdNotification arrives
