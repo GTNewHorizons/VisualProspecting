@@ -79,11 +79,11 @@ public class TeamProspectionData implements ITeamData {
             pendingBlob = null;
         }
         // Moving every stored key onto a pattern GregTech has not confirmed would relocate the whole team's veins
-        if (GTWorldgenerator.isOregenPatternKnown()) {
+        if (GTWorldgenerator.isOregenPatternVerified()) {
             repairedVeinCoordinates = normalizeVeinCoordinates(discoveredVeins)
                     | normalizeVeinCoordinates(depletedVeins);
         } else {
-            VP.LOG.warn("Ore vein pattern not known yet, leaving team prospection coordinates untouched.");
+            VP.LOG.warn("Ore vein pattern is not confirmed, leaving team prospection coordinates untouched.");
         }
         expanded = true;
     }

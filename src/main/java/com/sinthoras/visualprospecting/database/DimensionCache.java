@@ -128,12 +128,14 @@ public class DimensionCache {
         int size = chunkXArray.length;
         oreChunks.ensureCapacity(oreChunks.size() + size);
 
-        // Stored coordinates sit on the world's ore grid. Repairing them against a pattern GregTech has not confirmed
-        // would discard good scans and rewrite the file on a guess, so leave the data alone until it is known.
-        final boolean patternKnown = GTWorldgenerator.isOregenPatternKnown();
-        if (!patternKnown) {
+        // Stored coordinates sit on the world's ore grid. Repairing them against a pattern GregTech has not
+        // confirmed would discard good scans and rewrite the file on a guess, so leave the data alone until it is.
+        // A resolved pattern is not enough: GregTech falls back to a guess for a world that stored none, and a client
+        // is told which of the two it received.
+        final boolean patternVerified = GTWorldgenerator.isOregenPatternVerified();
+        if (!patternVerified) {
             preventSaving = true;
-            VP.LOG.warn("Dimension {}: ore vein pattern not known yet, data will not be modified.", dimensionId);
+            VP.LOG.warn("Dimension {}: ore vein pattern is not confirmed, data will not be modified.", dimensionId);
         }
 
         int unknownVeinTypes = 0;
@@ -159,7 +161,7 @@ public class DimensionCache {
                     veinType,
                     depletedArray[i] == 1,
                     source);
-            if (patternKnown && (position.chunkX != chunkXArray[i] || position.chunkZ != chunkZArray[i])) {
+            if (patternVerified && (position.chunkX != chunkXArray[i] || position.chunkZ != chunkZArray[i])) {
                 repairedCoordinates++;
                 if (source == VeinSource.RESCAN) {
                     discardedRescans++;
