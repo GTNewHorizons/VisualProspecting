@@ -54,8 +54,8 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
                 title = location.getFluid().getLocalizedName();
                 values = MessageFormat.format(
                         "{0}-{1} L/Op",
-                        formatAmount(location.getMinProduction()),
-                        formatAmount(maxAmountInField));
+                        formatAmount(location.getMinProduction()/2),
+                        formatAmount(maxAmountInField/2));
             }
 
             int textColor = 0xFFFFFFFF;
@@ -131,7 +131,7 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
 
                 if (drawLabels) {
                     DrawUtils.drawLabel(
-                            MessageFormat.format("{0} L/Op", formatAmount(amount)),
+                            MessageFormat.format("{0} L/Op", formatAmount(amount/2)),
                             cellX + cellW / 2,
                             cellY + cellH / 2 + cellLabelOffsetY,
                             0xFFFFFFFF,
