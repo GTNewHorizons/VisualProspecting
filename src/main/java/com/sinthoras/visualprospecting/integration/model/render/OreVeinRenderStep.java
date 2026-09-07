@@ -43,25 +43,26 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
 
     @Override
     public void draw(double topX, double topY, float drawScale, double zoom) {
+        final double labelScale = getLabelScale();
+        final double labelOffset = (fontHeight + 5) * (isXaero ? 1 : labelScale)
+                + OreLabelLayout.staggerOffset(location.getBlockX(), getZoomStep(), (fontHeight + 2) * labelScale);
         // Xaero culling relies on Navigator's visible cache; add centered bounds if that cache grows costly.
         if (!isXaero) {
             final Minecraft mc = Minecraft.getMinecraft();
             final double scale = 1.0;
             final double screenW = mc.displayWidth * scale;
             final double screenH = mc.displayHeight * scale;
-            final double topMargin = (fontHeight + 5) * getLabelScale() * scale;
-            if (topX + width < 0 || topX > screenW || topY + height < -topMargin || topY > screenH) {
+            if (topX + width < 0 || topX > screenW || topY + height < 0 || topY - labelOffset > screenH) {
                 return;
             }
         }
 
         if (zoom >= Config.minZoomLevelForOreLabel && !location.isDepleted()) {
-            final double labelScale = getLabelScale();
             final int fontColor = location.drawSearchHighlight() ? 0xFFFFFF : 0x7F7F7F;
             DrawUtils.drawLabel(
                     location.getName(),
                     topX + width / 2,
-                    topY - (fontHeight + 5) * (isXaero ? 1 : labelScale),
+                    topY - labelOffset,
                     fontColor,
                     0,
                     true,
