@@ -90,12 +90,14 @@ public class DimensionCache {
             return;
         }
 
+        NBTTagCompound ores = compound.getCompoundTag("ores");
         if (version == CURRENT_FORMAT_VERSION) {
-            loadOres(compound.getCompoundTag("ores"));
+            loadOres(ores);
             loadFluids(compound.getCompoundTag("fluids"));
         } else {
             // version key absent => v2 or older
-            LegacyDimensionCacheLoader.loadV2Ores(this, compound.getCompoundTag("ores"));
+            if (!ores.hasNoTags()) canRepairVeinCoordinates();
+            LegacyDimensionCacheLoader.loadV2Ores(this, ores);
             LegacyDimensionCacheLoader.loadV2Fluids(this, compound.getCompoundTag("fluids"));
         }
     }
@@ -128,11 +130,7 @@ public class DimensionCache {
         int size = chunkXArray.length;
         oreChunks.ensureCapacity(oreChunks.size() + size);
 
-        final boolean patternVerified = GTWorldgenerator.isOregenPatternVerified();
-        if (!patternVerified) {
-            preventSaving = true;
-            VP.LOG.warn("Dimension {}: ore vein pattern is not confirmed, data will not be modified.", dimensionId);
-        }
+        final boolean patternVerified = canRepairVeinCoordinates();
 
         int unknownVeinTypes = 0;
         int repairedCoordinates = 0;
@@ -195,6 +193,15 @@ public class DimensionCache {
                     discardedRescans,
                     collapsedDuplicates);
         }
+    }
+
+    private boolean canRepairVeinCoordinates() {
+        boolean patternVerified = GTWorldgenerator.isOregenPatternVerified();
+        if (!patternVerified) {
+            preventSaving = true;
+            VP.LOG.warn("Dimension {}: ore vein pattern is not confirmed, data will not be modified.", dimensionId);
+        }
+        return patternVerified;
     }
 
     private void loadFluids(NBTTagCompound fluids) {

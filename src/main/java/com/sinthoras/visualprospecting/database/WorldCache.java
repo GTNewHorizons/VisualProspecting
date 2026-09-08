@@ -29,18 +29,18 @@ public abstract class WorldCache {
         isLoaded = true;
         worldCache = new File(getStorageDirectory(), worldId);
 
-        if (loadLegacyVeinCache(worldCache)) return true;
-
         final File[] dimensionFiles = worldCache.listFiles();
-        if (dimensionFiles == null || dimensionFiles.length == 0) return false;
+        if (dimensionFiles == null) return loadLegacyVeinCache(worldCache);
 
         boolean loadedAny = false;
+        boolean hasNbtCache = false;
         boolean requiresOreRescan = false;
         for (File dimensionFile : dimensionFiles) {
             final String fileName = dimensionFile.getName();
             if (!dimensionFile.isFile() || !fileName.endsWith(".dat")) {
                 continue;
             }
+            hasNbtCache = true;
 
             final NBTTagCompound dimCompound = Utils.readNBT(dimensionFile);
             if (dimCompound == null) continue;
@@ -52,7 +52,7 @@ public abstract class WorldCache {
             loadedAny = true;
         }
 
-        return loadedAny && !requiresOreRescan;
+        return hasNbtCache ? loadedAny && !requiresOreRescan : loadLegacyVeinCache(worldCache);
     }
 
     private boolean loadLegacyVeinCache(File worldCacheDirectory) {
