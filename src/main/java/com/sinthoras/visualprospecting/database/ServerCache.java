@@ -90,8 +90,8 @@ public class ServerCache extends WorldCache {
         maxChunkZ = Utils.mapToCenterOreChunkCoord(maxChunkZ);
 
         List<OreVeinPosition> oreVeinPositions = new ArrayList<>();
-        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX = Utils.mapToCenterOreChunkCoord(chunkX + 3)) {
-            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ = Utils.mapToCenterOreChunkCoord(chunkZ + 3)) {
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX += VP.oreVeinSizeChunkX) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ += VP.oreVeinSizeChunkZ) {
                 final OreVeinPosition oreVeinPosition = getOreVein(dimensionId, chunkX, chunkZ);
                 if (oreVeinPosition.veinType != VeinType.NO_VEIN) {
                     oreVeinPositions.add(oreVeinPosition);
