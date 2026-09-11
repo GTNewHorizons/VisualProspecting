@@ -96,8 +96,9 @@ public class DimensionCache {
             loadFluids(compound.getCompoundTag("fluids"));
         } else {
             // version key absent => v2 or older
-            if (!ores.hasNoTags()) canRepairVeinCoordinates();
-            LegacyDimensionCacheLoader.loadV2Ores(this, ores);
+            if (ores.hasNoTags() || canRepairVeinCoordinates()) {
+                LegacyDimensionCacheLoader.loadV2Ores(this, ores);
+            }
             LegacyDimensionCacheLoader.loadV2Fluids(this, compound.getCompoundTag("fluids"));
         }
     }
@@ -130,7 +131,7 @@ public class DimensionCache {
         int size = chunkXArray.length;
         oreChunks.ensureCapacity(oreChunks.size() + size);
 
-        final boolean patternVerified = canRepairVeinCoordinates();
+        if (!canRepairVeinCoordinates()) return;
 
         int unknownVeinTypes = 0;
         int repairedCoordinates = 0;
@@ -155,7 +156,7 @@ public class DimensionCache {
                     veinType,
                     depletedArray[i] == 1,
                     source);
-            if (patternVerified && (position.chunkX != chunkXArray[i] || position.chunkZ != chunkZArray[i])) {
+            if (position.chunkX != chunkXArray[i] || position.chunkZ != chunkZArray[i]) {
                 repairedCoordinates++;
                 if (source == VeinSource.RESCAN) {
                     discardedRescans++;
@@ -199,7 +200,11 @@ public class DimensionCache {
         boolean patternVerified = GTWorldgenerator.isOregenPatternVerified();
         if (!patternVerified) {
             preventSaving = true;
-            VP.LOG.warn("Dimension {}: ore vein pattern is not confirmed, data will not be modified.", dimensionId);
+            VP.LOG.warn(
+                    "Dimension {}: ore vein pattern is not confirmed. This cache is read-only for the session; "
+                            + "changes will not be saved. After confirming the pattern with "
+                            + "/gt oregenpattern set <pattern> confirm, restart the world/server and reconnect clients.",
+                    dimensionId);
         }
         return patternVerified;
     }
