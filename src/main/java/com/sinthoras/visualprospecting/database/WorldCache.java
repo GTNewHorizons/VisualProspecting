@@ -12,7 +12,9 @@ import net.minecraft.util.ChunkCoordinates;
 
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
+import com.sinthoras.visualprospecting.VP;
 
+import gregtech.common.GTWorldgenerator;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
@@ -66,6 +68,13 @@ public abstract class WorldCache {
         final Map<Integer, ByteBuffer> oreVeinDimensionBuffers = Utils.getLegacyDimFiles(oreVeinCacheDirectory);
         final Map<Integer, ByteBuffer> undergroundFluidDimensionBuffers = Utils
                 .getLegacyDimFiles(undergroundFluidCacheDirectory);
+        if (!oreVeinDimensionBuffers.isEmpty() && !GTWorldgenerator.isOregenPatternVerified()) {
+            VP.LOG.warn(
+                    "Ore vein pattern is not confirmed, deferring legacy cache migration. After confirming the pattern "
+                            + "with /gt oregenpattern set <pattern> confirm, restart the world/server.");
+            return true;
+        }
+
         final Set<Integer> dimensionsIds = new HashSet<>();
         dimensionsIds.addAll(oreVeinDimensionBuffers.keySet());
         dimensionsIds.addAll(undergroundFluidDimensionBuffers.keySet());
