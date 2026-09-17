@@ -19,6 +19,7 @@ import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
+import gregtech.common.GTWorldgenerator;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 /**
@@ -89,12 +90,15 @@ public class DimensionCache {
             return;
         }
 
+        NBTTagCompound ores = compound.getCompoundTag("ores");
         if (version == CURRENT_FORMAT_VERSION) {
-            loadOres(compound.getCompoundTag("ores"));
+            loadOres(ores);
             loadFluids(compound.getCompoundTag("fluids"));
         } else {
             // version key absent => v2 or older
-            LegacyDimensionCacheLoader.loadV2Ores(this, compound.getCompoundTag("ores"));
+            if (ores.hasNoTags() || canRepairVeinCoordinates()) {
+                LegacyDimensionCacheLoader.loadV2Ores(this, ores);
+            }
             LegacyDimensionCacheLoader.loadV2Fluids(this, compound.getCompoundTag("fluids"));
         }
     }
@@ -126,6 +130,8 @@ public class DimensionCache {
 
         int size = chunkXArray.length;
         oreChunks.ensureCapacity(oreChunks.size() + size);
+
+        if (!canRepairVeinCoordinates()) return;
 
         int unknownVeinTypes = 0;
         int repairedCoordinates = 0;
@@ -188,6 +194,19 @@ public class DimensionCache {
                     discardedRescans,
                     collapsedDuplicates);
         }
+    }
+
+    private boolean canRepairVeinCoordinates() {
+        boolean patternVerified = GTWorldgenerator.isOregenPatternVerified();
+        if (!patternVerified) {
+            preventSaving = true;
+            VP.LOG.warn(
+                    "Dimension {}: ore vein pattern is not confirmed. This cache is read-only for the session; "
+                            + "changes will not be saved. After confirming the pattern with "
+                            + "/gt oregenpattern set <pattern> confirm, restart the world/server and reconnect clients.",
+                    dimensionId);
+        }
+        return patternVerified;
     }
 
     private void loadFluids(NBTTagCompound fluids) {

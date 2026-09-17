@@ -12,7 +12,9 @@ import net.minecraft.util.ChunkCoordinates;
 
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
+import com.sinthoras.visualprospecting.VP;
 
+import gregtech.common.GTWorldgenerator;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 
@@ -29,18 +31,18 @@ public abstract class WorldCache {
         isLoaded = true;
         worldCache = new File(getStorageDirectory(), worldId);
 
-        if (loadLegacyVeinCache(worldCache)) return true;
-
         final File[] dimensionFiles = worldCache.listFiles();
-        if (dimensionFiles == null || dimensionFiles.length == 0) return false;
+        if (dimensionFiles == null) return loadLegacyVeinCache(worldCache);
 
         boolean loadedAny = false;
+        boolean hasNbtCache = false;
         boolean requiresOreRescan = false;
         for (File dimensionFile : dimensionFiles) {
             final String fileName = dimensionFile.getName();
             if (!dimensionFile.isFile() || !fileName.endsWith(".dat")) {
                 continue;
             }
+            hasNbtCache = true;
 
             final NBTTagCompound dimCompound = Utils.readNBT(dimensionFile);
             if (dimCompound == null) continue;
@@ -52,7 +54,7 @@ public abstract class WorldCache {
             loadedAny = true;
         }
 
-        return loadedAny && !requiresOreRescan;
+        return hasNbtCache ? loadedAny && !requiresOreRescan : loadLegacyVeinCache(worldCache);
     }
 
     private boolean loadLegacyVeinCache(File worldCacheDirectory) {
@@ -66,6 +68,13 @@ public abstract class WorldCache {
         final Map<Integer, ByteBuffer> oreVeinDimensionBuffers = Utils.getLegacyDimFiles(oreVeinCacheDirectory);
         final Map<Integer, ByteBuffer> undergroundFluidDimensionBuffers = Utils
                 .getLegacyDimFiles(undergroundFluidCacheDirectory);
+        if (!oreVeinDimensionBuffers.isEmpty() && !GTWorldgenerator.isOregenPatternVerified()) {
+            VP.LOG.warn(
+                    "Ore vein pattern is not confirmed, deferring legacy cache migration. After confirming the pattern "
+                            + "with /gt oregenpattern set <pattern> confirm, restart the world/server.");
+            return true;
+        }
+
         final Set<Integer> dimensionsIds = new HashSet<>();
         dimensionsIds.addAll(oreVeinDimensionBuffers.keySet());
         dimensionsIds.addAll(undergroundFluidDimensionBuffers.keySet());
