@@ -2,6 +2,7 @@ package com.sinthoras.visualprospecting;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -12,12 +13,16 @@ import com.sinthoras.visualprospecting.database.OreVeinPosition;
 import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.database.VeinSource;
+import com.sinthoras.visualprospecting.database.cachebuilder.PartiallyLoadedChunk;
+import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
 import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import gregtech.api.interfaces.IOreMaterial;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 @SuppressWarnings("unused")
 public class VisualProspecting_API {
@@ -82,6 +87,28 @@ public class VisualProspecting_API {
                     Utils.mapToCenterOreChunkCoord(blockZ));
         }
 
+        public static boolean isVeinDepleted(World world, int dimensionId, int chunkX, int chunkZ, int chunkRadius) {
+            final int centerX = Utils.mapToCenterOreChunkCoord(chunkX);
+            final int centerZ = Utils.mapToCenterOreChunkCoord(chunkZ);
+
+            final ReferenceOpenHashSet<IOreMaterial> presentOreMaterials = new ReferenceOpenHashSet<>();
+            final VeinType veinType = ServerCache.instance.getOreVein(dimensionId, chunkX, chunkZ).veinType;
+
+            for (int curX = centerX - chunkRadius; curX <= centerX + chunkRadius; curX++) {
+                for (int curZ = centerZ - chunkRadius; curZ <= centerZ + chunkRadius; curZ++) {
+                    final PartiallyLoadedChunk chunk = new PartiallyLoadedChunk();
+                    chunk.loadFromLiveChunk(world.getChunkFromChunkCoords(curX, curZ));
+                    chunk.forEachOre((x, y, z, info) -> presentOreMaterials.add(info.material));
+                }
+            }
+
+            for (IOreMaterial oreMaterial : presentOreMaterials) {
+                if (VeinTypeCaching.getVeinTypesForOre(oreMaterial).contains(veinType)) return false;
+            }
+
+            return true;
+        }
+
         public static UndergroundFluidPosition getUndergroundFluid(World world, int blockX, int blockZ) {
             return prospectUndergroundFluidsWithingRadius(world, blockX, blockZ, 0).get(0);
         }
@@ -96,6 +123,11 @@ public class VisualProspecting_API {
         }
 
         public static void sendProspectionResultsToClient(EntityPlayerMP player, List<OreVeinPosition> oreVeins,
+                List<UndergroundFluidPosition> undergroundFluids) {
+            TeamProspectionDispatcher.deliverProspectingResults(player, oreVeins, undergroundFluids);
+        }
+
+        public static void sendProspectionResultsToClient(UUID player, List<OreVeinPosition> oreVeins,
                 List<UndergroundFluidPosition> undergroundFluids) {
             TeamProspectionDispatcher.deliverProspectingResults(player, oreVeins, undergroundFluids);
         }
