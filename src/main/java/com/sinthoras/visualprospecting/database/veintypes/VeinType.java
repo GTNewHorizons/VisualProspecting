@@ -156,7 +156,7 @@ public class VeinType {
             for (Material ore : oresAsSet) {
                 if (ore == null) continue;
                 for (OrePrefixes prefix : SEARCH_PREFIXES) {
-                    final ItemStack stack = MaterialParts.partOf(ore, prefix, 1);
+                    final ItemStack stack = MaterialParts.stack(prefix, ore, 1);
                     if (stack != null) {
                         oreSearchStacks.add(stack);
                         break;
