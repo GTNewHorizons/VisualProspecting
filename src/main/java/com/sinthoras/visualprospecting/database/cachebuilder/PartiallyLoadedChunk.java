@@ -14,12 +14,12 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.ExtendedBlockStorage;
 import net.minecraftforge.common.util.Constants.NBT;
 
+import com.gtnewhorizon.gtnhlib.util.data.ImmutableBlockMeta;
 import com.sinthoras.visualprospecting.VP;
 
-import gregtech.common.ores.BWOreAdapter;
-import gregtech.common.ores.GTOreAdapter;
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
+import gregtech.loaders.postload.LegacyOreTransformers;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 
 public class PartiallyLoadedChunk {
@@ -225,11 +225,7 @@ public class PartiallyLoadedChunk {
 
             if (!natural) continue;
 
-            try (OreInfo info = GTOreAdapter.INSTANCE.getLegacyOreInfo(meta)) {
-                if (info == null || info.isSmall || info.material == null) continue;
-
-                consumer.visit(te.getX(), te.getY(), te.getZ(), info);
-            }
+            visitMigratedOre(te, LegacyOreTransformers.resolveTileEntityOre(meta), consumer);
         }
 
         for (PartiallyLoadedChunk.TileEntityInfo te : tileEntities()) {
@@ -240,11 +236,7 @@ public class PartiallyLoadedChunk {
 
             if (!natural) continue;
 
-            try (OreInfo info = BWOreAdapter.INSTANCE.getLegacyOreInfo(meta, false)) {
-                if (info == null || info.isSmall || info.material == null) continue;
-
-                consumer.visit(te.getX(), te.getY(), te.getZ(), info);
-            }
+            visitMigratedOre(te, LegacyOreTransformers.resolveWerkstoffTileEntityOre(meta, false), consumer);
         }
 
         // Iterate per-section so the blocks/metas array lookups are done out of the inner loop
@@ -270,6 +262,15 @@ public class PartiallyLoadedChunk {
                     }
                 }
             }
+        }
+    }
+
+    private static void visitMigratedOre(TileEntityInfo te, ImmutableBlockMeta migrated, OreConsumer consumer) {
+        if (migrated == null) return;
+        try (OreInfo info = OreManager.getOreInfo(migrated.getBlock(), migrated.getBlockMeta())) {
+            if (info == null || info.isSmall || info.material == null) return;
+
+            consumer.visit(te.getX(), te.getY(), te.getZ(), info);
         }
     }
 
