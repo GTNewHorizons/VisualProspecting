@@ -25,7 +25,7 @@ public class VoxelMapEventHandler {
         }
 
         OreVeinPosition pos = event.getPosition();
-        short[] color = pos.veinType.primaryOre.getRGBA();
+        short[] color = Utils.materialRgba(pos.veinType.primaryOre);
         TreeSet<Integer> dim = new TreeSet<>();
         dim.add(pos.dimensionId);
         VoxelMapWaypointManager.addVoxelMapWaypoint(

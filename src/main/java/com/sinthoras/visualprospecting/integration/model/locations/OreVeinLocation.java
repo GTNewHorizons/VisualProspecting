@@ -11,13 +11,13 @@ import org.lwjgl.input.Keyboard;
 import com.gtnewhorizons.navigator.api.NavigatorApi;
 import com.gtnewhorizons.navigator.api.model.locations.IWaypointAndLocationProvider;
 import com.gtnewhorizons.navigator.api.model.waypoints.Waypoint;
+import com.ruling_0.materiallib.api.Material;
+import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
 
-import gregtech.api.enums.OrePrefixes;
-import gregtech.api.enums.TextureSet;
 import gregtech.api.interfaces.IIconContainer;
-import gregtech.api.interfaces.IOreMaterial;
+import gregtech.api.material.GTMaterialIcons;
 import gregtech.api.util.LightingHelper;
 
 public class OreVeinLocation implements IWaypointAndLocationProvider {
@@ -41,10 +41,9 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
         name = EnumChatFormatting.WHITE + oreVeinPosition.veinType.getVeinName();
         materialNames = oreVeinPosition.veinType.getOreMaterialNames().stream()
                 .map(materialName -> EnumChatFormatting.GRAY + materialName).collect(Collectors.toList());
-        final IOreMaterial primaryOre = oreVeinPosition.veinType.primaryOre;
-        final TextureSet textureSet = primaryOre.getTextureSet();
-        iconContainer = textureSet.mTextures[OrePrefixes.ore.getTextureIndex()];
-        color = LightingHelper.getColor(primaryOre.getRGBA());
+        final Material primaryOre = oreVeinPosition.veinType.primaryOre;
+        iconContainer = primaryOre == null ? null : GTMaterialIcons.oreBlock("ore", primaryOre);
+        color = LightingHelper.getColor(Utils.materialRgba(primaryOre));
     }
 
     @Override
@@ -130,7 +129,7 @@ public class OreVeinLocation implements IWaypointAndLocationProvider {
         return iconContainer;
     }
 
-    public IOreMaterial getRepresentativeOre() {
+    public Material getRepresentativeOre() {
         return oreVeinPosition.veinType.representativeOre;
     }
 }

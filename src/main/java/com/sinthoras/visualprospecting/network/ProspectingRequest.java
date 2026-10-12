@@ -8,6 +8,7 @@ import net.minecraft.world.World;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -18,7 +19,7 @@ import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
-import gregtech.api.interfaces.IOreMaterial;
+import gregtech.api.material.MaterialUtils;
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
 import io.netty.buffer.ByteBuf;
@@ -31,11 +32,11 @@ public class ProspectingRequest implements IMessage {
     private int blockX;
     private int blockY;
     private int blockZ;
-    private IOreMaterial foundOre;
+    private Material foundOre;
 
     public ProspectingRequest() {}
 
-    public ProspectingRequest(int dimensionId, int blockX, int blockY, int blockZ, IOreMaterial foundOre) {
+    public ProspectingRequest(int dimensionId, int blockX, int blockY, int blockZ, Material foundOre) {
         this.dimensionId = dimensionId;
         this.blockX = blockX;
         this.blockY = blockY;
@@ -58,7 +59,7 @@ public class ProspectingRequest implements IMessage {
         blockX = buf.readInt();
         blockY = buf.readInt();
         blockZ = buf.readInt();
-        foundOre = IOreMaterial.findMaterial(ByteBufUtils.readUTF8String(buf));
+        foundOre = MaterialUtils.byLegacyName(ByteBufUtils.readUTF8String(buf));
     }
 
     @Override
@@ -67,7 +68,7 @@ public class ProspectingRequest implements IMessage {
         buf.writeInt(blockX);
         buf.writeInt(blockY);
         buf.writeInt(blockZ);
-        ByteBufUtils.writeUTF8String(buf, foundOre.getInternalName());
+        ByteBufUtils.writeUTF8String(buf, MaterialUtils.internalName(foundOre));
     }
 
     public static class Handler implements IMessageHandler<ProspectingRequest, IMessage> {
@@ -111,8 +112,7 @@ public class ProspectingRequest implements IMessage {
         final int chunkX = Utils.coordBlockToChunk(message.blockX);
         final int chunkZ = Utils.coordBlockToChunk(message.blockZ);
 
-        try (OreInfo<IOreMaterial> info = OreManager
-                .getOreInfo(world, message.blockX, message.blockY, message.blockZ)) {
+        try (OreInfo info = OreManager.getOreInfo(world, message.blockX, message.blockY, message.blockZ)) {
             if (info == null || info.isSmall || info.material != message.foundOre) return null;
 
             // Prioritise center vein
