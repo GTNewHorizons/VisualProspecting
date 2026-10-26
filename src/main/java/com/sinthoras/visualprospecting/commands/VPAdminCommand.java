@@ -1,9 +1,11 @@
 package com.sinthoras.visualprospecting.commands;
 
+import static com.gtnewhorizon.gtnhlib.util.CommandUtils.argument;
 import static com.gtnewhorizon.gtnhlib.util.CommandUtils.literal;
 import static com.sinthoras.visualprospecting.commands.CommandHelpers.sendUsage;
 
 import com.gtnewhorizon.gtnhlib.brigadier.BrigadierApi;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.sinthoras.visualprospecting.commands.admin.VPAdminCacheCommand;
 import com.sinthoras.visualprospecting.commands.admin.VPAdminDebugCommand;
 import com.sinthoras.visualprospecting.commands.admin.VPAdminTeamCommand;
@@ -62,7 +64,15 @@ public final class VPAdminCommand {
                         .requires(src -> src.canCommandSenderUseCommand(4, "vp_admin"))
                         .executes(ctx -> sendUsage(ctx, "visualprospecting.command.vpadmin.debug.usage"))
 
-                        .then(literal("vein").executes(VPAdminDebugCommand::cmdDebugOreVein))
+                        .then(literal("vein")
+                                .executes(VPAdminDebugCommand::cmdDebugOreVein)
+                                .then(literal("area").executes(VPAdminDebugCommand::cmdDebugOreVeinArea))
+                                .then(literal("apply")
+                                        .executes(ctx -> VPAdminDebugCommand.cmdApplyOreVein(ctx, null))
+                                        .then(argument(VPAdminDebugCommand.ARG_VEIN, StringArgumentType.word())
+                                                .suggests(VPAdminDebugCommand::suggestVeinNames)
+                                                .executes(ctx -> VPAdminDebugCommand.cmdApplyOreVein(ctx,
+                                                        StringArgumentType.getString(ctx, VPAdminDebugCommand.ARG_VEIN))))))
                 )
         );
     }

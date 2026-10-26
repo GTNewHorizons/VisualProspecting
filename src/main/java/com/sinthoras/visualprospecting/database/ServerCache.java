@@ -2,6 +2,7 @@ package com.sinthoras.visualprospecting.database;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,6 +34,9 @@ public class ServerCache extends WorldCache {
 
     public static final ServerCache instance = new ServerCache();
 
+    private static final EnumSet<VeinSource> EDGE_PROTECTED = EnumSet
+            .of(VeinSource.GENERATED, VeinSource.UNKNOWN, VeinSource.ADMIN);
+
     private ServerCache() {}
 
     protected File getStorageDirectory() {
@@ -49,13 +53,35 @@ public class ServerCache extends WorldCache {
     @SubscribeEvent
     public void onVeinGenerated(VeinGenerateEvent event) {
         if (event.result == WorldgenGTOreLayer.ORE_PLACED && !event.layer.mWorldGenName.equals("NoOresInVein")) {
-            notifyOreVeinGeneration(
-                    event.world.provider.dimensionId,
-                    event.oreSeedX,
-                    event.oreSeedZ,
-                    VeinTypeCaching.getVeinType(event.layer.mWorldGenName),
-                    VeinSource.GENERATED);
+            final int dimensionId = event.world.provider.dimensionId;
+            final VeinType veinType = VeinTypeCaching.getVeinType(event.layer.mWorldGenName);
+            final boolean isCentreChunk = event.chunkX == event.oreSeedX && event.chunkZ == event.oreSeedZ;
+
+            synchronized (this) {
+                if (!isCentreChunk && conflictsWithKnownVein(dimensionId, event.oreSeedX, event.oreSeedZ, veinType)) {
+                    VP.LOG.debug(
+                            "Ignoring re-rolled vein {} from edge chunk {}, {} for seed {}, {} in dim {}",
+                            veinType.name,
+                            event.chunkX,
+                            event.chunkZ,
+                            event.oreSeedX,
+                            event.oreSeedZ,
+                            dimensionId);
+                    return;
+                }
+                notifyOreVeinGeneration(dimensionId, event.oreSeedX, event.oreSeedZ, veinType, VeinSource.GENERATED);
+            }
         }
+    }
+
+    /**
+     * GT re-rolls a seed's vein after a restart or version change, so an edge chunk generated later can report a
+     * different vein than the chunks already in the world. Only a regenerated centre chunk may replace it.
+     */
+    private boolean conflictsWithKnownVein(int dimensionId, int chunkX, int chunkZ, VeinType veinType) {
+        final OreVeinPosition stored = getOreVein(dimensionId, chunkX, chunkZ);
+        return stored.veinType != VeinType.NO_VEIN && stored.veinType != veinType
+                && EDGE_PROTECTED.contains(stored.getSource());
     }
 
     @SubscribeEvent
