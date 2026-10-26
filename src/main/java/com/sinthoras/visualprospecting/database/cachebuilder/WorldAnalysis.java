@@ -29,7 +29,7 @@ import it.unimi.dsi.fastutil.ints.IntSets;
 public class WorldAnalysis {
 
     private static final EnumSet<VeinSource> RESCAN_PROTECTED = EnumSet
-            .of(VeinSource.GENERATED, VeinSource.API, VeinSource.UNKNOWN);
+            .of(VeinSource.GENERATED, VeinSource.API, VeinSource.UNKNOWN, VeinSource.ADMIN);
 
     private final File worldFolder;
 

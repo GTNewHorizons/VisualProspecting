@@ -11,7 +11,10 @@ public enum VeinSource {
     UNKNOWN(0, 0),
     RESCAN(2, 1),
     API(3, 2),
-    GENERATED(1, 3);
+    GENERATED(1, 3),
+    // Set by an operator. Same trust as GENERATED so it replaces stale client entries, while a regenerated centre
+    // chunk can still replace it.
+    ADMIN(4, 3);
 
     private final int id;
     private final int trustLevel;

@@ -34,7 +34,8 @@ public class ServerCache extends WorldCache {
 
     public static final ServerCache instance = new ServerCache();
 
-    private static final EnumSet<VeinSource> EDGE_PROTECTED = EnumSet.of(VeinSource.GENERATED, VeinSource.UNKNOWN);
+    private static final EnumSet<VeinSource> EDGE_PROTECTED = EnumSet
+            .of(VeinSource.GENERATED, VeinSource.UNKNOWN, VeinSource.ADMIN);
 
     private ServerCache() {}
 
