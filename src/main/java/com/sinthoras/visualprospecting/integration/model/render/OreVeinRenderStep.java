@@ -36,20 +36,25 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
 
     @Override
     public void preRender(double topX, double topY, float drawScale, double zoom) {
-        double iconSize = isXaero ? 10 * zoom : 32 * drawScale;
+        double iconSize = isXaero ? 10 * zoom : 32 * drawScale * getZoomScale(1, 2, 3, 5);
         setSize(iconSize);
         setOffset(-iconSize / 2);
     }
 
     @Override
     public void draw(double topX, double topY, float drawScale, double zoom) {
-        final Minecraft mc = Minecraft.getMinecraft();
-        final double scale = isXaero && shouldScale ? getScaling(zoom) : 1.0;
-        final double screenW = mc.displayWidth * scale;
-        final double screenH = mc.displayHeight * scale;
-        final double topMargin = (fontHeight + 5) * getFontScale() * scale;
-        if (topX + width < 0 || topX > screenW || topY + height < -topMargin || topY > screenH) {
-            return;
+        final double labelScale = getLabelScale();
+        final double labelOffset = (fontHeight + 5) * (isXaero ? 1 : labelScale)
+                + OreLabelLayout.staggerOffset(location.getBlockX(), getZoomStep(), (fontHeight + 2) * labelScale);
+        // Xaero culling relies on Navigator's visible cache; add centered bounds if that cache grows costly.
+        if (!isXaero) {
+            final Minecraft mc = Minecraft.getMinecraft();
+            final double scale = 1.0;
+            final double screenW = mc.displayWidth * scale;
+            final double screenH = mc.displayHeight * scale;
+            if (topX + width < 0 || topX > screenW || topY + height < 0 || topY - labelOffset > screenH) {
+                return;
+            }
         }
 
         if (zoom >= Config.minZoomLevelForOreLabel && !location.isDepleted()) {
@@ -57,11 +62,11 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
             DrawUtils.drawLabel(
                     location.getName(),
                     topX + width / 2,
-                    topY - fontHeight - 5,
+                    topY - labelOffset,
                     fontColor,
                     0,
                     true,
-                    getFontScale());
+                    labelScale);
         }
 
         final IIcon blockIcon = DimensionStoneBackground.getBackgroundIcon(location.getDimensionId());
@@ -136,5 +141,10 @@ public class OreVeinRenderStep extends UniversalInteractableStep<OreVeinLocation
 
     private void playClickSound() {
         Minecraft.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(clickSound, 1.0F));
+    }
+
+    private double getLabelScale() {
+        return isXaero ? getFontScale()
+                : getFontScale() * getZoomScale(1.2, 3, Math.min(Config.minZoomLevelForOreLabel, 4), 5);
     }
 }

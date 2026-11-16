@@ -1,5 +1,6 @@
 package com.sinthoras.visualprospecting.hooks;
 
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 
@@ -22,6 +23,7 @@ import cpw.mods.fml.common.event.FMLServerStartedEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppedEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 public class HooksClient extends HooksShared {
 
@@ -86,9 +88,28 @@ public class HooksClient extends HooksShared {
 
         NavigatorApi.registerLayerManager(OreVeinLayerManager.instance);
         NavigatorApi.registerLayerManager(UndergroundFluidLayerManager.instance);
+        MinecraftForge.EVENT_BUS.register(this);
 
         if (Util.isVoxelMapInstalled()) {
             MinecraftForge.EVENT_BUS.register(new VoxelMapEventHandler());
         }
+    }
+
+    @SubscribeEvent
+    public void onVeinProspected(ProspectingNotificationEvent.OreVein event) {
+        Minecraft.getMinecraft().func_152344_a(
+                () -> OreVeinLayerManager.instance.invalidateLocation(
+                        event.getPosition().dimensionId,
+                        event.getPosition().chunkX,
+                        event.getPosition().chunkZ));
+    }
+
+    @SubscribeEvent
+    public void onFluidProspected(ProspectingNotificationEvent.UndergroundFluid event) {
+        Minecraft.getMinecraft().func_152344_a(
+                () -> UndergroundFluidLayerManager.instance.invalidateLocation(
+                        event.getPosition().dimensionId,
+                        event.getPosition().chunkX,
+                        event.getPosition().chunkZ));
     }
 }

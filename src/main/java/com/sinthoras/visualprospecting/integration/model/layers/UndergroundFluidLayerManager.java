@@ -15,12 +15,13 @@ import com.gtnewhorizons.navigator.api.model.layers.LayerManager;
 import com.gtnewhorizons.navigator.api.model.layers.LayerRenderer;
 import com.gtnewhorizons.navigator.api.model.layers.UniversalLayerRenderer;
 import com.gtnewhorizons.navigator.api.model.locations.ILocationProvider;
+import com.gtnewhorizons.navigator.api.util.Util;
 import com.sinthoras.visualprospecting.Utils;
-import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.ClientCache;
 import com.sinthoras.visualprospecting.database.UndergroundFluidPosition;
 import com.sinthoras.visualprospecting.integration.model.buttons.UndergroundFluidButtonManager;
 import com.sinthoras.visualprospecting.integration.model.locations.UndergroundFluidLocation;
+import com.sinthoras.visualprospecting.integration.model.render.UndergroundFluidImageOverlay;
 import com.sinthoras.visualprospecting.integration.model.render.UndergroundFluidRenderStep;
 
 import gregtech.api.enums.UndergroundFluidNames;
@@ -40,8 +41,13 @@ public class UndergroundFluidLayerManager extends LayerManager {
     @Nullable
     @Override
     protected LayerRenderer addLayerRenderer(LayerManager manager, SupportedMods mod) {
-        return new UniversalLayerRenderer(manager)
+        UniversalLayerRenderer renderer = new UniversalLayerRenderer(manager)
                 .withRenderStep(location -> new UndergroundFluidRenderStep((UndergroundFluidLocation) location));
+        if (Util.isJourneyMapV6Installed()) {
+            renderer.withJourneyMapV6Overlays(
+                    location -> UndergroundFluidImageOverlay.create((UndergroundFluidLocation) location));
+        }
+        return renderer;
     }
 
     @Override
@@ -70,17 +76,21 @@ public class UndergroundFluidLayerManager extends LayerManager {
     }
 
     @Override
-    protected ILocationProvider generateLocation(int chunkX, int chunkZ, int dim) {
-        if (chunkX % VP.undergroundFluidSizeChunkX != 0 || chunkZ % VP.undergroundFluidSizeChunkZ != 0) {
-            return null;
+    protected List<? extends ILocationProvider> generateVisibleLocations(int minBlockX, int minBlockZ, int maxBlockX,
+            int maxBlockZ, int dimension) {
+        List<UndergroundFluidLocation> locations = new ArrayList<>();
+        for (UndergroundFluidPosition fluid : ClientCache.instance.getAllUndergroundFluids()) {
+            int blockX = fluid.getBlockX();
+            int blockZ = fluid.getBlockZ();
+            if (fluid.isProspected() && fluid.dimensionId == dimension
+                    && blockX >= minBlockX
+                    && blockX <= maxBlockX
+                    && blockZ >= minBlockZ
+                    && blockZ <= maxBlockZ) {
+                locations.add(new UndergroundFluidLocation(fluid));
+            }
         }
-
-        UndergroundFluidPosition undergroundFluid = ClientCache.instance.getUndergroundFluid(dim, chunkX, chunkZ);
-        if (undergroundFluid.isProspected()) {
-            return new UndergroundFluidLocation(undergroundFluid);
-        }
-
-        return null;
+        return locations;
     }
 
     private void computeSearch(@Nullable Pattern filterPattern) {

@@ -21,11 +21,18 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
     }
 
     @Override
+    public void preRender(double topX, double topY, float drawScale, double zoom) {
+        setOffset(isJourneyMap ? -blockSize / 2 : 0);
+    }
+
+    @Override
     public void draw(double topX, double topY, float drawScale, double zoom) {
         final Minecraft mc = Minecraft.getMinecraft();
         final double regionW = VP.undergroundFluidSizeChunkX * VP.chunkWidth * blockSize;
         final double regionH = VP.undergroundFluidSizeChunkZ * VP.chunkWidth * blockSize;
-        if (topX + regionW < 0 || topY + regionH < 0 || topX > mc.displayWidth || topY > mc.displayHeight) {
+        // Xaero culling relies on Navigator's visible cache; add centered bounds if that cache grows costly.
+        if (!isXaero
+                && (topX + regionW < 0 || topY + regionH < 0 || topX > mc.displayWidth || topY > mc.displayHeight)) {
             return;
         }
 
@@ -40,14 +47,15 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
             DrawUtils.drawHollowRect(topX, topY, getAdjustedWidth(), getAdjustedHeight(), 0xFFFFFF, 74, 2);
         }
 
-        if (!isMinimap()) {
-            String label = I18n.format("visualprospecting.empty");
+        if (!isMinimap() && getZoomStep() >= Config.minZoomLevelForUndergroundFluidDetails - 3) {
+            String title = I18n.format("visualprospecting.empty");
+            String values = null;
             if (maxAmountInField > 0) {
-                label = MessageFormat.format(
-                        "{0}-{1} L/Op {2}",
-                        formatAmount(location.getMinProduction()),
-                        formatAmount(maxAmountInField),
-                        location.getFluid().getLocalizedName());
+                title = location.getFluid().getLocalizedName();
+                values = MessageFormat.format(
+                        "{0}-{1} L/Op",
+                        formatAmount(location.getMinProduction() >> 1),
+                        formatAmount(maxAmountInField >> 1));
             }
 
             int textColor = 0xFFFFFFFF;
@@ -55,14 +63,25 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
                 textColor = location.isActive() ? 0xFFFF00 : 0x444444;
             }
 
+            final double labelScale = getMainLabelScale();
             DrawUtils.drawLabel(
-                    label,
+                    title,
                     topX + getAdjustedWidth() / 2,
                     topY + 1.5,
                     textColor,
                     0xB4000000,
                     true,
-                    getFontScale());
+                    labelScale);
+            if (values != null) {
+                DrawUtils.drawLabel(
+                        values,
+                        topX + getAdjustedWidth() / 2,
+                        topY + 1.5 + (mc.fontRenderer.FONT_HEIGHT + 2) * labelScale,
+                        textColor,
+                        0xB4000000,
+                        true,
+                        labelScale);
+            }
         }
     }
 
@@ -82,6 +101,14 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         final boolean highlightPeak = maxProduction >= 10;
 
         final Minecraft mc = Minecraft.getMinecraft();
+        final double cellLabelScale = getCellLabelScale();
+        final double cellLabelOffsetY = isXaero ? 0
+                : (mc.fontRenderer.FONT_HEIGHT + 2) * cellLabelScale
+                        * getZoomScale(
+                                1,
+                                0,
+                                Config.minZoomLevelForUndergroundFluidDetails,
+                                Config.minZoomLevelForUndergroundFluidDetails + 1);
         final double screenW = mc.displayWidth;
         final double screenH = mc.displayHeight;
         setSize(VP.chunkWidth);
@@ -89,10 +116,10 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
         final double cellH = getAdjustedHeight();
         for (int chunkX = 0; chunkX < VP.undergroundFluidSizeChunkX; chunkX++) {
             final double cellX = x + chunkX * cellW;
-            if (cellX + cellW < 0 || cellX > screenW) continue;
+            if (!isXaero && (cellX + cellW < 0 || cellX > screenW)) continue;
             for (int chunkZ = 0; chunkZ < VP.undergroundFluidSizeChunkZ; chunkZ++) {
                 final double cellY = y + chunkZ * cellH;
-                if (cellY + cellH < 0 || cellY > screenH) continue;
+                if (!isXaero && (cellY + cellH < 0 || cellY > screenH)) continue;
                 int amount = chunks[chunkX][chunkZ];
                 if (amount <= 0) continue;
                 int alpha = productionRange > 1 ? (int) ((amount - minProduction) / productionRange * 255) : 10;
@@ -104,13 +131,13 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
 
                 if (drawLabels) {
                     DrawUtils.drawLabel(
-                            MessageFormat.format("{0} L/Op", formatAmount(amount)),
+                            MessageFormat.format("{0} L/Op", formatAmount(amount >> 1)),
                             cellX + cellW / 2,
-                            cellY + cellH / 2,
+                            cellY + cellH / 2 + cellLabelOffsetY,
                             0xFFFFFFFF,
                             0xB4000000,
                             true,
-                            getFontScale());
+                            cellLabelScale);
                 }
             }
         }
@@ -125,5 +152,16 @@ public class UndergroundFluidRenderStep extends UniversalRenderStep<UndergroundF
             return (roundedTenths / 10) + "k";
         }
         return (roundedTenths / 10) + "." + (roundedTenths % 10) + "k";
+    }
+
+    private double getCellLabelScale() {
+        return isXaero ? getFontScale() * 0.7
+                : getFontScale() * getZoomScale(1.2, 3, Math.min(Config.minZoomLevelForUndergroundFluidDetails, 4), 5);
+    }
+
+    private double getMainLabelScale() {
+        return isXaero ? getFontScale()
+                : getFontScale()
+                        * getZoomScale(1, 4.5, Math.min(Config.minZoomLevelForUndergroundFluidDetails - 3, 4), 5);
     }
 }
