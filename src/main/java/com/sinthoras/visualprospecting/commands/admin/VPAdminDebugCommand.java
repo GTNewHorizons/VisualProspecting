@@ -15,9 +15,9 @@ import net.minecraft.world.chunk.Chunk;
 
 import com.github.bsideup.jabel.Desugar;
 import com.mojang.brigadier.context.CommandContext;
-import com.ruling_0.materiallib.api.Material;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.commands.CommandHelpers;
