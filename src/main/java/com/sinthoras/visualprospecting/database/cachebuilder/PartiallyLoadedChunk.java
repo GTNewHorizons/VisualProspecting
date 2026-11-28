@@ -19,7 +19,7 @@ import com.sinthoras.visualprospecting.VP;
 
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
-import gregtech.loaders.postload.LegacyOreTransformers;
+import gregtech.loaders.postload.postea.OreTransformers;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 
 public class PartiallyLoadedChunk {
@@ -225,7 +225,7 @@ public class PartiallyLoadedChunk {
 
             if (!natural) continue;
 
-            visitMigratedOre(te, LegacyOreTransformers.resolveTileEntityOre(meta), consumer);
+            visitMigratedOre(te, OreTransformers.resolveTileEntityOre(meta), consumer);
         }
 
         for (PartiallyLoadedChunk.TileEntityInfo te : tileEntities()) {
@@ -236,7 +236,7 @@ public class PartiallyLoadedChunk {
 
             if (!natural) continue;
 
-            visitMigratedOre(te, LegacyOreTransformers.resolveWerkstoffTileEntityOre(meta, false), consumer);
+            visitMigratedOre(te, OreTransformers.resolveWerkstoffTileEntityOre(meta, false), consumer);
         }
 
         // Iterate per-section so the blocks/metas array lookups are done out of the inner loop
