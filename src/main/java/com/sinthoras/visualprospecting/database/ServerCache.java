@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.Config;
 import com.sinthoras.visualprospecting.Tags;
 import com.sinthoras.visualprospecting.Utils;
@@ -24,7 +25,6 @@ import com.sinthoras.visualprospecting.teams.TeamProspectionDispatcher;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.api.events.OreInteractEvent;
 import gregtech.api.events.VeinGenerateEvent;
-import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.UndergroundOil;
 import gregtech.common.WorldgenGTOreLayer;
 import gregtech.common.ores.OreInfo;
@@ -93,9 +93,9 @@ public class ServerCache extends WorldCache {
         EntityPlayer player = event.player;
 
         if (!world.isRemote && Config.enableProspecting) {
-            IOreMaterial material;
+            Material material;
 
-            try (OreInfo<?> info = OreManager.getOreInfo(world, x, y, z)) {
+            try (OreInfo info = OreManager.getOreInfo(world, x, y, z)) {
                 material = info != null && info.isNatural ? info.material : null;
             }
 

@@ -9,11 +9,11 @@ import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.Tags;
 
 import codechicken.nei.api.ItemFilter;
 import gregtech.api.enums.OreMixes;
-import gregtech.api.interfaces.IOreMaterial;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -29,7 +29,7 @@ public class VeinTypeCaching {
     private static final ObjectSet<String> dimensionsWithVeins = new ObjectOpenHashSet<>();
 
     // VeinTypes indexed by primary/secondary Ore in OreMix. For faster matching
-    private static final Reference2ObjectMap<IOreMaterial, List<VeinType>> veinTypesByPrimaryOrSecondary = new Reference2ObjectOpenHashMap<>();
+    private static final Reference2ObjectMap<Material, List<VeinType>> veinTypesByPrimaryOrSecondary = new Reference2ObjectOpenHashMap<>();
 
     public static void init() {
         veinTypes.clear();
@@ -51,7 +51,7 @@ public class VeinTypeCaching {
         }
     }
 
-    private static void indexByOre(IOreMaterial ore, VeinType veinType) {
+    private static void indexByOre(Material ore, VeinType veinType) {
         if (ore == null) return;
         List<VeinType> matchingVeinTypes = veinTypesByPrimaryOrSecondary.get(ore);
         if (matchingVeinTypes == null) {
@@ -73,7 +73,7 @@ public class VeinTypeCaching {
         return veinTypes.values();
     }
 
-    public static List<VeinType> getVeinTypesForOre(IOreMaterial dominantOre) {
+    public static List<VeinType> getVeinTypesForOre(Material dominantOre) {
         final List<VeinType> matchingVeinTypes = veinTypesByPrimaryOrSecondary.get(dominantOre);
         return matchingVeinTypes == null ? Collections.emptyList() : matchingVeinTypes;
     }

@@ -17,6 +17,7 @@ import com.github.bsideup.jabel.Desugar;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.commands.CommandHelpers;
@@ -30,7 +31,7 @@ import com.sinthoras.visualprospecting.database.cachebuilder.PartiallyLoadedChun
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
-import gregtech.api.interfaces.IOreMaterial;
+import gregtech.api.material.MaterialUtils;
 import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 
@@ -228,7 +229,7 @@ public class VPAdminDebugCommand {
         }
 
         // Raw ore tally
-        final Reference2IntOpenHashMap<IOreMaterial> oreCounts = new Reference2IntOpenHashMap<>();
+        final Reference2IntOpenHashMap<Material> oreCounts = new Reference2IntOpenHashMap<>();
         final int[] minY = { Integer.MAX_VALUE };
         final int[] maxY = { Integer.MIN_VALUE };
         chunk.forEachOre((x, y, z, info) -> {
@@ -244,13 +245,14 @@ public class VPAdminDebugCommand {
 
         CommandHelpers.plain(sender, ANALYZE + "stats", total(oreCounts), oreCounts.size(), minY[0], maxY[0]);
 
-        final List<IOreMaterial> materials = sortedByCount(oreCounts);
-        for (IOreMaterial ore : materials) {
-            CommandHelpers.plain(sender, ANALYZE + "ore_line", ore.getLocalizedName(), oreCounts.getInt(ore));
+        final List<Material> materials = sortedByCount(oreCounts);
+        for (Material ore : materials) {
+            CommandHelpers.plain(sender, ANALYZE + "ore_line", MaterialUtils.localizedName(ore), oreCounts.getInt(ore));
         }
 
-        final IOreMaterial dominant = materials.get(0);
-        CommandHelpers.plain(sender, ANALYZE + "dominant", dominant.getLocalizedName(), oreCounts.getInt(dominant));
+        final Material dominant = materials.get(0);
+        CommandHelpers
+                .plain(sender, ANALYZE + "dominant", MaterialUtils.localizedName(dominant), oreCounts.getInt(dominant));
 
         final String dimName = target.dimName;
         if (dimName != null && !dimName.isEmpty() && !VeinTypeCaching.hasVeinsInDimension(dimName)) {
@@ -262,8 +264,8 @@ public class VPAdminDebugCommand {
     }
 
     // Mirror the inputs of DetailedChunkAnalysis.getMatchedVein()
-    private static void printCandidateReasoning(ICommandSender sender, Reference2IntOpenHashMap<IOreMaterial> oreCounts,
-            String dimName, IOreMaterial dominant) {
+    private static void printCandidateReasoning(ICommandSender sender, Reference2IntOpenHashMap<Material> oreCounts,
+            String dimName, Material dominant) {
         final List<VeinType> candidates = new ArrayList<>();
         for (VeinType vein : VeinTypeCaching.getVeinTypesForOre(dominant)) {
             if (dimName.isEmpty() || vein.getAllowedDimensions().contains(dimName)) {
@@ -275,7 +277,8 @@ public class VPAdminDebugCommand {
             return;
         }
 
-        CommandHelpers.plain(sender, ANALYZE + "candidates_header", dominant.getLocalizedName(), candidates.size());
+        CommandHelpers
+                .plain(sender, ANALYZE + "candidates_header", MaterialUtils.localizedName(dominant), candidates.size());
         int fullMatches = 0;
         int oneMissingMatches = 0;
         for (VeinType candidate : candidates) {
@@ -349,7 +352,7 @@ public class VPAdminDebugCommand {
             return;
         }
 
-        final Reference2IntOpenHashMap<IOreMaterial> oreCounts = new Reference2IntOpenHashMap<>();
+        final Reference2IntOpenHashMap<Material> oreCounts = new Reference2IntOpenHashMap<>();
         chunk.forEachOre((x, y, z, info) -> oreCounts.addTo(info.material, 1));
         if (oreCounts.isEmpty()) {
             CommandHelpers.plain(sender, AREA + (isCentre ? "line_empty_centre" : "line_empty"), chunkX, chunkZ);
@@ -365,12 +368,12 @@ public class VPAdminDebugCommand {
                 total(oreCounts),
                 resolved == VeinType.NO_VEIN ? "?" : resolved.name);
 
-        final List<IOreMaterial> materials = sortedByCount(oreCounts);
+        final List<Material> materials = sortedByCount(oreCounts);
         final StringBuilder ores = new StringBuilder();
         for (int i = 0; i < Math.min(materials.size(), AREA_MAX_ORES_PER_LINE); i++) {
             if (i > 0) ores.append(", ");
-            final IOreMaterial ore = materials.get(i);
-            ores.append(ore.getLocalizedName()).append(" x").append(oreCounts.getInt(ore));
+            final Material ore = materials.get(i);
+            ores.append(MaterialUtils.localizedName(ore)).append(" x").append(oreCounts.getInt(ore));
         }
         if (materials.size() > AREA_MAX_ORES_PER_LINE) {
             ores.append(", +").append(materials.size() - AREA_MAX_ORES_PER_LINE);
@@ -389,13 +392,13 @@ public class VPAdminDebugCommand {
         return detailed.getResolvedVeinType();
     }
 
-    private static List<IOreMaterial> sortedByCount(Reference2IntOpenHashMap<IOreMaterial> oreCounts) {
-        final List<IOreMaterial> materials = new ArrayList<>(oreCounts.keySet());
+    private static List<Material> sortedByCount(Reference2IntOpenHashMap<Material> oreCounts) {
+        final List<Material> materials = new ArrayList<>(oreCounts.keySet());
         materials.sort(Comparator.comparingInt(oreCounts::getInt).reversed());
         return materials;
     }
 
-    private static int total(Reference2IntOpenHashMap<IOreMaterial> oreCounts) {
+    private static int total(Reference2IntOpenHashMap<Material> oreCounts) {
         int total = 0;
         for (var entry : oreCounts.reference2IntEntrySet()) {
             total += entry.getIntValue();

@@ -3,6 +3,7 @@ package com.sinthoras.visualprospecting.database.cachebuilder;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import com.ruling_0.materiallib.api.Material;
 import com.sinthoras.visualprospecting.Utils;
 import com.sinthoras.visualprospecting.VP;
 import com.sinthoras.visualprospecting.database.OreVeinPosition;
@@ -10,7 +11,6 @@ import com.sinthoras.visualprospecting.database.ServerCache;
 import com.sinthoras.visualprospecting.database.veintypes.VeinType;
 import com.sinthoras.visualprospecting.database.veintypes.VeinTypeCaching;
 
-import gregtech.api.interfaces.IOreMaterial;
 import it.unimi.dsi.fastutil.longs.Long2IntMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
@@ -23,7 +23,7 @@ public class DetailedChunkAnalysis {
     public final int chunkX;
     public final int chunkZ;
     // For each height we count how often a ore (short) has occured
-    private final Reference2IntOpenHashMap<IOreMaterial>[] oresPerY = new Reference2IntOpenHashMap[VP.minecraftWorldHeight];
+    private final Reference2IntOpenHashMap<Material>[] oresPerY = new Reference2IntOpenHashMap[VP.minecraftWorldHeight];
     private final String dimName;
     private VeinType resolvedVeinType = VeinType.NO_VEIN;
 
@@ -86,7 +86,7 @@ public class DetailedChunkAnalysis {
                 if (blockY > 255) break;
 
                 if (oresPerY[blockY] != null) {
-                    for (IOreMaterial ore : neighbor.veinType.getOresAtLayer(layerBlockY)) {
+                    for (Material ore : neighbor.veinType.getOresAtLayer(layerBlockY)) {
                         oresPerY[blockY].removeInt(ore);
                     }
                 }
@@ -97,9 +97,9 @@ public class DetailedChunkAnalysis {
     private VeinType getMatchedVein() {
         final ObjectSet<VeinType> matchedVeins = new ObjectOpenHashSet<>();
 
-        final Reference2IntOpenHashMap<IOreMaterial> allOres = new Reference2IntOpenHashMap<>();
+        final Reference2IntOpenHashMap<Material> allOres = new Reference2IntOpenHashMap<>();
 
-        for (Reference2IntOpenHashMap<IOreMaterial> oreLevel : oresPerY) {
+        for (Reference2IntOpenHashMap<Material> oreLevel : oresPerY) {
             if (oreLevel == null || oreLevel.isEmpty()) continue;
 
             for (var entry : oreLevel.reference2IntEntrySet()) {
@@ -109,7 +109,7 @@ public class DetailedChunkAnalysis {
 
         if (allOres.isEmpty()) return VeinType.NO_VEIN;
 
-        IOreMaterial dominantOre = null;
+        Material dominantOre = null;
         int highestOreCount = -1;
         for (var entry : allOres.reference2IntEntrySet()) {
             if (entry.getIntValue() > highestOreCount) {
@@ -141,7 +141,7 @@ public class DetailedChunkAnalysis {
         return matchWithOneMissingOre(allOres.keySet(), dominantOre);
     }
 
-    private VeinType matchWithOneMissingOre(Set<IOreMaterial> foundOres, IOreMaterial dominantOre) {
+    private VeinType matchWithOneMissingOre(Set<Material> foundOres, Material dominantOre) {
         VeinType onlyMatch = VeinType.NO_VEIN;
         for (VeinType veinType : VeinTypeCaching.getVeinTypesForOre(dominantOre)) {
             if (veinType.matchesWithOneMissingOre(foundOres, dimName, dominantOre)) {

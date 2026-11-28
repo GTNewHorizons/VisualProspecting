@@ -26,7 +26,6 @@ import com.sinthoras.visualprospecting.network.VeinDepletionMessage;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import gregtech.api.events.OreInteractEvent;
-import gregtech.api.interfaces.IOreMaterial;
 import gregtech.common.ores.OreInfo;
 import gregtech.common.ores.OreManager;
 
@@ -145,10 +144,9 @@ public class ClientCache extends WorldCache {
         onOreInteracted(event.world, event.x, event.y, event.z, event.player);
     }
 
-    @SuppressWarnings("unchecked")
     public void onOreInteracted(World world, int x, int y, int z, EntityPlayer player) {
         if (world.isRemote && Config.enableProspecting && Minecraft.getMinecraft().thePlayer == player) {
-            try (OreInfo<IOreMaterial> info = OreManager.getOreInfo(world, x, y, z)) {
+            try (OreInfo info = OreManager.getOreInfo(world, x, y, z)) {
                 if (info == null || info.isSmall) return;
 
                 final int chunkX = Utils.coordBlockToChunk(x);
